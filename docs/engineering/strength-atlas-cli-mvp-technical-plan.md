@@ -1,0 +1,300 @@
+---
+purpose: Active implementation roadmap for the Strength Atlas CLI MVP
+status: draft
+scope: CLI MVP
+owner: TBD
+---
+
+# Strength Atlas CLI MVP Technical Plan
+
+## Summary
+
+Build the MVP as a single-user Python CLI backed by Browser Use Cloud and a hosted Supabase Postgres database. The CLI will ingest allowlisted strength-training sources, store raw crawl artifacts, normalize program data into relational tables, and support structured plus full-text search over previously indexed content. It will not include a web app, end-user authentication, an admin UI, semantic embeddings, or natural-language Ask in this MVP.
+
+The concrete stack is:
+
+- Runtime: `Python 3.12`
+- CLI framework: `Typer`
+- Browser automation: `browser-use-sdk/v3`
+- Data validation: `Pydantic v2`
+- Database access: `SQLAlchemy 2` + `psycopg`
+- Migrations: `Alembic`
+- Hosted backend: `Supabase Postgres`
+- Artifact storage: `Supabase Storage`
+- Parsing and utilities: `BeautifulSoup4`, `readability-lxml`, `orjson`
+- Logging and output: standard structured logging + `Rich`
+- Testing: `pytest`
+
+## Implementation Changes
+
+### 1. Repository and package structure
+
+Create one Python package with these directories:
+
+- `src/atlas/cli` for Typer commands
+- `src/atlas/browser_use` for the Browser Use adapter
+- `src/atlas/db` for models, queries, and migrations wiring
+- `src/atlas/ingest` for discovery, extraction, refresh, normalization
+- `src/atlas/search` for query parsing and result ranking
+- `src/atlas/storage` for Supabase Storage artifact handling
+- `src/atlas/config` for environment and settings loading
+
+Keep one executable entrypoint: `atlas`.
+
+### 2. Hosted backend and persistence
+
+Use Supabase-hosted Postgres as the system of record.
+
+Do not use `pgvector` in this MVP. Search is implemented with Postgres full-text search plus explicit structured filters.
+
+Use Supabase Storage for raw crawl artifacts. Store at minimum:
+
+- `raw.html`
+- `extracted.json`
+
+Use stable object paths:
+
+- `sources/{source_id}/crawls/{crawl_id}/raw.html`
+- `sources/{source_id}/crawls/{crawl_id}/extracted.json`
+
+### 3. Database schema
+
+Implement exactly these tables for the MVP:
+
+- `domains`
+- `sources`
+- `documents`
+- `programs`
+- `claims`
+- `crawl_jobs`
+
+`domains` fields:
+
+- `id`
+- `domain`
+- `allowlisted`
+- `paused`
+- `notes`
+- `created_at`
+- `updated_at`
+
+`sources` fields:
+
+- `id`
+- `url`
+- `canonical_url`
+- `domain_id`
+- `source_type`
+- `title`
+- `author`
+- `status`
+- `last_crawled_at`
+- `latest_document_id`
+- `created_at`
+- `updated_at`
+
+`documents` fields:
+
+- `id`
+- `source_id`
+- `crawl_job_id`
+- `published_at`
+- `raw_text`
+- `html_storage_path`
+- `extracted_json_storage_path`
+- `parse_confidence`
+- `content_tsv`
+- `created_at`
+
+`programs` fields:
+
+- `id`
+- `document_id`
+- `name`
+- `coach_name`
+- `days_per_week`
+- `specialization`
+- `experience_level`
+- `progression_type`
+- `split_type`
+- `summary`
+- `confidence`
+- `created_at`
+- `updated_at`
+
+`claims` fields:
+
+- `id`
+- `document_id`
+- `program_id`
+- `claim_type`
+- `raw_text`
+- `normalized_value`
+- `confidence`
+- `created_at`
+
+`crawl_jobs` fields:
+
+- `id`
+- `job_type`
+- `source_id`
+- `target_url`
+- `status`
+- `retry_count`
+- `browser_use_session_id`
+- `browser_use_live_url`
+- `browser_use_cost_usd`
+- `started_at`
+- `completed_at`
+- `error_message`
+
+### 4. Browser Use integration
+
+Standardize on `browser-use-sdk/v3`.
+
+Implement one adapter module that exposes exactly three operations:
+
+- `discover_urls(domain: str, seed_urls: list[str])`
+- `extract_url(url: str)`
+- `refresh_source(source_id: str)`
+
+Use `run()` for discovery tasks on messy sites.
+
+Use explicit session creation and reuse for direct extraction when a source requires multiple navigation steps.
+
+Persist Browser Use metadata from every run into `crawl_jobs`.
+
+Do not call Browser Use from search commands. Crawling is strictly offline and operator-triggered.
+
+### 5. Ingestion and normalization pipeline
+
+Discovery flow:
+
+- validate the domain is allowlisted and not paused
+- run Browser Use against provided seed URLs
+- collect candidate URLs
+- canonicalize URLs
+- discard duplicates already present by `canonical_url`
+- create new `sources` rows with `status='pending'`
+
+Extraction flow:
+
+- create a `crawl_jobs` row
+- fetch the target page with Browser Use
+- persist `raw.html` and `extracted.json` to Supabase Storage
+- normalize title, author, source type, and main text into `documents`
+- parse programs and claims into `programs` and `claims`
+- write a weighted `tsvector` into `documents.content_tsv` from title + summary + raw text
+- update `sources.latest_document_id`, `last_crawled_at`, and `status`
+
+Refresh flow:
+
+- rerun extraction for an existing `source_id`
+- create a new `documents` row instead of mutating old documents
+- replace the source's `latest_document_id`
+
+Keep normalization deterministic and rule-based. No external LLM is used in this MVP outside Browser Use acquisition.
+
+### 6. Search implementation
+
+Implement two search modes:
+
+- program search
+- source search
+
+Program search supports these filters:
+
+- `days_per_week`
+- `specialization`
+- `experience_level`
+- `progression_type`
+- `split_type`
+- `domain`
+
+Ranking logic is fixed:
+
+- exact structured filter matches first
+- full-text rank second
+- higher-confidence programs break ties
+- newest crawl breaks remaining ties
+
+Source search uses Postgres full-text search over `documents.content_tsv` with optional `domain` filter.
+
+The CLI returns both machine-readable JSON and human-readable table output.
+
+### 7. CLI surface
+
+Implement exactly these commands:
+
+- `atlas domain add <domain>`
+- `atlas domain list`
+- `atlas domain pause <domain>`
+- `atlas domain resume <domain>`
+- `atlas ingest discover --domain <domain> --seed-url <url>...`
+- `atlas ingest extract --url <url>`
+- `atlas ingest refresh --source-id <id>`
+- `atlas crawl list`
+- `atlas source list`
+- `atlas source show --source-id <id>`
+- `atlas search programs --query <text> [filters...]`
+- `atlas search sources --query <text> [--domain <domain>]`
+
+Every command must support `--json`.
+
+`atlas source show` must display:
+
+- source metadata
+- latest crawl status
+- linked programs
+- artifact storage paths
+
+### 8. Operational rules
+
+- Only allowlisted domains may be crawled.
+- One active crawl per domain at a time.
+- Maximum retries per crawl job: `2`.
+- No automatic recrawl schedule in the MVP.
+- No crawl-on-search behavior.
+- When data is insufficient for a query, search returns empty or low-result output; it does not trigger a crawl.
+- Operators refresh sources manually with CLI commands.
+
+## Public Interfaces and Contracts
+
+CLI is the only public interface in the MVP.
+
+Output contracts to keep stable:
+
+- `ProgramSearchResult`
+- `SourceSearchResult`
+- `SourceDetail`
+- `CrawlJobStatus`
+
+Required contract rules:
+
+- every `ProgramSearchResult` includes `source_id`, `document_id`, `canonical_url`, and `confidence`
+- every `SourceDetail` includes artifact paths and latest crawl metadata
+- every search command supports both human-readable output and `--json`
+- search never mutates crawl state
+
+## Test Plan
+
+- Migration tests for all six tables and expected indexes.
+- Browser Use adapter tests for discovery, extraction success, extraction failure, and metadata persistence.
+- URL canonicalization and dedupe tests across representative source URL variants.
+- Normalization tests for expected parsing of title, author, programs, claims, and confidence scores from a fixed sample corpus.
+- Search tests for:
+  - free-text source search
+  - program search with one filter
+  - program search with multiple filters
+  - ranking tie-breaks by confidence and recency
+  - empty-result behavior
+- CLI tests for all commands, including `--json` output.
+- Storage tests ensuring `raw.html` and `extracted.json` are written to the expected bucket paths and linked from `documents`.
+
+## Assumptions and Defaults
+
+- The MVP is an operator-run CLI, not a user-facing product.
+- Browser Use is used only for acquisition and extraction, not for search-time operations.
+- Supabase is the hosted backend of record for both Postgres and artifact storage.
+- Search is full-text plus structured filtering only; semantic retrieval and Ask are deferred.
+- No authentication, no admin UI, no web surface, no scheduler, and no automatic crawling logic are included in this MVP.
