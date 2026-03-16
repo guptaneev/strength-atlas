@@ -83,6 +83,7 @@ class Document(Base):
     created_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     source = relationship("Source", back_populates="documents")
+    crawl_job = relationship("CrawlJob")
     programs = relationship("Program", back_populates="document")
     claims = relationship("Claim", back_populates="document")
 
