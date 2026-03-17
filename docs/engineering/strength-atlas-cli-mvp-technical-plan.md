@@ -298,3 +298,7 @@ Required contract rules:
 - Supabase is the hosted backend of record for both Postgres and artifact storage.
 - Search is full-text plus structured filtering only; semantic retrieval and Ask are deferred.
 - No authentication, no admin UI, no web surface, no scheduler, and no automatic crawling logic are included in this MVP.
+
+## CLI Usage Notes
+
+See `README.md` for environment setup, migrations, and CLI examples.
