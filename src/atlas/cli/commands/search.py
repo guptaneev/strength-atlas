@@ -12,13 +12,13 @@ app = typer.Typer(help="Search indexed content.")
 
 @app.command("programs")
 def search_programs_cmd(
-    query: str = "",
+    query: str = typer.Option("", "--query"),
     days_per_week: int | None = None,
     specialization: str | None = None,
     experience_level: str | None = None,
     progression_type: str | None = None,
     split_type: str | None = None,
-    domain_id: int | None = None,
+    domain: str | None = None,
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     filters = ProgramSearchFilters(
@@ -27,7 +27,7 @@ def search_programs_cmd(
         experience_level=experience_level,
         progression_type=progression_type,
         split_type=split_type,
-        domain_id=domain_id,
+        domain=domain,
     )
     with SessionLocal() as session:
         rows = search_programs(session, query or None, filters)
@@ -54,12 +54,12 @@ def search_programs_cmd(
 
 @app.command("sources")
 def search_sources_cmd(
-    query: str,
-    domain_id: int | None = None,
+    query: str = typer.Option(..., "--query"),
+    domain: str | None = typer.Option(None, "--domain"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     with SessionLocal() as session:
-        rows = search_sources(session, query, domain_id=domain_id)
+        rows = search_sources(session, query, domain=domain)
         if json_output:
             data = [
                 {

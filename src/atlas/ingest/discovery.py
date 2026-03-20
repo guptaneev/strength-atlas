@@ -30,7 +30,11 @@ def canonicalize_url(url: str) -> str:
 
 
 def is_domain_allowlisted(session: Session, domain: str) -> bool:
-    stmt = select(Domain).where(Domain.domain == domain, Domain.allowlisted.is_(True))
+    stmt = select(Domain).where(
+        Domain.domain == domain,
+        Domain.allowlisted.is_(True),
+        Domain.paused.is_(False),
+    )
     return session.execute(stmt).scalar_one_or_none() is not None
 
 

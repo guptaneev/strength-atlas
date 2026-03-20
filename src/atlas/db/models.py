@@ -9,7 +9,7 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
+from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -48,7 +48,8 @@ class Source(Base):
     updated_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     domain_rel = relationship("Domain", back_populates="sources")
-    documents = relationship("Document", back_populates="source")
+    documents = relationship("Document", back_populates="source", foreign_keys="Document.source_id")
+    latest_document = relationship("Document", foreign_keys=[latest_document_id], uselist=False)
 
 
 class CrawlJob(Base):
@@ -82,7 +83,7 @@ class Document(Base):
     content_tsv: Mapped[str | None] = mapped_column(TSVECTOR, nullable=True)
     created_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    source = relationship("Source", back_populates="documents")
+    source = relationship("Source", back_populates="documents", foreign_keys=[source_id])
     crawl_job = relationship("CrawlJob")
     programs = relationship("Program", back_populates="document")
     claims = relationship("Claim", back_populates="document")

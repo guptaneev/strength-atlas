@@ -17,7 +17,7 @@ app = typer.Typer(help="Ingestion workflows.")
 
 @app.command("discover")
 def discover(
-    domain: str,
+    domain: str = typer.Option(..., "--domain"),
     seed_url: List[str] = typer.Option(..., "--seed-url"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
@@ -40,7 +40,10 @@ def discover(
 
 
 @app.command("extract")
-def extract(url: str, json_output: bool = typer.Option(False, "--json")) -> None:
+def extract(
+    url: str = typer.Option(..., "--url"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
     client = BrowserUseClient()
     with SessionLocal() as session:
         source = session.execute(select(Source).where(Source.url == url)).scalar_one_or_none()
@@ -52,7 +55,10 @@ def extract(url: str, json_output: bool = typer.Option(False, "--json")) -> None
 
 
 @app.command("refresh")
-def refresh(source_id: int, json_output: bool = typer.Option(False, "--json")) -> None:
+def refresh(
+    source_id: int = typer.Option(..., "--source-id"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
     client = BrowserUseClient()
     with SessionLocal() as session:
         run_async(refresh_source(session, client, source_id))

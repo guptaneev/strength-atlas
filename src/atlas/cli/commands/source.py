@@ -30,7 +30,10 @@ def list_sources(limit: int = 50, json_output: bool = typer.Option(False, "--jso
 
 
 @app.command("show")
-def show_source(source_id: int, json_output: bool = typer.Option(False, "--json")) -> None:
+def show_source(
+    source_id: int = typer.Option(..., "--source-id"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
     with SessionLocal() as session:
         source = session.get(Source, source_id)
         if not source:
