@@ -18,11 +18,20 @@ class BrowserUseResult:
 
 
 class BrowserUseClient:
-    def __init__(self) -> None:
+    def __init__(self, poll_timeout_seconds: float | None = None) -> None:
         settings = get_settings()
         if not settings.browser_use_api_key:
             raise RuntimeError("ATLAS_BROWSER_USE_API_KEY is required")
         self._client = AsyncBrowserUse(api_key=settings.browser_use_api_key)
+        self._poll_timeout_seconds = poll_timeout_seconds or settings.browser_use_poll_timeout_seconds
+
+    async def _run(self, prompt: str):
+        run = self._client.run(prompt)
+        # browser-use-sdk v3 doesn't currently expose timeout in run(); this
+        # sets the AsyncSessionRun poll timeout to avoid hardcoded 300s failures.
+        if hasattr(run, "_timeout"):
+            run._timeout = self._poll_timeout_seconds
+        return await run
 
     async def discover_urls(self, domain: str, seed_urls: list[str]) -> BrowserUseResult:
         prompt = (
@@ -31,7 +40,7 @@ class BrowserUseClient:
             f"\nDomain: {domain}\nSeed URLs:\n"
             + "\n".join(seed_urls)
         )
-        result = await self._client.run(prompt)
+        result = await self._run(prompt)
         return BrowserUseResult(
             output=result.output,
             session_id=getattr(result, "id", None),
@@ -46,7 +55,7 @@ class BrowserUseClient:
             "and any program-related metadata. Return JSON only."
             f"\nURL: {url}"
         )
-        result = await self._client.run(prompt)
+        result = await self._run(prompt)
         return BrowserUseResult(
             output=result.output,
             session_id=getattr(result, "id", None),
@@ -61,7 +70,7 @@ class BrowserUseClient:
             "as the initial extraction. Return JSON only."
             f"\nSource ID: {source_id}"
         )
-        result = await self._client.run(prompt)
+        result = await self._run(prompt)
         return BrowserUseResult(
             output=result.output,
             session_id=getattr(result, "id", None),

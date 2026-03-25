@@ -17,6 +17,7 @@ class Settings(BaseSettings):
 
     # Browser Use
     browser_use_api_key: Optional[str] = None
+    browser_use_poll_timeout_seconds: int = 300
 
 
 @lru_cache(maxsize=1)

@@ -42,12 +42,20 @@ def discover(
 @app.command("extract")
 def extract(
     url: str = typer.Option(..., "--url"),
+    timeout_seconds: int | None = typer.Option(None, "--timeout-seconds"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
-    client = BrowserUseClient()
+    client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
     with SessionLocal() as session:
         source = session.execute(select(Source).where(Source.url == url)).scalar_one_or_none()
-        doc = run_async(extract_url(session, client, url, source))
+        try:
+            doc = run_async(extract_url(session, client, url, source))
+        except TimeoutError as exc:
+            typer.echo(f"extract timeout: {exc}")
+            raise typer.Exit(code=1)
+        except Exception as exc:
+            typer.echo(f"extract failed: {exc}")
+            raise typer.Exit(code=1)
         if json_output:
             typer.echo(json.dumps({"document_id": doc.id}))
         else:
@@ -57,11 +65,19 @@ def extract(
 @app.command("refresh")
 def refresh(
     source_id: int = typer.Option(..., "--source-id"),
+    timeout_seconds: int | None = typer.Option(None, "--timeout-seconds"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
-    client = BrowserUseClient()
+    client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
     with SessionLocal() as session:
-        run_async(refresh_source(session, client, source_id))
+        try:
+            run_async(refresh_source(session, client, source_id))
+        except TimeoutError as exc:
+            typer.echo(f"refresh timeout: {exc}")
+            raise typer.Exit(code=1)
+        except Exception as exc:
+            typer.echo(f"refresh failed: {exc}")
+            raise typer.Exit(code=1)
         if json_output:
             typer.echo(json.dumps({"status": "refreshed", "source_id": source_id}))
         else:

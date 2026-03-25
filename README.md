@@ -32,6 +32,7 @@ Required environment variables:
 Optional:
 
 - `.env` file in the repo root for local development
+- `ATLAS_BROWSER_USE_POLL_TIMEOUT_SECONDS` (default `300`)
 
 ## Migrations
 

@@ -11,6 +11,10 @@ from atlas.ingest.normalization import build_content_tsv_text, normalize_extract
 from atlas.storage.paths import extracted_json_path, html_path
 
 
+def utcnow() -> dt.datetime:
+    return dt.datetime.now(dt.UTC)
+
+
 async def extract_url(
     session: Session,
     client: BrowserUseClient,
@@ -22,7 +26,7 @@ async def extract_url(
         source_id=source.id if source else None,
         target_url=url,
         status="pending",
-        started_at=dt.datetime.utcnow(),
+        started_at=utcnow(),
     )
     session.add(crawl_job)
     session.commit()
@@ -36,11 +40,11 @@ async def extract_url(
         crawl_job.browser_use_live_url = result.live_url
         crawl_job.browser_use_cost_usd = result.total_cost_usd
         crawl_job.status = "succeeded"
-        crawl_job.completed_at = dt.datetime.utcnow()
+        crawl_job.completed_at = utcnow()
     except Exception as exc:
         crawl_job.status = "failed"
         crawl_job.error_message = str(exc)
-        crawl_job.completed_at = dt.datetime.utcnow()
+        crawl_job.completed_at = utcnow()
         session.commit()
         raise
 
@@ -57,7 +61,7 @@ async def extract_url(
         html_storage_path=html_path(source.id if source else 0, crawl_job.id),
         extracted_json_storage_path=extracted_json_path(source.id if source else 0, crawl_job.id),
         parse_confidence=0.5,
-        created_at=dt.datetime.utcnow(),
+        created_at=utcnow(),
     )
     content_text = build_content_tsv_text(normalized.title, normalized.summary, normalized.raw_text)
     document.content_tsv = func.to_tsvector("english", content_text)
@@ -77,8 +81,8 @@ async def extract_url(
                 split_type=program.get("split_type"),
                 summary=program.get("summary"),
                 confidence=program.get("confidence"),
-                created_at=dt.datetime.utcnow(),
-                updated_at=dt.datetime.utcnow(),
+                created_at=utcnow(),
+                updated_at=utcnow(),
             )
         )
 
@@ -91,13 +95,13 @@ async def extract_url(
                 raw_text=claim.get("raw_text"),
                 normalized_value=claim.get("normalized_value"),
                 confidence=claim.get("confidence"),
-                created_at=dt.datetime.utcnow(),
+                created_at=utcnow(),
             )
         )
 
     if source:
         source.latest_document_id = document.id
-        source.last_crawled_at = dt.datetime.utcnow()
+        source.last_crawled_at = utcnow()
         source.status = "succeeded"
 
     session.commit()
