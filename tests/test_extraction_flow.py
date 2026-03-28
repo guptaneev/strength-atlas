@@ -40,6 +40,17 @@ class FakeClient:
         )
 
 
+class FakeStorage:
+    def __init__(self) -> None:
+        self.uploads: list[tuple[str, str]] = []
+
+    def upload_text(self, object_path: str, _text: str, _content_type: str) -> None:
+        self.uploads.append(("text", object_path))
+
+    def upload_json(self, object_path: str, _payload) -> None:
+        self.uploads.append(("json", object_path))
+
+
 def test_extract_url_updates_source_and_document() -> None:
     session = FakeSession()
     source = Source(url="https://example.com", canonical_url="https://example.com", domain_id=1)
@@ -56,3 +67,24 @@ def test_refresh_source_runs_extraction() -> None:
     session.add(source)
     asyncio.run(refresh_source(session=session, client=FakeClient(), source_id=source.id))
     assert source.latest_document_id is not None
+
+
+def test_extract_url_uploads_storage_artifacts() -> None:
+    session = FakeSession()
+    source = Source(url="https://example.com", canonical_url="https://example.com", domain_id=1)
+    session.add(source)
+    storage = FakeStorage()
+    asyncio.run(
+        extract_url(
+            session=session,
+            client=FakeClient(),
+            url=source.url,
+            source=source,
+            storage=storage,
+        )
+    )
+    assert any(kind == "text" and path.startswith("sources/1/crawls/") and path.endswith("/raw.html") for kind, path in storage.uploads)
+    assert any(
+        kind == "json" and path.startswith("sources/1/crawls/") and path.endswith("/extracted.json")
+        for kind, path in storage.uploads
+    )

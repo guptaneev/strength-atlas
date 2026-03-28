@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from atlas.browser_use.client import BrowserUseClient
 from atlas.db.models import Claim, CrawlJob, Document, Program, Source
 from atlas.ingest.normalization import build_content_tsv_text, normalize_extraction
+from atlas.storage.client import SupabaseStorageClient
 from atlas.storage.paths import extracted_json_path, html_path
 
 
@@ -20,10 +21,14 @@ async def extract_url(
     client: BrowserUseClient,
     url: str,
     source: Source | None = None,
+    storage: SupabaseStorageClient | None = None,
 ) -> Document:
+    if source is None:
+        raise ValueError("Source is required for extract_url. Create/discover a source first.")
+
     crawl_job = CrawlJob(
         job_type="extract",
-        source_id=source.id if source else None,
+        source_id=source.id,
         target_url=url,
         status="pending",
         started_at=utcnow(),
@@ -39,70 +44,92 @@ async def extract_url(
         crawl_job.browser_use_session_id = result.session_id
         crawl_job.browser_use_live_url = result.live_url
         crawl_job.browser_use_cost_usd = result.total_cost_usd
+
+        normalized = normalize_extraction(result.output)
+        source.title = normalized.title
+        source.author = normalized.author
+        source.source_type = normalized.source_type
+
+        source_id = source.id
+        html_storage = html_path(source_id, crawl_job.id)
+        extracted_storage = extracted_json_path(source_id, crawl_job.id)
+
+        if storage:
+            storage.upload_text(
+                html_storage,
+                _raw_html_from_extraction(result.output, normalized.raw_text),
+                "text/html; charset=utf-8",
+            )
+            storage.upload_json(extracted_storage, result.output)
+
+        document = Document(
+            source_id=source_id,
+            crawl_job_id=crawl_job.id,
+            raw_text=normalized.raw_text,
+            html_storage_path=html_storage,
+            extracted_json_storage_path=extracted_storage,
+            parse_confidence=0.5,
+            created_at=utcnow(),
+        )
+        content_text = build_content_tsv_text(normalized.title, normalized.summary, normalized.raw_text)
+        document.content_tsv = func.to_tsvector("english", content_text)
+        session.add(document)
+        session.flush()
+
+        for program in normalized.programs:
+            session.add(
+                Program(
+                    document_id=document.id,
+                    name=program.get("name"),
+                    coach_name=program.get("coach_name"),
+                    days_per_week=program.get("days_per_week"),
+                    specialization=program.get("specialization"),
+                    experience_level=program.get("experience_level"),
+                    progression_type=program.get("progression_type"),
+                    split_type=program.get("split_type"),
+                    summary=program.get("summary"),
+                    confidence=program.get("confidence"),
+                    created_at=utcnow(),
+                    updated_at=utcnow(),
+                )
+            )
+
+        for claim in normalized.claims:
+            session.add(
+                Claim(
+                    document_id=document.id,
+                    program_id=claim.get("program_id"),
+                    claim_type=claim.get("claim_type"),
+                    raw_text=claim.get("raw_text"),
+                    normalized_value=claim.get("normalized_value"),
+                    confidence=claim.get("confidence"),
+                    created_at=utcnow(),
+                )
+            )
+
+        source.latest_document_id = document.id
+        source.last_crawled_at = utcnow()
+        source.status = "succeeded"
+
         crawl_job.status = "succeeded"
         crawl_job.completed_at = utcnow()
+        session.commit()
+        return document
     except Exception as exc:
+        if hasattr(session, "rollback"):
+            session.rollback()
         crawl_job.status = "failed"
         crawl_job.error_message = str(exc)
         crawl_job.completed_at = utcnow()
         session.commit()
         raise
 
-    normalized = normalize_extraction(result.output)
-    if source:
-        source.title = normalized.title
-        source.author = normalized.author
-        source.source_type = normalized.source_type
 
-    document = Document(
-        source_id=source.id if source else 0,
-        crawl_job_id=crawl_job.id,
-        raw_text=normalized.raw_text,
-        html_storage_path=html_path(source.id if source else 0, crawl_job.id),
-        extracted_json_storage_path=extracted_json_path(source.id if source else 0, crawl_job.id),
-        parse_confidence=0.5,
-        created_at=utcnow(),
-    )
-    content_text = build_content_tsv_text(normalized.title, normalized.summary, normalized.raw_text)
-    document.content_tsv = func.to_tsvector("english", content_text)
-    session.add(document)
-    session.flush()
-
-    for program in normalized.programs:
-        session.add(
-            Program(
-                document_id=document.id,
-                name=program.get("name"),
-                coach_name=program.get("coach_name"),
-                days_per_week=program.get("days_per_week"),
-                specialization=program.get("specialization"),
-                experience_level=program.get("experience_level"),
-                progression_type=program.get("progression_type"),
-                split_type=program.get("split_type"),
-                summary=program.get("summary"),
-                confidence=program.get("confidence"),
-                created_at=utcnow(),
-                updated_at=utcnow(),
-            )
-        )
-
-    for claim in normalized.claims:
-        session.add(
-            Claim(
-                document_id=document.id,
-                program_id=claim.get("program_id"),
-                claim_type=claim.get("claim_type"),
-                raw_text=claim.get("raw_text"),
-                normalized_value=claim.get("normalized_value"),
-                confidence=claim.get("confidence"),
-                created_at=utcnow(),
-            )
-        )
-
-    if source:
-        source.latest_document_id = document.id
-        source.last_crawled_at = utcnow()
-        source.status = "succeeded"
-
-    session.commit()
-    return document
+def _raw_html_from_extraction(output: object, raw_text: str | None) -> str:
+    if isinstance(output, dict):
+        for key in ("raw_html", "html", "page_html"):
+            value = output.get(key)
+            if isinstance(value, str) and value.strip():
+                return value
+    body = raw_text or ""
+    return f"<html><body><pre>{body}</pre></body></html>"

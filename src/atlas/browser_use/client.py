@@ -79,6 +79,9 @@ class BrowserUseClient:
             total_cost_usd=_to_float(getattr(result, "total_cost_usd", None)),
         )
 
+    async def stop_session(self, session_id: str, strategy: str = "task") -> None:
+        await self._client.sessions.stop(session_id, strategy=strategy)
+
 
 def _to_float(value: Any) -> float | None:
     if value is None:

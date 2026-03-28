@@ -65,6 +65,7 @@ Ingestion:
 atlas ingest discover --domain example.com --seed-url https://example.com
 atlas ingest extract --url https://example.com/program
 atlas ingest refresh --source-id 123
+atlas ingest discover --domain example.com --seed-url https://example.com --timeout-seconds 900
 ```
 
 Search:
@@ -92,4 +93,4 @@ pytest
 
 - Missing `ATLAS_DATABASE_URL`: migrations and CLI DB commands will fail.
 - Browser Use calls require `ATLAS_BROWSER_USE_API_KEY`.
-- `atlas ingest discover` currently uses seed URLs directly until Browser Use discovery is wired.
+- If Browser Use tasks are slow, pass `--timeout-seconds` on ingest commands or set `ATLAS_BROWSER_USE_POLL_TIMEOUT_SECONDS`.
