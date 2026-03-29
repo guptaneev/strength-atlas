@@ -4,7 +4,7 @@ import typer
 from sqlalchemy import select
 
 from atlas.db.engine import SessionLocal
-from atlas.db.models import Document, Program, Source
+from atlas.db.models import CrawlJob, Document, Program, Source
 
 app = typer.Typer(help="Source inspection.")
 
@@ -39,16 +39,26 @@ def show_source(
         if not source:
             raise typer.Exit(code=1)
         doc = None
+        latest_crawl = None
         programs = []
         if source.latest_document_id:
             doc = session.get(Document, source.latest_document_id)
             programs = session.execute(
                 select(Program).where(Program.document_id == source.latest_document_id)
             ).scalars().all()
+            if doc and doc.crawl_job_id:
+                latest_crawl = session.get(CrawlJob, doc.crawl_job_id)
+        if latest_crawl is None:
+            latest_crawl = session.execute(
+                select(CrawlJob).where(CrawlJob.source_id == source.id).order_by(CrawlJob.started_at.desc()).limit(1)
+            ).scalar_one_or_none()
         if json_output:
             data = {
                 "id": source.id,
                 "canonical_url": source.canonical_url,
+                "source_type": source.source_type,
+                "title": source.title,
+                "author": source.author,
                 "status": source.status,
                 "last_crawled_at": source.last_crawled_at.isoformat() if source.last_crawled_at else None,
                 "document": {
@@ -58,14 +68,42 @@ def show_source(
                 }
                 if doc
                 else None,
+                "latest_crawl": _serialize_crawl(latest_crawl),
                 "programs": [{"id": p.id, "name": p.name, "confidence": p.confidence} for p in programs],
             }
             typer.echo(json.dumps(data))
             return
         typer.echo(f"source {source.id} {source.canonical_url}")
+        typer.echo(f"status {source.status}")
         if doc:
             typer.echo(f"document {doc.id}")
             typer.echo(f"html {doc.html_storage_path}")
             typer.echo(f"extracted {doc.extracted_json_storage_path}")
+        if latest_crawl:
+            typer.echo(f"crawl {latest_crawl.id} {latest_crawl.status}")
+            typer.echo(f"crawl_started {latest_crawl.started_at.isoformat() if latest_crawl.started_at else 'n/a'}")
+            typer.echo(
+                f"crawl_completed {latest_crawl.completed_at.isoformat() if latest_crawl.completed_at else 'n/a'}"
+            )
+            typer.echo(f"crawl_session {latest_crawl.browser_use_session_id or 'n/a'}")
+            typer.echo(f"crawl_live_url {latest_crawl.browser_use_live_url or 'n/a'}")
+            typer.echo(f"crawl_cost_usd {latest_crawl.browser_use_cost_usd if latest_crawl.browser_use_cost_usd is not None else 'n/a'}")
+            typer.echo(f"crawl_error {latest_crawl.error_message or 'n/a'}")
         for program in programs:
             typer.echo(f"program {program.id} {program.name} conf={program.confidence}")
+
+
+def _serialize_crawl(crawl: CrawlJob | None) -> dict | None:
+    if crawl is None:
+        return None
+    return {
+        "id": crawl.id,
+        "status": crawl.status,
+        "retry_count": crawl.retry_count,
+        "started_at": crawl.started_at.isoformat() if crawl.started_at else None,
+        "completed_at": crawl.completed_at.isoformat() if crawl.completed_at else None,
+        "error_message": crawl.error_message,
+        "browser_use_session_id": crawl.browser_use_session_id,
+        "browser_use_live_url": crawl.browser_use_live_url,
+        "browser_use_cost_usd": crawl.browser_use_cost_usd,
+    }

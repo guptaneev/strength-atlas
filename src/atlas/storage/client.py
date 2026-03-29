@@ -39,3 +39,24 @@ class SupabaseStorageClient:
     def upload_json(self, object_path: str, payload: Any) -> None:
         body = json.dumps(payload, ensure_ascii=False, default=str)
         self.upload_text(object_path, body, "application/json")
+
+    def download_bytes(self, object_path: str) -> bytes:
+        url = f"{self._base_url}/storage/v1/object/{self._bucket}/{object_path}"
+        headers = {
+            "apikey": self._service_key,
+            "Authorization": f"Bearer {self._service_key}",
+        }
+        with httpx.Client(timeout=60.0) as client:
+            response = client.get(url, headers=headers)
+            response.raise_for_status()
+            return response.content
+
+    def download_text(self, object_path: str) -> str:
+        return self.download_bytes(object_path).decode("utf-8")
+
+    def download_json_or_text(self, object_path: str) -> Any:
+        payload = self.download_text(object_path)
+        try:
+            return json.loads(payload)
+        except json.JSONDecodeError:
+            return payload

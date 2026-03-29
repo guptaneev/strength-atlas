@@ -11,7 +11,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from atlas.browser_use.client import BrowserUseClient
+from atlas.config.settings import get_settings
 from atlas.db.models import CrawlJob, Domain, Source
+from atlas.ingest.retries import is_retryable_browser_use_error
 
 
 @dataclass(frozen=True)
@@ -56,20 +58,23 @@ def create_sources_from_urls(
 ) -> DiscoveryResult:
     created: list[Source] = []
     skipped: list[str] = []
+    domain_row = session.execute(select(Domain).where(Domain.domain == domain)).scalar_one_or_none()
+    if domain_row is None:
+        return DiscoveryResult(created_sources=created, skipped_urls=list(candidate_urls))
 
     for url in candidate_urls:
-        canonical = canonicalize_url(url)
+        canonical = safe_canonicalize_url(url)
+        if canonical is None:
+            skipped.append(url)
+            continue
+        if not is_url_in_domain(canonical, domain):
+            skipped.append(canonical)
+            continue
         if is_duplicate_canonical(session, canonical):
             skipped.append(canonical)
             continue
-        domain_row = session.execute(
-            select(Domain).where(Domain.domain == domain)
-        ).scalar_one_or_none()
-        if domain_row is None:
-            skipped.append(canonical)
-            continue
         source = Source(
-            url=url,
+            url=canonical,
             canonical_url=canonical,
             domain_id=domain_row.id,
             status="pending",
@@ -101,7 +106,28 @@ async def discover_and_create_sources(
     session.commit()
 
     try:
-        result = await client.discover_urls(domain=domain, seed_urls=seed_urls)
+        settings = get_settings()
+        max_retries = max(0, settings.max_crawl_retries)
+        total_attempts = max_retries + 1
+        result = None
+        for attempt_index in range(total_attempts):
+            try:
+                result = await client.discover_urls(domain=domain, seed_urls=seed_urls)
+                break
+            except Exception as exc:
+                if attempt_index < max_retries and is_retryable_browser_use_error(exc):
+                    crawl_job.retry_count = attempt_index + 1
+                    crawl_job.error_message = (
+                        f"discover attempt {attempt_index + 1}/{total_attempts} failed: {exc}; retrying"
+                    )
+                    crawl_job.status = "running"
+                    session.commit()
+                    continue
+                crawl_job.retry_count = min(attempt_index, max_retries)
+                raise
+        if result is None:
+            raise RuntimeError("discover produced no result")
+
         crawl_job.browser_use_session_id = result.session_id
         crawl_job.browser_use_live_url = result.live_url
         crawl_job.browser_use_cost_usd = result.total_cost_usd
@@ -111,6 +137,7 @@ async def discover_and_create_sources(
         created = create_sources_from_urls(session, domain, candidate_urls)
 
         crawl_job.status = "succeeded"
+        crawl_job.error_message = None
         crawl_job.completed_at = dt.datetime.now(dt.UTC)
         session.commit()
         return DiscoveryResult(
@@ -123,7 +150,9 @@ async def discover_and_create_sources(
         if hasattr(session, "rollback"):
             session.rollback()
         crawl_job.status = "failed"
-        crawl_job.error_message = str(exc)
+        settings = get_settings()
+        total_attempts = max(0, settings.max_crawl_retries) + 1
+        crawl_job.error_message = f"discover failed after {crawl_job.retry_count + 1}/{total_attempts} attempts: {exc}"
         crawl_job.completed_at = dt.datetime.now(dt.UTC)
         session.commit()
         raise
@@ -150,14 +179,39 @@ def parse_candidate_urls(output: Any) -> list[str]:
             urls.extend(re.findall(r"https?://[^\s\"'<>]+", value))
 
     _collect(output)
-    return _dedupe_preserve_order(urls)
+    cleaned = [safe_canonicalize_url(u) for u in urls]
+    return _dedupe_preserve_order([u for u in cleaned if u])
 
 
 def is_url_in_domain(url: str, domain: str) -> bool:
-    parsed = urlparse(canonicalize_url(url))
+    canonical = safe_canonicalize_url(url)
+    if canonical is None:
+        return False
+    parsed = urlparse(canonical)
     host = parsed.netloc.lower()
+    if not host:
+        return False
     target = domain.lower()
     return host == target or host.endswith(f".{target}")
+
+
+def safe_canonicalize_url(url: str) -> str | None:
+    raw = url.strip()
+    raw_parsed = urlparse(raw)
+    if raw_parsed.scheme and raw_parsed.scheme.lower() not in ("http", "https"):
+        return None
+    try:
+        canonical = canonicalize_url(raw)
+    except Exception:
+        return None
+    parsed = urlparse(canonical)
+    if not parsed.netloc:
+        return None
+    if " " in parsed.netloc:
+        return None
+    if parsed.scheme not in ("http", "https"):
+        return None
+    return canonical
 
 
 def _try_parse_json(value: str) -> Any | None:

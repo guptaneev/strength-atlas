@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # Browser Use
     browser_use_api_key: Optional[str] = None
     browser_use_poll_timeout_seconds: int = 300
+    browser_use_extract_model_primary: str = "bu-mini"
+    browser_use_extract_model_fallback: str = "bu-max"
+    max_crawl_retries: int = 2
 
 
 @lru_cache(maxsize=1)
