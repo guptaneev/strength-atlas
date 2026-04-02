@@ -7,7 +7,7 @@ from atlas.browser_use.client import BrowserUseResult
 from atlas.db.models import Claim
 from atlas.db.models import CrawlJob
 from atlas.db.models import Source
-from atlas.ingest.extraction import ExtractValidationError, extract_url
+from atlas.ingest.extraction import ExtractValidationError, _raw_html_from_extraction, extract_url
 from atlas.ingest.refresh import refresh_source
 
 
@@ -235,3 +235,14 @@ def test_extract_url_maps_claim_program_ids_to_inserted_programs() -> None:
     assert claims[0].program_id is not None
     assert claims[1].program_id is not None
     assert claims[2].program_id is None
+
+
+def test_raw_html_fallback_escapes_raw_text() -> None:
+    html_text = _raw_html_from_extraction({}, "<script>alert(1)</script>")
+    assert "<script>alert(1)</script>" not in html_text
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html_text
+
+
+def test_raw_html_prefers_source_html_field() -> None:
+    html_text = _raw_html_from_extraction({"raw_html": "<div>ok</div>"}, "<script>alert(1)</script>")
+    assert html_text == "<div>ok</div>"

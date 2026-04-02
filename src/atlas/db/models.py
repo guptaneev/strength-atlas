@@ -1,3 +1,5 @@
+import datetime as dt
+
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -25,8 +27,8 @@ class Domain(Base):
     allowlisted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     paused: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    updated_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     sources = relationship("Source", back_populates="domain_rel")
 
@@ -42,10 +44,10 @@ class Source(Base):
     title: Mapped[str | None] = mapped_column(Text, nullable=True)
     author: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    last_crawled_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_crawled_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     latest_document_id: Mapped[int | None] = mapped_column(ForeignKey("documents.id"), nullable=True)
-    created_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    updated_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     domain_rel = relationship("Domain", back_populates="sources")
     documents = relationship("Document", back_populates="source", foreign_keys="Document.source_id")
@@ -64,8 +66,8 @@ class CrawlJob(Base):
     browser_use_session_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     browser_use_live_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     browser_use_cost_usd: Mapped[float | None] = mapped_column(Float, nullable=True)
-    started_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    completed_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    started_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
@@ -75,13 +77,13 @@ class Document(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     source_id: Mapped[int] = mapped_column(ForeignKey("sources.id"), index=True)
     crawl_job_id: Mapped[int | None] = mapped_column(ForeignKey("crawl_jobs.id"), nullable=True)
-    published_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    published_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     raw_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     html_storage_path: Mapped[str | None] = mapped_column(Text, nullable=True)
     extracted_json_storage_path: Mapped[str | None] = mapped_column(Text, nullable=True)
     parse_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
     content_tsv: Mapped[str | None] = mapped_column(TSVECTOR, nullable=True)
-    created_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     source = relationship("Source", back_populates="documents", foreign_keys=[source_id])
     crawl_job = relationship("CrawlJob")
@@ -107,8 +109,8 @@ class Program(Base):
     split_type: Mapped[str | None] = mapped_column(String(64), nullable=True)
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
-    created_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    updated_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     document = relationship("Document", back_populates="programs")
 
@@ -127,7 +129,7 @@ class Claim(Base):
     raw_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     normalized_value: Mapped[str | None] = mapped_column(Text, nullable=True)
     confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
-    created_at: Mapped[str | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     document = relationship("Document", back_populates="claims")
 

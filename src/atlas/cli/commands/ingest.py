@@ -25,7 +25,6 @@ def discover(
     timeout_seconds: int | None = typer.Option(None, "--timeout-seconds"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
-    client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
     with SessionLocal() as session:
         if not is_domain_allowlisted(session, domain):
             raise typer.Exit(code=1)
@@ -36,6 +35,7 @@ def discover(
                 f"(crawl_job_id={active.id}, status={active.status})"
             )
             raise typer.Exit(code=1)
+        client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
         try:
             result = run_async(discover_and_create_sources(session, client, domain, seed_url))
         except TimeoutError as exc:
@@ -74,8 +74,6 @@ def extract(
     timeout_seconds: int | None = typer.Option(None, "--timeout-seconds"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
-    client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
-    storage = SupabaseStorageClient()
     with SessionLocal() as session:
         canonical = canonicalize_url(url)
         source = session.execute(
@@ -97,6 +95,8 @@ def extract(
                 f"(crawl_job_id={active.id}, status={active.status})"
             )
             raise typer.Exit(code=1)
+        client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
+        storage = SupabaseStorageClient()
         try:
             doc = run_async(extract_url(session, client, url, source, storage=storage))
         except TimeoutError as exc:
@@ -117,8 +117,6 @@ def refresh(
     timeout_seconds: int | None = typer.Option(None, "--timeout-seconds"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
-    client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
-    storage = SupabaseStorageClient()
     with SessionLocal() as session:
         source = session.get(Source, source_id)
         if source is None:
@@ -132,6 +130,8 @@ def refresh(
                 f"(crawl_job_id={active.id}, status={active.status})"
             )
             raise typer.Exit(code=1)
+        client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
+        storage = SupabaseStorageClient()
         try:
             run_async(refresh_source(session, client, source_id, storage=storage))
         except TimeoutError as exc:
@@ -229,8 +229,6 @@ def reextract_empty(
     timeout_seconds: int | None = typer.Option(None, "--timeout-seconds"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
-    client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
-    storage = SupabaseStorageClient()
     with SessionLocal() as session:
         active = get_active_crawl_for_domain(session, domain)
         if active is not None:
@@ -247,6 +245,8 @@ def reextract_empty(
             else:
                 typer.echo("no sources with empty programs")
             return
+        client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
+        storage = SupabaseStorageClient()
 
         results: list[dict[str, object]] = []
         for src in missing_program_sources:

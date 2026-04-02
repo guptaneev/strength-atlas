@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import html
 from typing import Any
 
 from sqlalchemy import func
@@ -212,7 +213,7 @@ def _raw_html_from_extraction(output: object, raw_text: str | None) -> str:
             value = output.get(key)
             if isinstance(value, str) and value.strip():
                 return value
-    body = raw_text or ""
+    body = html.escape(raw_text or "")
     return f"<html><body><pre>{body}</pre></body></html>"
 
 

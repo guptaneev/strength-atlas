@@ -53,6 +53,10 @@ def test_ingest_discover_blocks_when_domain_has_active_crawl(monkeypatch) -> Non
     monkeypatch.setattr("atlas.cli.commands.ingest.SessionLocal", lambda: _SessionCtx(FakeSession()))
     monkeypatch.setattr("atlas.cli.commands.ingest.is_domain_allowlisted", lambda _s, _d: True)
     monkeypatch.setattr(
+        "atlas.cli.commands.ingest.BrowserUseClient",
+        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("should not build client")),
+    )
+    monkeypatch.setattr(
         "atlas.cli.commands.ingest.get_active_crawl_for_domain",
         lambda _s, _d: _ActiveCrawl(id=42, status="running"),
     )
@@ -71,6 +75,25 @@ def test_ingest_discover_blocks_when_domain_has_active_crawl(monkeypatch) -> Non
     )
     assert result.exit_code == 1
     assert "discover blocked" in result.stdout
+
+
+def test_ingest_extract_source_not_found_does_not_build_client(monkeypatch) -> None:
+    class FakeSession:
+        def execute(self, _stmt):
+            return _ResultWrapper(None)
+
+    monkeypatch.setattr("atlas.cli.commands.ingest.SessionLocal", lambda: _SessionCtx(FakeSession()))
+    monkeypatch.setattr(
+        "atlas.cli.commands.ingest.BrowserUseClient",
+        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("should not build client")),
+    )
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        ["ingest", "extract", "--url", "https://example.com/missing"],
+    )
+    assert result.exit_code == 1
+    assert "extract failed: source not found" in result.stdout
 
 
 def test_ingest_discover_timeout_returns_clean_error(monkeypatch) -> None:
