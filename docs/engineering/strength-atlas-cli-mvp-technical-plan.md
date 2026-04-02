@@ -158,6 +158,13 @@ Implement one adapter module that exposes exactly three operations:
 - `extract_url(url: str)`
 - `refresh_source(source_id: str)`
 
+Extraction adapter hardening:
+
+- enforce structured extraction output schema
+- retry transient and validation failures up to retry budget
+- support model fallback by attempt (primary then fallback)
+- persist Browser Use metadata for terminal outcomes
+
 Use `run()` for discovery tasks on messy sites.
 
 Use explicit session creation and reuse for direct extraction when a source requires multiple navigation steps.
@@ -184,6 +191,8 @@ Extraction flow:
 - persist `raw.html` and `extracted.json` to Supabase Storage
 - normalize title, author, source type, and main text into `documents`
 - parse programs and claims into `programs` and `claims`
+- validate extraction quality before DB write (`schema_invalid`, `low_quality_output`, `no_programs_on_program_page`)
+- map claim `program_id` references to inserted DB program IDs (invalid references become `null`)
 - write a weighted `tsvector` into `documents.content_tsv` from title + summary + raw text
 - update `sources.latest_document_id`, `last_crawled_at`, and `status`
 
@@ -194,6 +203,11 @@ Refresh flow:
 - replace the source's `latest_document_id`
 
 Keep normalization deterministic and rule-based. No external LLM is used in this MVP outside Browser Use acquisition.
+
+Operator diagnostics and backfill:
+
+- `ingest diagnose` inspects extraction payload quality for a source/crawl
+- `ingest reextract-empty` bulk-refreshes succeeded sources with zero programs
 
 ### 6. Search implementation
 
@@ -224,7 +238,7 @@ The CLI returns both machine-readable JSON and human-readable table output.
 
 ### 7. CLI surface
 
-Implement exactly these commands:
+Implement these commands:
 
 - `atlas domain add <domain>`
 - `atlas domain list`
@@ -233,6 +247,8 @@ Implement exactly these commands:
 - `atlas ingest discover --domain <domain> --seed-url <url>...`
 - `atlas ingest extract --url <url>`
 - `atlas ingest refresh --source-id <id>`
+- `atlas ingest diagnose --source-id <id> | --crawl-id <id>`
+- `atlas ingest reextract-empty --domain <domain> [--limit <n>]`
 - `atlas crawl list`
 - `atlas source list`
 - `atlas source show --source-id <id>`
@@ -288,6 +304,8 @@ Required contract rules:
   - program search with multiple filters
   - ranking tie-breaks by confidence and recency
   - empty-result behavior
+- extraction validation tests for unstructured/low-quality payloads
+- claim-to-program reference remapping tests (0/1-based local refs and invalid refs)
 - CLI tests for all commands, including `--json` output.
 - Storage tests ensuring `raw.html` and `extracted.json` are written to the expected bucket paths and linked from `documents`.
 

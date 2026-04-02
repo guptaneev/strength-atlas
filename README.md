@@ -37,6 +37,12 @@ Optional:
 - `ATLAS_BROWSER_USE_EXTRACT_MODEL_FALLBACK` (default `bu-max`)
 - `ATLAS_MAX_CRAWL_RETRIES` (default `2`, for Browser Use transient failures/timeouts)
 
+Security notes:
+
+- Never commit `.env` or paste real credentials in docs/issues.
+- Use placeholder values in examples only (for example `...`).
+- Rotate keys immediately if a secret is ever exposed.
+
 ## Migrations
 
 Create the initial migration once:
@@ -116,6 +122,16 @@ Expected outcomes:
 - `source show` includes artifact paths plus latest crawl metadata.
 - Search returns indexed rows once extraction is complete.
 
+## Current Validation Status
+
+Validated with live runs on multiple domains (`strongerbyscience.com`, `barbellmedicine.com`):
+
+- discover created candidate sources at domain scale
+- extract + refresh produced structured payloads (`payload_type=object`)
+- diagnose reported high parse confidence with no validation errors on validated pages
+- search returned expected program/source rows after extraction
+- bulk backfill command (`reextract-empty`) succeeded where empty-program sources existed
+
 ## Testing
 
 Run unit tests:
@@ -136,6 +152,7 @@ pytest
 - Crawl retries are automatic for transient Browser Use errors/timeouts up to `ATLAS_MAX_CRAWL_RETRIES`.
 - Use `atlas ingest diagnose --source-id <id>` to inspect payload type, text length, program counts, and validation diagnostics.
 - Use `atlas ingest reextract-empty --domain <domain>` to refresh succeeded sources whose latest document has zero programs.
+- If extraction fails with claims/program FK mismatch, upgrade to latest code; claim `program_id` references are now remapped to inserted program IDs.
 - Typical crawl statuses:
   - `pending`: job created, not started yet
   - `running`: in progress (including retry attempts)
