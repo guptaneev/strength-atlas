@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import pytest
 
 from atlas.browser_use.client import BrowserUseResult
+from atlas.db.models import Claim
 from atlas.db.models import CrawlJob
 from atlas.db.models import Source
 from atlas.ingest.extraction import ExtractValidationError, extract_url
@@ -87,6 +88,34 @@ class UnstructuredClient:
             live_url="live",
             status="succeeded",
             total_cost_usd=0.01,
+        )
+
+
+class ClaimLinkClient:
+    async def extract_url(self, _url: str, model: str | None = None) -> BrowserUseResult:
+        return BrowserUseResult(
+            output={
+                "title": "Strength Templates",
+                "main_text": LONG_BODY,
+                "programs": [
+                    {"name": "The Bridge", "confidence": 0.9},
+                    {"name": "Strongman", "confidence": 0.8},
+                ],
+                "claims": [
+                    {"program_id": 0, "claim_type": "price", "raw_text": "Bridge $49.99", "normalized_value": "$49.99"},
+                    {"program_id": 1, "claim_type": "price", "raw_text": "Strongman $62.99", "normalized_value": "$62.99"},
+                    {
+                        "program_id": 999,
+                        "claim_type": "note",
+                        "raw_text": "Unknown mapping",
+                        "normalized_value": "fallback null",
+                    },
+                ],
+            },
+            session_id="sess",
+            live_url="live",
+            status="succeeded",
+            total_cost_usd=0.02,
         )
 
 
@@ -193,3 +222,16 @@ def test_extract_url_unstructured_output_retries_then_fails(monkeypatch) -> None
     assert crawl_jobs[-1].retry_count == 1
     assert crawl_jobs[-1].status == "failed"
     assert "schema_invalid" in (crawl_jobs[-1].error_message or "")
+
+
+def test_extract_url_maps_claim_program_ids_to_inserted_programs() -> None:
+    session = FakeSession()
+    source = Source(url="https://example.com/strength", canonical_url="https://example.com/strength", domain_id=1)
+    session.add(source)
+    asyncio.run(extract_url(session=session, client=ClaimLinkClient(), url=source.url, source=source))
+    claims = [obj for obj in session._objects if isinstance(obj, Claim)]
+    assert len(claims) == 3
+    # 0-based references resolve to inserted program ids; unknown refs become NULL.
+    assert claims[0].program_id is not None
+    assert claims[1].program_id is not None
+    assert claims[2].program_id is None

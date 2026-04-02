@@ -114,29 +114,37 @@ async def extract_url(
         session.add(document)
         session.flush()
 
+        inserted_programs: list[Program] = []
         for program in normalized.programs:
-            session.add(
-                Program(
-                    document_id=document.id,
-                    name=program.get("name"),
-                    coach_name=program.get("coach_name"),
-                    days_per_week=program.get("days_per_week"),
-                    specialization=program.get("specialization"),
-                    experience_level=program.get("experience_level"),
-                    progression_type=program.get("progression_type"),
-                    split_type=program.get("split_type"),
-                    summary=program.get("summary"),
-                    confidence=program.get("confidence"),
-                    created_at=utcnow(),
-                    updated_at=utcnow(),
-                )
+            row = Program(
+                document_id=document.id,
+                name=program.get("name"),
+                coach_name=program.get("coach_name"),
+                days_per_week=program.get("days_per_week"),
+                specialization=program.get("specialization"),
+                experience_level=program.get("experience_level"),
+                progression_type=program.get("progression_type"),
+                split_type=program.get("split_type"),
+                summary=program.get("summary"),
+                confidence=program.get("confidence"),
+                created_at=utcnow(),
+                updated_at=utcnow(),
             )
+            session.add(row)
+            inserted_programs.append(row)
+        session.flush()
+        program_name_map = _build_program_name_map(inserted_programs)
 
         for claim in normalized.claims:
+            mapped_program_id = _map_claim_program_id(
+                claim.get("program_id"),
+                inserted_programs,
+                program_name_map=program_name_map,
+            )
             session.add(
                 Claim(
                     document_id=document.id,
-                    program_id=claim.get("program_id"),
+                    program_id=mapped_program_id,
                     claim_type=claim.get("claim_type"),
                     raw_text=claim.get("raw_text"),
                     normalized_value=claim.get("normalized_value"),
@@ -206,3 +214,49 @@ def _raw_html_from_extraction(output: object, raw_text: str | None) -> str:
                 return value
     body = raw_text or ""
     return f"<html><body><pre>{body}</pre></body></html>"
+
+
+def _map_claim_program_id(
+    raw_program_id: object,
+    inserted_programs: list[Program],
+    *,
+    program_name_map: dict[str, int],
+) -> int | None:
+    if raw_program_id is None or not inserted_programs:
+        return None
+
+    # Model payloads usually reference local program indexes (0-based or
+    # occasionally 1-based), not real DB ids.
+    try:
+        numeric = int(raw_program_id)
+    except (TypeError, ValueError):
+        numeric = None
+
+    if numeric is not None:
+        # Prefer explicit 0-based index when valid.
+        if 0 <= numeric < len(inserted_programs):
+            program_id = inserted_programs[numeric].id
+            if program_id is not None:
+                return program_id
+        # Fallback for 1-based index values.
+        one_based_index = numeric - 1
+        if 0 <= one_based_index < len(inserted_programs):
+            program_id = inserted_programs[one_based_index].id
+            if program_id is not None:
+                return program_id
+        return None
+
+    if isinstance(raw_program_id, str):
+        return program_name_map.get(raw_program_id.strip().lower())
+    return None
+
+
+def _build_program_name_map(inserted_programs: list[Program]) -> dict[str, int]:
+    mapping: dict[str, int] = {}
+    for row in inserted_programs:
+        if row.id is None or not row.name:
+            continue
+        key = row.name.strip().lower()
+        if key:
+            mapping[key] = row.id
+    return mapping
