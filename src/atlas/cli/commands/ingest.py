@@ -229,6 +229,8 @@ def reextract_empty(
     timeout_seconds: int | None = typer.Option(None, "--timeout-seconds"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
+    import asyncio
+
     with SessionLocal() as session:
         active = get_active_crawl_for_domain(session, domain)
         if active is not None:
@@ -247,18 +249,26 @@ def reextract_empty(
             return
         client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
         storage = SupabaseStorageClient()
+        runner = asyncio.Runner()
 
         results: list[dict[str, object]] = []
-        for src in missing_program_sources:
+        try:
+            for src in missing_program_sources:
+                try:
+                    doc = runner.run(extract_url(session, client, src.url, src, storage=storage))
+                    results.append(
+                        {"source_id": src.id, "status": "succeeded", "document_id": doc.id, "error": None}
+                    )
+                except Exception as exc:
+                    results.append(
+                        {"source_id": src.id, "status": "failed", "document_id": None, "error": str(exc)}
+                    )
+        finally:
             try:
-                doc = run_async(extract_url(session, client, src.url, src, storage=storage))
-                results.append(
-                    {"source_id": src.id, "status": "succeeded", "document_id": doc.id, "error": None}
-                )
-            except Exception as exc:
-                results.append(
-                    {"source_id": src.id, "status": "failed", "document_id": None, "error": str(exc)}
-                )
+                runner.run(client.close())
+            except Exception:
+                pass
+            runner.close()
 
         succeeded = len([r for r in results if r["status"] == "succeeded"])
         failed = len(results) - succeeded

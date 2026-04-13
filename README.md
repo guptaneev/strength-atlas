@@ -36,6 +36,10 @@ Optional:
 - `ATLAS_BROWSER_USE_EXTRACT_MODEL_PRIMARY` (default `bu-mini`)
 - `ATLAS_BROWSER_USE_EXTRACT_MODEL_FALLBACK` (default `bu-max`)
 - `ATLAS_MAX_CRAWL_RETRIES` (default `2`, for Browser Use transient failures/timeouts)
+- `ATLAS_OPS_PER_DOMAIN_LIMIT` (default `10`)
+- `ATLAS_OPS_GLOBAL_LIMIT` (default `50`)
+- `ATLAS_OPS_FAILURE_RATE_THRESHOLD` (default `0.35`)
+- `ATLAS_OPS_RUNS_LEDGER_PATH` (default `var/atlas/runs.jsonl`)
 
 Security notes:
 
@@ -87,6 +91,16 @@ atlas crawl list
 atlas crawl stop --crawl-id 123
 ```
 
+Ops automation:
+
+```bash
+atlas ops dry-run --json
+atlas ops run --json
+atlas ops run --domain strongerbyscience.com --per-domain-limit 5 --global-limit 20
+atlas ops run --discover-first --discover-seed-url strongerbyscience.com=https://www.strongerbyscience.com
+atlas ops metrics --limit 20 --json
+```
+
 Search:
 
 ```bash
@@ -114,6 +128,9 @@ atlas ingest diagnose --source-id 1 --json
 atlas crawl list --json
 atlas search sources --query bench --domain strongerbyscience.com --json
 atlas search programs --query bench --domain strongerbyscience.com --json
+atlas ops dry-run --domain strongerbyscience.com --json
+atlas ops run --domain strongerbyscience.com --per-domain-limit 3 --global-limit 10 --json
+atlas ops metrics --limit 5 --json
 ```
 
 Expected outcomes:
@@ -140,6 +157,19 @@ Run unit tests:
 pytest
 ```
 
+## Local Cron Automation
+
+Example cron entry to run automation every 2 hours:
+
+```cron
+0 */2 * * * cd /Users/neevgupta/browser-use-project && . .venv/bin/activate && atlas ops run --global-limit 25 >> /tmp/atlas-ops.log 2>&1
+```
+
+Recommended workflow:
+- Start with `atlas ops dry-run --json`.
+- Enable `atlas ops run` on cron after dry-run output looks correct.
+- Monitor `atlas ops metrics --json` and ledger file (`var/atlas/runs.jsonl`).
+
 ## Troubleshooting
 
 - Missing `ATLAS_DATABASE_URL`: migrations and CLI DB commands will fail.
@@ -152,6 +182,9 @@ pytest
 - Crawl retries are automatic for transient Browser Use errors/timeouts up to `ATLAS_MAX_CRAWL_RETRIES`.
 - Use `atlas ingest diagnose --source-id <id>` to inspect payload type, text length, program counts, and validation diagnostics.
 - Use `atlas ingest reextract-empty --domain <domain>` to refresh succeeded sources whose latest document has zero programs.
+- Use `atlas ops dry-run` before scheduled automation changes.
+- Use `atlas ops run` for sequential pending + empty-program remediation with summary metrics.
+- If `atlas ops run` exits with code `2`, failure rate exceeded threshold (`ATLAS_OPS_FAILURE_RATE_THRESHOLD`).
 - If extraction fails with claims/program FK mismatch, upgrade to latest code; claim `program_id` references are now remapped to inserted program IDs.
 - Typical crawl statuses:
   - `pending`: job created, not started yet

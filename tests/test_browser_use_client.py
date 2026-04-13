@@ -64,3 +64,19 @@ def test_browser_use_client_propagates_run_failure() -> None:
     client = FakeClient(exc=TimeoutError("timed out"))
     with pytest.raises(TimeoutError):
         asyncio.run(client.extract_url("https://example.com/program"))
+
+
+def test_browser_use_client_close_delegates_to_sdk_client() -> None:
+    class _Closable:
+        def __init__(self) -> None:
+            self.closed = False
+
+        async def close(self) -> None:
+            self.closed = True
+
+    inner = _Closable()
+    client = BrowserUseClient.__new__(BrowserUseClient)
+    client._client = inner
+
+    asyncio.run(client.close())
+    assert inner.closed is True

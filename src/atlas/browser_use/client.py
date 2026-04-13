@@ -92,6 +92,9 @@ class BrowserUseClient:
     async def stop_session(self, session_id: str, strategy: str = "task") -> None:
         await self._client.sessions.stop(session_id, strategy=strategy)
 
+    async def close(self) -> None:
+        await self._client.close()
+
     async def _resolve_extraction_output(self, result: Any) -> Any:
         output = getattr(result, "output", None)
         as_dict = _coerce_dict(output)

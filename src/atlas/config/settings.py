@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     browser_use_extract_model_fallback: str = "bu-max"
     max_crawl_retries: int = 2
 
+    # Ops automation defaults
+    ops_per_domain_limit: int = 10
+    ops_global_limit: int = 50
+    ops_failure_rate_threshold: float = 0.35
+    ops_runs_ledger_path: str = "var/atlas/runs.jsonl"
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

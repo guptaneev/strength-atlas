@@ -254,6 +254,9 @@ Implement these commands:
 - `atlas source show --source-id <id>`
 - `atlas search programs --query <text> [filters...]`
 - `atlas search sources --query <text> [--domain <domain>]`
+- `atlas ops run [automation flags]`
+- `atlas ops dry-run [automation flags]`
+- `atlas ops metrics [--limit <n>]`
 
 Every command must support `--json`.
 
@@ -273,6 +276,24 @@ Every command must support `--json`.
 - No crawl-on-search behavior.
 - When data is insufficient for a query, search returns empty or low-result output; it does not trigger a crawl.
 - Operators refresh sources manually with CLI commands.
+- Scheduled automation is external-orchestrated (for example cron) and uses `atlas ops run`; this does not add an in-app scheduler service.
+
+### 9. Automation ledger and summary metrics
+
+`atlas ops run` writes one JSON line per run to `var/atlas/runs.jsonl` (configurable).
+
+Each run record includes:
+
+- `run_id`, `started_at`, `completed_at`, `policy`
+- `totals` for throughput, quality, reliability, and cost
+- `by_domain` aggregate breakdown
+- normalized `errors`
+- per-item outcomes in `items`
+
+Failure policy:
+
+- exit code `2` when run failure rate exceeds the configured threshold
+- exit code `0` otherwise
 
 ## Public Interfaces and Contracts
 
