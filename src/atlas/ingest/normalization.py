@@ -386,7 +386,8 @@ def _normalize_enum(value: str | None, mapping: dict[str, str]) -> str | None:
     for key, normalized in mapping.items():
         if key in lowered:
             return normalized
-    return lowered
+    # Keep enum-backed DB fields bounded to known values only.
+    return None
 
 
 def _clamp_confidence(value: Any) -> float | None:
