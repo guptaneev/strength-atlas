@@ -36,6 +36,8 @@ Optional:
 - `ATLAS_BROWSER_USE_EXTRACT_MODEL_PRIMARY` (default `bu-mini`)
 - `ATLAS_BROWSER_USE_EXTRACT_MODEL_FALLBACK` (default `bu-max`)
 - `ATLAS_MAX_CRAWL_RETRIES` (default `2`, for Browser Use transient failures/timeouts)
+- `ATLAS_DISCOVERY_MAX_CANDIDATES_PER_RUN` (default `200`)
+- `ATLAS_DISCOVERY_BLOCKED_PATH_TOKENS` (comma-separated low-value path tokens)
 - `ATLAS_OPS_PER_DOMAIN_LIMIT` (default `10`)
 - `ATLAS_OPS_GLOBAL_LIMIT` (default `50`)
 - `ATLAS_OPS_FAILURE_RATE_THRESHOLD` (default `0.35`)
@@ -98,6 +100,7 @@ atlas ops dry-run --json
 atlas ops run --json
 atlas ops run --domain strongerbyscience.com --per-domain-limit 5 --global-limit 20
 atlas ops run --discover-first --discover-seed-url strongerbyscience.com=https://www.strongerbyscience.com
+atlas ops run --domain-policy-file docs/engineering/domain-crawl-policies.example.json
 atlas ops metrics --limit 20 --json
 ```
 
@@ -106,6 +109,7 @@ Search:
 ```bash
 atlas search sources --query "bench"
 atlas search programs --query "bench" --days-per-week 4
+atlas search eval --fixture docs/engineering/search-eval-fixture.json
 ```
 
 JSON output:
@@ -141,13 +145,16 @@ Expected outcomes:
 
 ## Current Validation Status
 
-Validated with live runs on multiple domains (`strongerbyscience.com`, `barbellmedicine.com`):
+Validated with live runs on multiple domains (`strongerbyscience.com`, `barbellmedicine.com`) and the current production snapshot as of **2026-04-24**:
 
 - discover created candidate sources at domain scale
 - extract + refresh produced structured payloads (`payload_type=object`)
 - diagnose reported high parse confidence with no validation errors on validated pages
 - search returned expected program/source rows after extraction
 - bulk backfill command (`reextract-empty`) succeeded where empty-program sources existed
+- live DB snapshot: `sources=83` (`succeeded=39`, `pending=44`), `documents=50`, `programs=175`, `claims=476`
+- latest successful crawl timestamp: `2026-04-14T21:00:54+00:00`
+- latest 20 crawls: `0` failed
 
 ## Testing
 
@@ -180,11 +187,15 @@ Recommended workflow:
 - If a crawl appears stuck, use `atlas crawl stop --crawl-id <id>` to stop it and release the domain lock.
 - Ingest commands block if another crawl is already `pending`/`running` for the same domain.
 - Crawl retries are automatic for transient Browser Use errors/timeouts up to `ATLAS_MAX_CRAWL_RETRIES`.
+- Discovery applies URL guardrails to reduce low-value fanout and caps candidates per run.
 - Use `atlas ingest diagnose --source-id <id>` to inspect payload type, text length, program counts, and validation diagnostics.
 - Use `atlas ingest reextract-empty --domain <domain>` to refresh succeeded sources whose latest document has zero programs.
 - Use `atlas ops dry-run` before scheduled automation changes.
 - Use `atlas ops run` for sequential pending + empty-program remediation with summary metrics.
+- Use `atlas ops run --domain-policy-file <path>` for domain-specific seed strategy and per-domain limits.
 - If `atlas ops run` exits with code `2`, failure rate exceeded threshold (`ATLAS_OPS_FAILURE_RATE_THRESHOLD`).
+- `atlas ops` summaries include `blocked_domain_gates` so domain-level blocking events are visible in run totals.
+- Failure taxonomy now classifies DB truncation, DNS failures, and rate limits explicitly (instead of generic terminal errors).
 - If extraction fails with claims/program FK mismatch, upgrade to latest code; claim `program_id` references are now remapped to inserted program IDs.
 - Typical crawl statuses:
   - `pending`: job created, not started yet

@@ -82,7 +82,8 @@ def test_run_ops_cycle_marks_domain_blocked_when_active_crawl_exists(monkeypatch
     )
 
     assert summary["totals"]["sources_queued"] == 0
-    assert summary["totals"]["blocked"] == 0
+    assert summary["totals"]["blocked"] == 1
+    assert summary["totals"]["blocked_domain_gates"] == 1
     assert summary["items"][0]["item_type"] == "domain_gate"
     assert summary["items"][0]["status"] == "blocked"
 

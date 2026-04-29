@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     browser_use_extract_model_primary: str = "bu-mini"
     browser_use_extract_model_fallback: str = "bu-max"
     max_crawl_retries: int = 2
+    discovery_max_candidates_per_run: int = 200
+    discovery_blocked_path_tokens: str = (
+        "wp-admin,wp-json,feed,cart,checkout,my-account,privacy-policy,terms,cookie-policy,login,register,author,tag"
+    )
 
     # Ops automation defaults
     ops_per_domain_limit: int = 10

@@ -26,6 +26,11 @@ def run_ops(
         "--discover-seed-url",
         help="Repeatable seed URL. Use 'domain=url' for domain-specific seeds, or plain URL for all selected domains.",
     ),
+    domain_policy_file: str | None = typer.Option(
+        None,
+        "--domain-policy-file",
+        help="Optional JSON file with per-domain seed URLs and limits.",
+    ),
     ledger_path: str | None = typer.Option(None, "--ledger-path"),
     failure_rate_threshold: float | None = typer.Option(None, "--failure-rate-threshold"),
     json_output: bool = typer.Option(False, "--json"),
@@ -51,6 +56,7 @@ def run_ops(
             discover_seed_urls=discover_seed_url,
             failure_rate_threshold=resolved_failure_threshold,
             ledger_path=resolved_ledger_path,
+            domain_policy_file=domain_policy_file,
             dry_run=False,
             persist_ledger=True,
         )
@@ -76,6 +82,11 @@ def dry_run_ops(
         "--discover-seed-url",
         help="Repeatable seed URL. Use 'domain=url' for domain-specific seeds, or plain URL for all selected domains.",
     ),
+    domain_policy_file: str | None = typer.Option(
+        None,
+        "--domain-policy-file",
+        help="Optional JSON file with per-domain seed URLs and limits.",
+    ),
     ledger_path: str | None = typer.Option(None, "--ledger-path"),
     failure_rate_threshold: float | None = typer.Option(None, "--failure-rate-threshold"),
     json_output: bool = typer.Option(False, "--json"),
@@ -100,6 +111,7 @@ def dry_run_ops(
             discover_seed_urls=discover_seed_url,
             failure_rate_threshold=resolved_failure_threshold,
             ledger_path=resolved_ledger_path,
+            domain_policy_file=domain_policy_file,
             dry_run=True,
             persist_ledger=False,
         )
@@ -138,6 +150,7 @@ def show_ops_metrics(
                 f"succeeded={totals['succeeded']}",
                 f"failed={totals['failed']}",
                 f"blocked={totals['blocked']}",
+                f"blocked_domain_gates={totals.get('blocked_domain_gates', 0)}",
                 f"skipped={totals['skipped']}",
                 f"cost_usd={totals['browser_use_cost_usd_total']:.5f}",
                 f"duration_seconds={totals['duration_seconds_total']:.2f}",
@@ -164,6 +177,7 @@ def _print_run_summary(summary: dict) -> None:
                 f"succeeded={totals['succeeded']}",
                 f"failed={totals['failed']}",
                 f"blocked={totals['blocked']}",
+                f"blocked_domain_gates={totals.get('blocked_domain_gates', 0)}",
                 f"skipped={totals['skipped']}",
             ]
         )

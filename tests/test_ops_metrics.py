@@ -44,6 +44,32 @@ def test_build_run_summary_computes_expected_fields() -> None:
     assert totals["browser_use_cost_usd_total"] == 0.30000000000000004
 
 
+def test_build_run_summary_counts_domain_gate_blocked_items() -> None:
+    summary = build_run_summary(
+        run_id="run-2",
+        started_at="2026-01-01T00:00:00+00:00",
+        completed_at="2026-01-01T00:00:10+00:00",
+        duration_seconds=10.0,
+        policy={"failure_rate_threshold": 0.35},
+        domains_scanned=1,
+        sources_queued=0,
+        items=[
+            {
+                "item_type": "domain_gate",
+                "domain": "example.com",
+                "status": "blocked",
+                "error_code": "blocked_active_crawl",
+            }
+        ],
+    )
+    totals = summary["totals"]
+    assert totals["blocked"] == 1
+    assert totals["blocked_domain_gates"] == 1
+    assert totals["processed"] == 1
+    assert summary["by_domain"][0]["domain"] == "example.com"
+    assert summary["by_domain"][0]["blocked"] == 1
+
+
 def test_summarize_run_history_aggregates_multiple_runs() -> None:
     runs = [
         {
@@ -54,6 +80,7 @@ def test_summarize_run_history_aggregates_multiple_runs() -> None:
                 "succeeded": 1,
                 "failed": 1,
                 "blocked": 0,
+                "blocked_domain_gates": 0,
                 "skipped": 0,
                 "failure_rate": 0.5,
                 "browser_use_cost_usd_total": 0.1,
@@ -68,6 +95,7 @@ def test_summarize_run_history_aggregates_multiple_runs() -> None:
                 "succeeded": 3,
                 "failed": 0,
                 "blocked": 0,
+                "blocked_domain_gates": 1,
                 "skipped": 0,
                 "failure_rate": 0.0,
                 "browser_use_cost_usd_total": 0.2,
@@ -80,5 +108,6 @@ def test_summarize_run_history_aggregates_multiple_runs() -> None:
     assert summary["latest_run_id"] == "r2"
     assert summary["totals"]["processed"] == 5
     assert summary["totals"]["failed"] == 1
+    assert summary["totals"]["blocked_domain_gates_total"] == 1
     assert summary["avg_failure_rate"] == 0.25
     assert summary["top_error_codes"][0]["code"] == "timeout"

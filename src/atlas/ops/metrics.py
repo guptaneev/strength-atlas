@@ -16,10 +16,14 @@ def build_run_summary(
     items: list[dict[str, Any]],
 ) -> dict[str, Any]:
     source_items = [it for it in items if it.get("item_type") in {"extract_pending", "refresh_empty"}]
+    domain_gate_blocked_items = [
+        it for it in items if it.get("item_type") == "domain_gate" and it.get("status") == "blocked"
+    ]
 
     succeeded = len([it for it in source_items if it.get("status") == "succeeded"])
     failed = len([it for it in source_items if it.get("status") == "failed"])
-    blocked = len([it for it in source_items if it.get("status") == "blocked"])
+    blocked_source_items = len([it for it in source_items if it.get("status") == "blocked"])
+    blocked = blocked_source_items + len(domain_gate_blocked_items)
     skipped = len([it for it in source_items if it.get("status") == "skipped"])
     processed = succeeded + failed + blocked + skipped
 
@@ -73,17 +77,20 @@ def build_run_summary(
             "browser_use_cost_usd_total": 0.0,
         }
     )
-    for it in source_items:
+    for it in items:
+        status = str(it.get("status") or "")
+        if status not in {"succeeded", "failed", "blocked", "skipped"}:
+            continue
+
         domain = str(it.get("domain") or "unknown")
         bucket = domain_buckets[domain]
-        bucket["queued"] += 1
-        bucket["retry_events"] += int(it.get("retry_count", 0) or 0)
-        bucket["browser_use_cost_usd_total"] += float(it.get("cost_usd", 0.0) or 0.0)
+        if it.get("item_type") in {"extract_pending", "refresh_empty"}:
+            bucket["queued"] += 1
+            bucket["retry_events"] += int(it.get("retry_count", 0) or 0)
+            bucket["browser_use_cost_usd_total"] += float(it.get("cost_usd", 0.0) or 0.0)
 
-        status = str(it.get("status") or "")
-        if status in {"succeeded", "failed", "blocked", "skipped"}:
-            bucket[status] += 1
-            bucket["processed"] += 1
+        bucket[status] += 1
+        bucket["processed"] += 1
 
     by_domain = [
         {"domain": domain, **values}
@@ -102,6 +109,7 @@ def build_run_summary(
             "succeeded": succeeded,
             "failed": failed,
             "blocked": blocked,
+            "blocked_domain_gates": len(domain_gate_blocked_items),
             "skipped": skipped,
             "programs_created_total": programs_created_total,
             "program_yield_rate": program_yield_rate,
@@ -132,6 +140,7 @@ def summarize_run_history(runs: list[dict[str, Any]]) -> dict[str, Any]:
                 "succeeded": 0,
                 "failed": 0,
                 "blocked": 0,
+                "blocked_domain_gates_total": 0,
                 "skipped": 0,
                 "browser_use_cost_usd_total": 0.0,
                 "duration_seconds_total": 0.0,
@@ -145,6 +154,7 @@ def summarize_run_history(runs: list[dict[str, Any]]) -> dict[str, Any]:
     succeeded = 0
     failed = 0
     blocked = 0
+    blocked_domain_gates_total = 0
     skipped = 0
     total_cost = 0.0
     total_duration = 0.0
@@ -157,6 +167,7 @@ def summarize_run_history(runs: list[dict[str, Any]]) -> dict[str, Any]:
         succeeded += int(totals.get("succeeded", 0) or 0)
         failed += int(totals.get("failed", 0) or 0)
         blocked += int(totals.get("blocked", 0) or 0)
+        blocked_domain_gates_total += int(totals.get("blocked_domain_gates", 0) or 0)
         skipped += int(totals.get("skipped", 0) or 0)
         total_cost += float(totals.get("browser_use_cost_usd_total", 0.0) or 0.0)
         total_duration += float(totals.get("duration_seconds", 0.0) or 0.0)
@@ -178,6 +189,7 @@ def summarize_run_history(runs: list[dict[str, Any]]) -> dict[str, Any]:
             "succeeded": succeeded,
             "failed": failed,
             "blocked": blocked,
+            "blocked_domain_gates_total": blocked_domain_gates_total,
             "skipped": skipped,
             "browser_use_cost_usd_total": total_cost,
             "duration_seconds_total": total_duration,

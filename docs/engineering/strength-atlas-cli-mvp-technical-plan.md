@@ -180,6 +180,8 @@ Discovery flow:
 - validate the domain is allowlisted and not paused
 - run Browser Use against provided seed URLs
 - collect candidate URLs
+- apply URL policy guardrails to discard low-value/system/taxonomy/assets
+- cap accepted discovery candidates per run
 - canonicalize URLs
 - discard duplicates already present by `canonical_url`
 - create new `sources` rows with `status='pending'`
@@ -257,8 +259,14 @@ Implement these commands:
 - `atlas ops run [automation flags]`
 - `atlas ops dry-run [automation flags]`
 - `atlas ops metrics [--limit <n>]`
+- `atlas search eval --fixture <path>`
 
 Every command must support `--json`.
+
+Ops scale-up controls:
+
+- support optional domain policy file for domain-specific seed URLs and per-domain limits
+- keep explicit operator caps (`--per-domain-limit`, `--global-limit`) as hard upper bounds
 
 `atlas source show` must display:
 
@@ -326,7 +334,10 @@ Required contract rules:
   - ranking tie-breaks by confidence and recency
   - empty-result behavior
 - extraction validation tests for unstructured/low-quality payloads
+- discovery URL policy tests (blocked paths/assets/candidate cap)
 - claim-to-program reference remapping tests (0/1-based local refs and invalid refs)
+- error classification tests for common terminal/retryable buckets
+- ops summary tests ensuring domain-gate blocked events are counted in totals
 - CLI tests for all commands, including `--json` output.
 - Storage tests ensuring `raw.html` and `extracted.json` are written to the expected bucket paths and linked from `documents`.
 

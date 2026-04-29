@@ -16,6 +16,7 @@ from atlas.ingest.concurrency import get_active_crawl_for_domain
 from atlas.ingest.discovery import discover_and_create_sources
 from atlas.ingest.extraction import extract_url
 from atlas.ingest.refresh import refresh_source
+from atlas.ops.domain_policies import load_domain_policies
 from atlas.ops.ledger import append_run_record
 from atlas.ops.metrics import build_run_summary
 from atlas.ops.planner import load_runnable_domains, plan_sources_for_domain
@@ -33,6 +34,7 @@ class OpsRunOptions:
     discover_seed_urls: list[str]
     failure_rate_threshold: float
     ledger_path: str
+    domain_policy_file: str | None = None
     dry_run: bool = False
     persist_ledger: bool = True
 
@@ -68,6 +70,7 @@ def run_ops_cycle(options: OpsRunOptions) -> dict[str, Any]:
         with SessionLocal() as session:
             runnable_domains, selection_issues = load_runnable_domains(session, options.domains)
             runnable_domain_names = {d.domain for d in runnable_domains}
+            domain_policies = load_domain_policies(options.domain_policy_file)
             for issue in selection_issues:
                 error_code = f"blocked_{issue.reason}"
                 items.append(
@@ -88,6 +91,7 @@ def run_ops_cycle(options: OpsRunOptions) -> dict[str, Any]:
                 domain = domain_row.domain
                 if remaining_global <= 0:
                     break
+                domain_policy = domain_policies.get(domain)
 
                 active = get_active_crawl_for_domain(session, domain)
                 if active is not None:
@@ -105,7 +109,10 @@ def run_ops_cycle(options: OpsRunOptions) -> dict[str, Any]:
                     continue
 
                 if options.discover_first:
-                    seeds = discover_seed_map.get(domain, [])
+                    seeds = list(discover_seed_map.get(domain, []))
+                    if domain_policy:
+                        seeds.extend(domain_policy.seed_urls)
+                    seeds = _dedupe_preserve_order(seeds)
                     if not seeds:
                         items.append(
                             {
@@ -167,7 +174,7 @@ def run_ops_cycle(options: OpsRunOptions) -> dict[str, Any]:
                 planned = plan_sources_for_domain(
                     session,
                     domain_row=domain_row,
-                    per_domain_limit=options.per_domain_limit,
+                    per_domain_limit=_resolve_per_domain_limit(options.per_domain_limit, domain_policy),
                     global_remaining=remaining_global,
                 )
                 sources_queued += len(planned)
@@ -363,3 +370,21 @@ def _resolve_seed_urls(seed_inputs: list[str], domains: list[str]) -> dict[str, 
         for domain in domains:
             seed_map[domain].append(value)
     return seed_map
+
+
+def _resolve_per_domain_limit(default_limit: int, domain_policy) -> int:
+    if domain_policy is None or domain_policy.per_domain_limit is None:
+        return default_limit
+    return max(1, domain_policy.per_domain_limit)
+
+
+def _dedupe_preserve_order(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for value in values:
+        normalized = value.strip()
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        deduped.append(normalized)
+    return deduped

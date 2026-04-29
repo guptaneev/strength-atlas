@@ -1,0 +1,18 @@
+{
+  "strongerbyscience.com": {
+    "seed_urls": [
+      "https://www.strongerbyscience.com/",
+      "https://www.strongerbyscience.com/programming/"
+    ],
+    "per_domain_limit": 6,
+    "stale_after_days": 14
+  },
+  "barbellmedicine.com": {
+    "seed_urls": [
+      "https://www.barbellmedicine.com/product-category/training-templates",
+      "https://www.barbellmedicine.com/blog/best-powerlifting-programs"
+    ],
+    "per_domain_limit": 8,
+    "stale_after_days": 21
+  }
+}

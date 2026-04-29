@@ -1,0 +1,28 @@
+{
+  "queries": [
+    {
+      "name": "Bench Source Retrieval",
+      "mode": "sources",
+      "query": "bench",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/how-to-bench"
+      ]
+    },
+    {
+      "name": "Bench Program Retrieval",
+      "mode": "programs",
+      "query": "bench",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/how-to-bench"
+      ]
+    }
+  ]
+}

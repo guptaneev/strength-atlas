@@ -10,6 +10,12 @@ def classify_error_code(exc: Exception) -> str:
 
     if "already has active crawl" in message:
         return "blocked_active_crawl"
+    if "nodename nor servname provided" in message or "failed to resolve host" in message:
+        return "dns_resolution_failed"
+    if "429" in message or "rate limit" in message or "too many requests" in message:
+        return "rate_limited"
+    if "401" in message or "unauthorized" in message or "invalid api key" in message:
+        return "auth_failed"
     if isinstance(exc, TimeoutError) or "did not complete within" in message or "timeout" in message:
         return "timeout"
     if "schema_invalid" in message:
@@ -22,6 +28,12 @@ def classify_error_code(exc: Exception) -> str:
         return "source_not_found"
     if "event loop is closed" in message:
         return "event_loop_closed"
+    if "stringdatarighttruncation" in message or "value too long for type character varying" in message:
+        return "value_too_long"
+    if "unique constraint" in message or "duplicate key value violates unique constraint" in message:
+        return "unique_violation"
+    if "not null violation" in message:
+        return "not_null_violation"
     if "foreign key constraint" in message or "violates foreign key" in message:
         return "fk_violation"
     if "atlas_browser_use_api_key is required" in message:
@@ -41,6 +53,8 @@ def error_kind_from_code(error_code: str | None) -> str | None:
     if error_code in {
         "timeout",
         "retryable_browser_use",
+        "dns_resolution_failed",
+        "rate_limited",
     }:
         return "retryable"
     return "terminal"
