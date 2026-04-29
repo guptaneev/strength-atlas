@@ -5,7 +5,12 @@
       "https://www.strongerbyscience.com/programming/"
     ],
     "per_domain_limit": 6,
-    "stale_after_days": 14
+    "stale_after_days": 14,
+    "admission_min_succeeded_sources": 5,
+    "admission_max_recent_failure_rate": 0.35,
+    "admission_min_avg_parse_confidence": 0.7,
+    "admission_max_zero_program_rate": 0.4,
+    "admission_recent_crawl_window": 20
   },
   "barbellmedicine.com": {
     "seed_urls": [
@@ -13,6 +18,11 @@
       "https://www.barbellmedicine.com/blog/best-powerlifting-programs"
     ],
     "per_domain_limit": 8,
-    "stale_after_days": 21
+    "stale_after_days": 21,
+    "admission_min_succeeded_sources": 3,
+    "admission_max_recent_failure_rate": 0.4,
+    "admission_min_avg_parse_confidence": 0.65,
+    "admission_max_zero_program_rate": 0.5,
+    "admission_recent_crawl_window": 20
   }
 }

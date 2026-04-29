@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     ops_failure_rate_threshold: float = 0.35
     ops_runs_ledger_path: str = "var/atlas/runs.jsonl"
 
+    # Retrieval debugging
+    retrieval_debug_trace_path: str = "var/atlas/retrieval-debug.jsonl"
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

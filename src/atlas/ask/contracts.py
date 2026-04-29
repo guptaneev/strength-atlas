@@ -38,6 +38,11 @@ class AskAtlasResponse(BaseModel):
     status: Literal["ok", "insufficient_evidence"] = "ok"
 
 
+class AskAnswerRequest(RetrievalRequest):
+    include_evidence: bool = True
+    max_evidence: int = Field(default=8, ge=1, le=25)
+
+
 class EmbeddingHookPayload(BaseModel):
     document_id: int
     source_id: int

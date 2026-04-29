@@ -6,6 +6,10 @@ from typing import List
 import typer
 
 from atlas.config.settings import get_settings
+from atlas.db.engine import SessionLocal
+from atlas.ops.admission import build_domain_quality_report
+from atlas.ops.backlog import build_backlog_report
+from atlas.ops.domain_policies import load_domain_policies
 from atlas.ops.ledger import read_recent_run_records
 from atlas.ops.metrics import summarize_run_history
 from atlas.ops.policies import should_fail_run
@@ -161,6 +165,106 @@ def show_ops_metrics(
     typer.echo(f"max_failure_rate {summary['max_failure_rate']:.3f}")
     for err in summary["top_error_codes"]:
         typer.echo(f"error {err['code']} count={err['count']}")
+
+
+@app.command("backlog")
+def show_backlog(
+    domain: List[str] = typer.Option([], "--domain", help="Repeatable domain filter. Defaults to all domains."),
+    stale_after_days: int = typer.Option(14, "--stale-after-days"),
+    pending_sample_size: int = typer.Option(5, "--pending-sample-size"),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    with SessionLocal() as session:
+        report = build_backlog_report(
+            session,
+            domains=domain or None,
+            stale_after_days=stale_after_days,
+            pending_sample_size=pending_sample_size,
+        )
+
+    if json_output:
+        typer.echo(json.dumps(report))
+        return
+
+    totals = report["totals"]
+    typer.echo(f"generated_at {report['generated_at']}")
+    typer.echo(
+        " ".join(
+            [
+                f"domains={totals['domains_count']}",
+                f"sources_total={totals['sources_total']}",
+                f"pending={totals['pending']}",
+                f"succeeded={totals['succeeded']}",
+                f"failed={totals['failed']}",
+                f"stale_succeeded={totals['stale_succeeded']}",
+            ]
+        )
+    )
+    for row in report["by_domain"]:
+        typer.echo(
+            " ".join(
+                [
+                    f"domain={row['domain']}",
+                    f"sources_total={row['sources_total']}",
+                    f"pending={row['pending']}",
+                    f"succeeded={row['succeeded']}",
+                    f"failed={row['failed']}",
+                    f"stale_succeeded={row['stale_succeeded']}",
+                ]
+            )
+        )
+        for sample in row["pending_samples"]:
+            typer.echo(f"pending_source source_id={sample['source_id']} url={sample['canonical_url']}")
+
+
+@app.command("domain-quality")
+def show_domain_quality(
+    domain: List[str] = typer.Option([], "--domain", help="Repeatable domain filter. Defaults to all domains."),
+    domain_policy_file: str | None = typer.Option(
+        None,
+        "--domain-policy-file",
+        help="Optional JSON file with per-domain seed URLs, limits, and admission thresholds.",
+    ),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    domain_policies = load_domain_policies(domain_policy_file)
+    with SessionLocal() as session:
+        report = build_domain_quality_report(
+            session,
+            domain_policies=domain_policies,
+            domains=domain or None,
+        )
+
+    if json_output:
+        typer.echo(json.dumps(report))
+        return
+
+    totals = report["totals"]
+    typer.echo(f"generated_at {report['generated_at']}")
+    typer.echo(
+        " ".join(
+            [
+                f"domains={totals['domains_count']}",
+                f"admitted={totals['admitted']}",
+                f"blocked={totals['blocked']}",
+            ]
+        )
+    )
+    for row in report["by_domain"]:
+        typer.echo(
+            " ".join(
+                [
+                    f"domain={row['domain']}",
+                    f"allowlisted={row['allowlisted']}",
+                    f"paused={row['paused']}",
+                    f"admitted={row['admitted']}",
+                    f"block_reason={row['admission_block_reason'] or 'n/a'}",
+                    f"recent_failure_rate={row['recent_failure_rate'] if row['recent_failure_rate'] is not None else 'n/a'}",
+                    f"avg_parse_confidence={row['avg_parse_confidence'] if row['avg_parse_confidence'] is not None else 'n/a'}",
+                    f"zero_program_rate={row['zero_program_rate'] if row['zero_program_rate'] is not None else 'n/a'}",
+                ]
+            )
+        )
 
 
 def _print_run_summary(summary: dict) -> None:

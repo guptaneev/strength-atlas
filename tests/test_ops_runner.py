@@ -88,6 +88,55 @@ def test_run_ops_cycle_marks_domain_blocked_when_active_crawl_exists(monkeypatch
     assert summary["items"][0]["status"] == "blocked"
 
 
+def test_run_ops_cycle_blocks_domain_when_admission_gate_fails(monkeypatch) -> None:
+    monkeypatch.setattr("atlas.ops.runner.SessionLocal", lambda: _SessionCtx(_FakeSession()))
+    monkeypatch.setattr(
+        "atlas.ops.runner.load_runnable_domains",
+        lambda _session, _domains: ([SimpleNamespace(id=1, domain="example.com")], []),
+    )
+    monkeypatch.setattr(
+        "atlas.ops.runner.assess_domain_admission",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            admitted=False,
+            reason="domain_quality_recent_failure_rate_exceeded",
+            snapshot=SimpleNamespace(
+                succeeded_sources=10,
+                recent_crawl_window=20,
+                recent_attempted_crawls=20,
+                recent_failed_crawls=8,
+                recent_failure_rate=0.4,
+                avg_parse_confidence=0.82,
+                succeeded_with_documents=10,
+                zero_program_succeeded_sources=1,
+                zero_program_rate=0.1,
+            ),
+        ),
+    )
+    monkeypatch.setattr("atlas.ops.runner.get_active_crawl_for_domain", lambda _s, _d: None)
+
+    summary = run_ops_cycle(
+        OpsRunOptions(
+            domains=["example.com"],
+            per_domain_limit=10,
+            global_limit=10,
+            timeout_seconds=300,
+            discover_first=False,
+            discover_seed_urls=[],
+            failure_rate_threshold=0.35,
+            ledger_path="/tmp/unused.jsonl",
+            dry_run=True,
+            persist_ledger=False,
+        )
+    )
+
+    assert summary["totals"]["sources_queued"] == 0
+    assert summary["totals"]["blocked"] == 1
+    assert summary["totals"]["blocked_domain_gates"] == 1
+    assert summary["items"][0]["item_type"] == "domain_gate"
+    assert summary["items"][0]["error_code"] == "blocked_domain_quality_recent_failure_rate_exceeded"
+    assert summary["items"][0]["quality_snapshot"]["recent_failure_rate"] == 0.4
+
+
 def test_run_ops_cycle_reuses_single_event_loop_for_multiple_items(monkeypatch) -> None:
     class _Source:
         def __init__(self, source_id: int, url: str, canonical_url: str):

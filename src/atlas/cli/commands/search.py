@@ -84,6 +84,13 @@ def eval_search_cmd(
         "--fixture",
         help="Path to JSON eval suite.",
     ),
+    min_pass_rate: float | None = typer.Option(
+        None,
+        "--min-pass-rate",
+        min=0.0,
+        max=1.0,
+        help="Optional threshold. Exit code 2 if pass_rate is below this value.",
+    ),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     suite = load_eval_suite(fixture)
@@ -100,3 +107,5 @@ def eval_search_cmd(
         typer.echo(f"[{status}] {row['name']} mode={row['mode']} query={row['query']}")
         if row["missing_urls"]:
             typer.echo(f"missing_urls {', '.join(row['missing_urls'])}")
+    if min_pass_rate is not None and float(summary["pass_rate"]) < min_pass_rate:
+        raise typer.Exit(code=2)

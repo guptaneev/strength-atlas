@@ -42,6 +42,7 @@ Optional:
 - `ATLAS_OPS_GLOBAL_LIMIT` (default `50`)
 - `ATLAS_OPS_FAILURE_RATE_THRESHOLD` (default `0.35`)
 - `ATLAS_OPS_RUNS_LEDGER_PATH` (default `var/atlas/runs.jsonl`)
+- `ATLAS_RETRIEVAL_DEBUG_TRACE_PATH` (default `var/atlas/retrieval-debug.jsonl`)
 
 Security notes:
 
@@ -102,6 +103,8 @@ atlas ops run --domain strongerbyscience.com --per-domain-limit 5 --global-limit
 atlas ops run --discover-first --discover-seed-url strongerbyscience.com=https://www.strongerbyscience.com
 atlas ops run --domain-policy-file docs/engineering/domain-crawl-policies.example.json
 atlas ops metrics --limit 20 --json
+atlas ops backlog --json
+atlas ops domain-quality --domain-policy-file docs/engineering/domain-crawl-policies.example.json --json
 ```
 
 Search:
@@ -110,6 +113,43 @@ Search:
 atlas search sources --query "bench"
 atlas search programs --query "bench" --days-per-week 4
 atlas search eval --fixture docs/engineering/search-eval-fixture.json
+atlas search eval --fixture docs/engineering/search-eval-fixture.json --min-pass-rate 0.8
+```
+
+API (retrieval-only, no crawling required):
+
+```bash
+atlas-api
+# or
+uvicorn atlas.api.app:app --host 0.0.0.0 --port 8000
+```
+
+Web UI:
+
+- Open `http://127.0.0.1:8000/app` after starting `atlas-api`.
+- The UI supports:
+  - corpus dashboard summary
+  - Ask Atlas answer generation
+  - program/source search
+  - source list + source detail inspection
+
+Example API calls:
+
+```bash
+curl -s "http://127.0.0.1:8000/search/sources?query=bench"
+curl -s "http://127.0.0.1:8000/search/programs?query=bench&domain=strongerbyscience.com"
+curl -s "http://127.0.0.1:8000/sources?status=pending&limit=20"
+curl -s "http://127.0.0.1:8000/sources/1"
+curl -s "http://127.0.0.1:8000/dashboard/summary"
+curl -s -X POST "http://127.0.0.1:8000/ask/retrieve" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"bench frequency","max_sources":5,"max_programs":10,"filters":{"domain":"strongerbyscience.com"}}'
+curl -s -X POST "http://127.0.0.1:8000/ask/retrieve/debug" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"bench frequency","max_sources":5,"max_programs":10,"filters":{"domain":"strongerbyscience.com"}}'
+curl -s -X POST "http://127.0.0.1:8000/ask/answer" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"bench frequency","max_sources":5,"max_programs":10,"include_evidence":true,"filters":{"domain":"strongerbyscience.com"}}'
 ```
 
 JSON output:
@@ -193,6 +233,8 @@ Recommended workflow:
 - Use `atlas ops dry-run` before scheduled automation changes.
 - Use `atlas ops run` for sequential pending + empty-program remediation with summary metrics.
 - Use `atlas ops run --domain-policy-file <path>` for domain-specific seed strategy and per-domain limits.
+- Domain policy files can also enforce admission thresholds per domain (`admission_*` keys) to block unstable/low-quality domains from continuous runs.
+- Use `atlas ops backlog --json` to inspect pending backlog, stale succeeded sources, and per-domain samples.
 - If `atlas ops run` exits with code `2`, failure rate exceeded threshold (`ATLAS_OPS_FAILURE_RATE_THRESHOLD`).
 - `atlas ops` summaries include `blocked_domain_gates` so domain-level blocking events are visible in run totals.
 - Failure taxonomy now classifies DB truncation, DNS failures, and rate limits explicitly (instead of generic terminal errors).

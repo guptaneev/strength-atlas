@@ -259,6 +259,7 @@ Implement these commands:
 - `atlas ops run [automation flags]`
 - `atlas ops dry-run [automation flags]`
 - `atlas ops metrics [--limit <n>]`
+- `atlas ops domain-quality [--domain <domain>] [--domain-policy-file <path>]`
 - `atlas search eval --fixture <path>`
 
 Every command must support `--json`.
@@ -266,6 +267,7 @@ Every command must support `--json`.
 Ops scale-up controls:
 
 - support optional domain policy file for domain-specific seed URLs and per-domain limits
+- support optional domain admission thresholds in policy file to gate unstable/low-quality domains from continuous runs
 - keep explicit operator caps (`--per-domain-limit`, `--global-limit`) as hard upper bounds
 
 `atlas source show` must display:

@@ -5,6 +5,8 @@ This document defines the initial contract surface for a future Ask Atlas retrie
 Implemented in code:
 
 - [`src/atlas/ask/contracts.py`](/Users/neevgupta/browser-use-project/src/atlas/ask/contracts.py)
+- [`src/atlas/api/app.py`](/Users/neevgupta/browser-use-project/src/atlas/api/app.py) (HTTP endpoints)
+- [`src/atlas/api/service.py`](/Users/neevgupta/browser-use-project/src/atlas/api/service.py) (retrieval orchestration)
 
 Core request/response contracts:
 
@@ -21,5 +23,10 @@ Semantic hook contracts:
 Design notes:
 
 - Contracts are intentionally API-first and backend-facing.
-- No web UI or ask runtime is introduced by this scaffold.
+- Endpoints currently provide retrieval and evidence payloads only:
+  - `GET /search/sources`
+  - `GET /search/programs`
+  - `POST /ask/retrieve`
+  - `POST /ask/retrieve/debug` (candidate/evidence diagnostics)
+  - `POST /ask/answer` (deterministic synthesis over retrieved evidence)
 - Existing CLI ingest/search behavior remains unchanged.

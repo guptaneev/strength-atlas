@@ -16,6 +16,7 @@ from atlas.ingest.concurrency import get_active_crawl_for_domain
 from atlas.ingest.discovery import discover_and_create_sources
 from atlas.ingest.extraction import extract_url
 from atlas.ingest.refresh import refresh_source
+from atlas.ops.admission import assess_domain_admission
 from atlas.ops.domain_policies import load_domain_policies
 from atlas.ops.ledger import append_run_record
 from atlas.ops.metrics import build_run_summary
@@ -92,6 +93,32 @@ def run_ops_cycle(options: OpsRunOptions) -> dict[str, Any]:
                 if remaining_global <= 0:
                     break
                 domain_policy = domain_policies.get(domain)
+                admission = assess_domain_admission(session, domain_row=domain_row, policy=domain_policy)
+                if not admission.admitted:
+                    snapshot = admission.snapshot
+                    items.append(
+                        {
+                            "item_type": "domain_gate",
+                            "domain": domain,
+                            "status": "blocked",
+                            "error_code": f"blocked_{admission.reason}",
+                            "error_kind": "blocked",
+                            "quality_snapshot": {
+                                "succeeded_sources": snapshot.succeeded_sources if snapshot else None,
+                                "recent_crawl_window": snapshot.recent_crawl_window if snapshot else None,
+                                "recent_attempted_crawls": snapshot.recent_attempted_crawls if snapshot else None,
+                                "recent_failed_crawls": snapshot.recent_failed_crawls if snapshot else None,
+                                "recent_failure_rate": snapshot.recent_failure_rate if snapshot else None,
+                                "avg_parse_confidence": snapshot.avg_parse_confidence if snapshot else None,
+                                "succeeded_with_documents": snapshot.succeeded_with_documents if snapshot else None,
+                                "zero_program_succeeded_sources": (
+                                    snapshot.zero_program_succeeded_sources if snapshot else None
+                                ),
+                                "zero_program_rate": snapshot.zero_program_rate if snapshot else None,
+                            },
+                        }
+                    )
+                    continue
 
                 active = get_active_crawl_for_domain(session, domain)
                 if active is not None:
