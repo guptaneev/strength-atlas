@@ -154,7 +154,7 @@ def show_ops_metrics(
                 f"succeeded={totals['succeeded']}",
                 f"failed={totals['failed']}",
                 f"blocked={totals['blocked']}",
-                f"blocked_domain_gates={totals.get('blocked_domain_gates', 0)}",
+                f"blocked_domain_gates={totals.get('blocked_domain_gates_total', 0)}",
                 f"skipped={totals['skipped']}",
                 f"cost_usd={totals['browser_use_cost_usd_total']:.5f}",
                 f"duration_seconds={totals['duration_seconds_total']:.2f}",

@@ -1,4 +1,4 @@
-giimport json
+import json
 
 import typer
 from sqlalchemy import select

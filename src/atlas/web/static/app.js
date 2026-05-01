@@ -10,6 +10,12 @@ function setAuthToken(token, tokenType = "bearer") {
   localStorage.setItem(AUTH_TOKEN_TYPE, tokenType);
 }
 
+function getAuthTokenType() {
+  const tokenType = (localStorage.getItem(AUTH_TOKEN_TYPE) || "bearer").trim();
+  if (!tokenType) return "Bearer";
+  return `${tokenType.charAt(0).toUpperCase()}${tokenType.slice(1)}`;
+}
+
 function clearAuthToken() {
   localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(AUTH_TOKEN_TYPE);
@@ -18,7 +24,7 @@ function clearAuthToken() {
 function authHeaders(extra = {}) {
   const token = getAuthToken();
   if (!token) return extra;
-  return { ...extra, Authorization: `Bearer ${token}` };
+  return { ...extra, Authorization: `${getAuthTokenType()} ${token}` };
 }
 
 async function readJson(response) {

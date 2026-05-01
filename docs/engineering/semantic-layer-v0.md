@@ -9,7 +9,7 @@ Current state:
 
 V0 hook contract:
 
-- `EmbeddingHookPayload` and `EmbeddingHookResult` in [`src/atlas/ask/contracts.py`](/Users/neevgupta/browser-use-project/src/atlas/ask/contracts.py)
+- `EmbeddingHookPayload` and `EmbeddingHookResult` in [`src/atlas/ask/contracts.py`](../../src/atlas/ask/contracts.py)
 
 Intended integration point:
 

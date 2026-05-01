@@ -4,9 +4,9 @@ This document defines the initial contract surface for a future Ask Atlas retrie
 
 Implemented in code:
 
-- [`src/atlas/ask/contracts.py`](/Users/neevgupta/browser-use-project/src/atlas/ask/contracts.py)
-- [`src/atlas/api/app.py`](/Users/neevgupta/browser-use-project/src/atlas/api/app.py) (HTTP endpoints)
-- [`src/atlas/api/service.py`](/Users/neevgupta/browser-use-project/src/atlas/api/service.py) (retrieval orchestration)
+- [`src/atlas/ask/contracts.py`](../../src/atlas/ask/contracts.py)
+- [`src/atlas/api/app.py`](../../src/atlas/api/app.py) (HTTP endpoints)
+- [`src/atlas/api/service.py`](../../src/atlas/api/service.py) (retrieval orchestration)
 
 Core request/response contracts:
 

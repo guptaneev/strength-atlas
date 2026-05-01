@@ -247,15 +247,15 @@ Render notes:
 - Configure `ATLAS_CORS_ALLOWED_ORIGINS` and `ATLAS_TRUSTED_HOSTS` to exact production domains.
 
 Release/rollback checklist is documented in:
-- [`docs/operations/mvp-release-checklist.md`](/Users/neevgupta/browser-use-project/docs/operations/mvp-release-checklist.md)
-- [`docs/operations/ops-runbook.md`](/Users/neevgupta/browser-use-project/docs/operations/ops-runbook.md)
+- [`docs/operations/mvp-release-checklist.md`](docs/operations/mvp-release-checklist.md)
+- [`docs/operations/ops-runbook.md`](docs/operations/ops-runbook.md)
 
 ## Local Cron Automation
 
 Example cron entry to run automation every 2 hours:
 
 ```cron
-0 */2 * * * cd /Users/neevgupta/browser-use-project && . .venv/bin/activate && atlas ops run --global-limit 25 >> /tmp/atlas-ops.log 2>&1
+0 */2 * * * cd /path/to/browser-use-project && . .venv/bin/activate && atlas ops run --global-limit 25 >> /tmp/atlas-ops.log 2>&1
 ```
 
 Recommended workflow:

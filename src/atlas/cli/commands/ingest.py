@@ -311,4 +311,7 @@ def run_async(coro):
 
 async def _run_discover_with_client(session, domain: str, seed_url: list[str], timeout_seconds: int | None):
     client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
-    return await discover_and_create_sources(session, client, domain, seed_url)
+    try:
+        return await discover_and_create_sources(session, client, domain, seed_url)
+    finally:
+        await client.close()
