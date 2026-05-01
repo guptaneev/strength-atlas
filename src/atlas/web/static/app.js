@@ -1,14 +1,48 @@
+const AUTH_TOKEN_KEY = "atlas_auth_token";
+const AUTH_TOKEN_TYPE = "atlas_auth_token_type";
+
+function getAuthToken() {
+  return localStorage.getItem(AUTH_TOKEN_KEY) || "";
+}
+
+function setAuthToken(token, tokenType = "bearer") {
+  localStorage.setItem(AUTH_TOKEN_KEY, token);
+  localStorage.setItem(AUTH_TOKEN_TYPE, tokenType);
+}
+
+function clearAuthToken() {
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  localStorage.removeItem(AUTH_TOKEN_TYPE);
+}
+
+function authHeaders(extra = {}) {
+  const token = getAuthToken();
+  if (!token) return extra;
+  return { ...extra, Authorization: `Bearer ${token}` };
+}
+
 async function readJson(response) {
   const text = await response.text();
+  const parsed = text ? JSON.parse(text) : {};
   if (!response.ok) {
-    throw new Error(text || `request_failed_${response.status}`);
+    const message = parsed.detail || parsed.status || `request_failed_${response.status}`;
+    const err = new Error(typeof message === "string" ? message : JSON.stringify(message));
+    err.payload = parsed;
+    err.status = response.status;
+    throw err;
   }
-  return text ? JSON.parse(text) : {};
+  return parsed;
 }
 
 function setOutput(id, value) {
   const node = document.getElementById(id);
   node.textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+}
+
+function setMessage(id, text, mode = "") {
+  const node = document.getElementById(id);
+  node.textContent = text || "";
+  node.className = `inline-message${mode ? ` ${mode}` : ""}`;
 }
 
 function renderResults(containerId, rows, renderRow) {
@@ -38,6 +72,16 @@ function summaryCard(label, value) {
   return card;
 }
 
+function refreshAuthDisplay(isSignedIn) {
+  document.getElementById("authState").textContent = isSignedIn ? "Signed in" : "Not signed in";
+  document.getElementById("askForm").style.display = isSignedIn ? "grid" : "none";
+  setMessage(
+    "askGateMessage",
+    isSignedIn ? "" : "Sign in to use Ask Atlas. Free tier includes 5 lifetime asks.",
+    isSignedIn ? "" : "error",
+  );
+}
+
 async function loadSummary() {
   try {
     const data = await readJson(await fetch("/dashboard/summary"));
@@ -52,8 +96,107 @@ async function loadSummary() {
   }
 }
 
+async function loadQuota() {
+  const token = getAuthToken();
+  const badge = document.getElementById("quotaBadge");
+  if (!token) {
+    badge.textContent = "Ask quota: sign in required";
+    refreshAuthDisplay(false);
+    return;
+  }
+  try {
+    const data = await readJson(
+      await fetch("/me/quota", {
+        headers: authHeaders(),
+      }),
+    );
+    badge.textContent = `Ask quota: ${data.used}/${data.limit} used (${data.remaining} left)`;
+    refreshAuthDisplay(true);
+    if (!data.can_ask) {
+      setMessage(
+        "askGateMessage",
+        `Free ask quota reached. Contact: ${data.contact_url || "support"}`,
+        "error",
+      );
+    }
+  } catch (err) {
+    if (err.status === 401) {
+      clearAuthToken();
+      refreshAuthDisplay(false);
+      badge.textContent = "Ask quota: auth expired";
+      return;
+    }
+    badge.textContent = "Ask quota: unavailable";
+  }
+}
+
+async function runSignIn(event) {
+  event.preventDefault();
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  setMessage("authMessage", "Signing in...");
+  try {
+    const data = await readJson(
+      await fetch("/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      }),
+    );
+    setAuthToken(data.access_token, data.token_type || "bearer");
+    setMessage("authMessage", "Signed in successfully.", "success");
+    await loadQuota();
+  } catch (err) {
+    setMessage("authMessage", `Sign-in failed: ${err.message}`, "error");
+  }
+}
+
+async function runSignUp() {
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  if (!email || !password) {
+    setMessage("authMessage", "Provide email and password before signing up.", "error");
+    return;
+  }
+  setMessage("authMessage", "Creating account...");
+  try {
+    const data = await readJson(
+      await fetch("/auth/signup", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      }),
+    );
+    if (data.access_token) {
+      setAuthToken(data.access_token, data.token_type || "bearer");
+      setMessage("authMessage", "Account created and signed in.", "success");
+      await loadQuota();
+      return;
+    }
+    setMessage(
+      "authMessage",
+      "Account created. Check your email for confirmation, then sign in.",
+      "success",
+    );
+  } catch (err) {
+    setMessage("authMessage", `Sign-up failed: ${err.message}`, "error");
+  }
+}
+
+function runSignOut() {
+  clearAuthToken();
+  setMessage("authMessage", "Signed out.", "success");
+  document.getElementById("quotaBadge").textContent = "Ask quota: sign in required";
+  refreshAuthDisplay(false);
+}
+
 async function runAsk(event) {
   event.preventDefault();
+  const token = getAuthToken();
+  if (!token) {
+    setMessage("askGateMessage", "Sign in required before asking.", "error");
+    return;
+  }
   const payload = {
     query: document.getElementById("askQuery").value.trim(),
     max_sources: 8,
@@ -66,16 +209,30 @@ async function runAsk(event) {
   if (domain) {
     payload.filters.domain = domain;
   }
+  setOutput("askOutput", "Generating answer...");
   try {
     const data = await readJson(
       await fetch("/ask/answer", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: authHeaders({ "content-type": "application/json" }),
         body: JSON.stringify(payload),
       }),
     );
     setOutput("askOutput", data);
+    setMessage("askGateMessage", "", "");
+    await loadQuota();
   } catch (err) {
+    if (err.payload && err.payload.status === "quota_exceeded") {
+      const contact = err.payload.contact_url || "support";
+      setMessage(
+        "askGateMessage",
+        `Free ask quota reached (used ${err.payload.used}/${err.payload.limit}). Contact: ${contact}`,
+        "error",
+      );
+      setOutput("askOutput", err.payload);
+      await loadQuota();
+      return;
+    }
     setOutput("askOutput", `Ask failed: ${err.message}`);
   }
 }
@@ -168,10 +325,15 @@ async function runSourceList(event) {
   }
 }
 
+document.getElementById("authForm").addEventListener("submit", runSignIn);
+document.getElementById("signUpBtn").addEventListener("click", runSignUp);
+document.getElementById("signOutBtn").addEventListener("click", runSignOut);
 document.getElementById("askForm").addEventListener("submit", runAsk);
 document.getElementById("programForm").addEventListener("submit", runProgramSearch);
 document.getElementById("sourceSearchForm").addEventListener("submit", runSourceSearch);
 document.getElementById("sourceListForm").addEventListener("submit", runSourceList);
 document.getElementById("refreshSummary").addEventListener("click", loadSummary);
 
+refreshAuthDisplay(Boolean(getAuthToken()));
 loadSummary();
+loadQuota();

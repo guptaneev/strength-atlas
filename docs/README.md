@@ -9,3 +9,5 @@ This repository stores durable project context in versioned documentation. Produ
 - [Domain Crawl Policies Example](/Users/neevgupta/browser-use-project/docs/engineering/domain-crawl-policies.example.json) - sample domain-specific seed and per-domain limit policy file for ops scale-up.
 - [Ask Atlas API Contracts (V0)](/Users/neevgupta/browser-use-project/docs/engineering/ask-atlas-api-contracts-v0.md) - API-first request/response and evidence contracts for future Ask Atlas services.
 - [Semantic Layer V0](/Users/neevgupta/browser-use-project/docs/engineering/semantic-layer-v0.md) - non-disruptive embedding hook plan that preserves current CLI search behavior.
+- [MVP Release Checklist](/Users/neevgupta/browser-use-project/docs/operations/mvp-release-checklist.md) - production cutover, security gates, and rollback checklist.
+- [Operations Runbook](/Users/neevgupta/browser-use-project/docs/operations/ops-runbook.md) - day-to-day ops workflow, incident responses, and security hygiene.

@@ -1,7 +1,7 @@
 ---
 purpose: Active implementation roadmap for the Strength Atlas CLI MVP
-status: draft
-scope: CLI MVP
+status: implemented-with-fullstack-mvp-extension
+scope: CLI + API + web MVP
 owner: TBD
 ---
 
@@ -9,7 +9,7 @@ owner: TBD
 
 ## Summary
 
-Build the MVP as a single-user Python CLI backed by Browser Use Cloud and a hosted Supabase Postgres database. The CLI will ingest allowlisted strength-training sources, store raw crawl artifacts, normalize program data into relational tables, and support structured plus full-text search over previously indexed content. It will not include a web app, end-user authentication, an admin UI, semantic embeddings, or natural-language Ask in this MVP.
+Build the MVP around a Python operator CLI plus a FastAPI/web surface backed by Browser Use Cloud and hosted Supabase Postgres. The system ingests allowlisted strength-training sources, stores raw crawl artifacts, normalizes program data into relational tables, and supports structured plus full-text search and retrieval-grounded Ask responses. Public web users authenticate through Supabase Auth and Ask is quota-limited.
 
 The concrete stack is:
 
@@ -349,7 +349,9 @@ Required contract rules:
 - Browser Use is used only for acquisition and extraction, not for search-time operations.
 - Supabase is the hosted backend of record for both Postgres and artifact storage.
 - Search is full-text plus structured filtering only; semantic retrieval and Ask are deferred.
-- No authentication, no admin UI, no web surface, no scheduler, and no automatic crawling logic are included in this MVP.
+- Public web auth and Ask quota enforcement are included in this MVP.
+- No web-based ingest/ops admin UI is included; crawl operations remain operator CLI workflows.
+- No in-app scheduler or automatic crawl-on-search behavior is included.
 
 ## CLI Usage Notes
 

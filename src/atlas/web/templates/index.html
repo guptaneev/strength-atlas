@@ -16,7 +16,33 @@
         <p class="subtitle">
           Search indexed programs, inspect source quality, and run retrieval-grounded Ask responses.
         </p>
+        <div class="hero-row">
+          <div id="authState" class="auth-state">Not signed in</div>
+          <div id="quotaBadge" class="quota-badge">Ask quota: n/a</div>
+        </div>
       </header>
+
+      <section class="panel" aria-labelledby="auth-title">
+        <h2 id="auth-title">Sign In</h2>
+        <form id="authForm" class="stack">
+          <div class="row">
+            <label>
+              Email
+              <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required />
+            </label>
+            <label>
+              Password
+              <input id="authPassword" type="password" autocomplete="current-password" required />
+            </label>
+          </div>
+          <div class="row">
+            <button class="btn" type="submit">Sign In</button>
+            <button id="signUpBtn" class="btn btn-quiet" type="button">Sign Up</button>
+            <button id="signOutBtn" class="btn btn-quiet" type="button">Sign Out</button>
+          </div>
+          <div id="authMessage" class="inline-message"></div>
+        </form>
+      </section>
 
       <section class="panel" aria-labelledby="summary-title">
         <div class="panel-head">
@@ -46,6 +72,7 @@
             </div>
             <button class="btn" type="submit">Generate Answer</button>
           </form>
+          <div id="askGateMessage" class="inline-message"></div>
           <pre id="askOutput" class="output"></pre>
         </article>
 

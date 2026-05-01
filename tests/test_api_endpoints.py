@@ -1,7 +1,9 @@
 from fastapi.testclient import TestClient
 
-from atlas.api.app import app, get_db
+from atlas.api.app import app, get_current_user, get_db
 from atlas.api.schemas import (
+    AuthSessionResponse,
+    AuthSignupResponse,
     DashboardSummary,
     ProgramSearchItem,
     RetrievalDebugResponse,
@@ -10,6 +12,10 @@ from atlas.api.schemas import (
     SourceSearchItem,
 )
 from atlas.ask.contracts import AskAtlasResponse, EvidenceCard
+
+
+def _fake_user():
+    return type("_U", (), {"user_id": "user-1", "email": "a@example.com", "claims": {"sub": "user-1"}, "token": "t"})()
 
 
 def test_health_endpoint() -> None:
@@ -24,6 +30,14 @@ def test_web_app_endpoint() -> None:
     response = client.get("/app")
     assert response.status_code == 200
     assert "text/html" in response.headers.get("content-type", "")
+
+
+def test_security_headers_present() -> None:
+    client = TestClient(app)
+    response = client.get("/health")
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["x-frame-options"] == "DENY"
+    assert "content-security-policy" in response.headers
 
 
 def test_search_sources_endpoint(monkeypatch) -> None:
@@ -183,7 +197,13 @@ def test_ask_retrieve_endpoint(monkeypatch) -> None:
             status="ok",
         ),
     )
-    app.dependency_overrides[get_db] = lambda: object()
+    app.dependency_overrides[get_db] = lambda: type("_S", (), {"commit": lambda self: None})()
+    app.dependency_overrides[get_current_user] = _fake_user
+    monkeypatch.setattr("atlas.api.app._rate_limit_ask", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(
+        "atlas.api.app._consume_quota",
+        lambda *_args, **_kwargs: type("_Q", (), {"limit": 5, "used": 1, "remaining": 4, "can_ask": True})(),
+    )
     client = TestClient(app)
     response = client.post(
         "/ask/retrieve",
@@ -239,7 +259,13 @@ def test_ask_retrieve_debug_endpoint(monkeypatch) -> None:
             }
         ),
     )
-    app.dependency_overrides[get_db] = lambda: object()
+    app.dependency_overrides[get_db] = lambda: type("_S", (), {"commit": lambda self: None})()
+    app.dependency_overrides[get_current_user] = _fake_user
+    monkeypatch.setattr("atlas.api.app._rate_limit_ask", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(
+        "atlas.api.app._consume_quota",
+        lambda *_args, **_kwargs: type("_Q", (), {"limit": 5, "used": 1, "remaining": 4, "can_ask": True})(),
+    )
     client = TestClient(app)
     response = client.post(
         "/ask/retrieve/debug",
@@ -266,7 +292,13 @@ def test_ask_answer_endpoint(monkeypatch) -> None:
             status="ok",
         ),
     )
-    app.dependency_overrides[get_db] = lambda: object()
+    app.dependency_overrides[get_db] = lambda: type("_S", (), {"commit": lambda self: None})()
+    app.dependency_overrides[get_current_user] = _fake_user
+    monkeypatch.setattr("atlas.api.app._rate_limit_ask", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(
+        "atlas.api.app._consume_quota",
+        lambda *_args, **_kwargs: type("_Q", (), {"limit": 5, "used": 1, "remaining": 4, "can_ask": True})(),
+    )
     client = TestClient(app)
     response = client.post(
         "/ask/answer",
@@ -284,3 +316,79 @@ def test_ask_answer_endpoint(monkeypatch) -> None:
     payload = response.json()
     assert payload["status"] == "ok"
     assert payload["confidence"] == 0.75
+
+
+def test_ask_requires_authentication() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/ask/answer",
+        json={"query": "x", "max_sources": 1, "max_programs": 1, "filters": {}},
+    )
+    assert response.status_code == 401
+    assert response.json()["status"] == "auth_error"
+
+
+def test_me_quota_endpoint(monkeypatch) -> None:
+    app.dependency_overrides[get_current_user] = _fake_user
+    app.dependency_overrides[get_db] = lambda: object()
+    monkeypatch.setattr(
+        "atlas.api.app.get_quota_snapshot",
+        lambda *_args, **_kwargs: type("_Q", (), {"limit": 5, "used": 2, "remaining": 3, "can_ask": True})(),
+    )
+    client = TestClient(app)
+    response = client.get("/me/quota")
+    app.dependency_overrides.clear()
+    assert response.status_code == 200
+    assert response.json()["remaining"] == 3
+
+
+def test_auth_login_endpoint(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "atlas.api.app.login_with_password",
+        lambda *_args, **_kwargs: {
+            "access_token": "abc",
+            "refresh_token": "def",
+            "expires_in": 3600,
+            "token_type": "bearer",
+        },
+    )
+    client = TestClient(app)
+    response = client.post("/auth/login", json={"email": "a@example.com", "password": "pw"})
+    assert response.status_code == 200
+    payload = AuthSessionResponse.model_validate(response.json())
+    assert payload.access_token == "abc"
+
+
+def test_auth_signup_endpoint_with_session(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "atlas.api.app.signup_with_password",
+        lambda *_args, **_kwargs: {
+            "access_token": "abc",
+            "refresh_token": "def",
+            "expires_in": 3600,
+            "token_type": "bearer",
+            "user": {"id": "u1", "email": "a@example.com"},
+        },
+    )
+    client = TestClient(app)
+    response = client.post("/auth/signup", json={"email": "a@example.com", "password": "pw"})
+    assert response.status_code == 200
+    payload = AuthSignupResponse.model_validate(response.json())
+    assert payload.access_token == "abc"
+    assert payload.email_confirmation_required is False
+
+
+def test_auth_signup_endpoint_email_confirmation_required(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "atlas.api.app.signup_with_password",
+        lambda *_args, **_kwargs: {
+            "access_token": None,
+            "user": {"id": "u2", "email": "b@example.com"},
+        },
+    )
+    client = TestClient(app)
+    response = client.post("/auth/signup", json={"email": "b@example.com", "password": "pw"})
+    assert response.status_code == 200
+    payload = AuthSignupResponse.model_validate(response.json())
+    assert payload.access_token is None
+    assert payload.email_confirmation_required is True

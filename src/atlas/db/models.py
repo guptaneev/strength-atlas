@@ -136,3 +136,12 @@ class Claim(Base):
     __table_args__ = (
         CheckConstraint("confidence >= 0 AND confidence <= 1", name="claim_confidence_range"),
     )
+
+
+class AskQuotaUsage(Base):
+    __tablename__ = "ask_quota_usage"
+
+    user_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    used_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

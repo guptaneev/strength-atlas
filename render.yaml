@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: strength-atlas-api
+    env: docker
+    plan: starter
+    region: oregon
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: ATLAS_APP_ENV
+        value: production
+      - key: ATLAS_API_DOCS_ENABLED
+        value: "false"
+      - key: ATLAS_ENFORCE_HTTPS_REDIRECT
+        value: "true"
+      - key: ATLAS_CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: ATLAS_TRUSTED_HOSTS
+        sync: false
+      - key: ATLAS_DATABASE_URL
+        sync: false
+      - key: ATLAS_SUPABASE_URL
+        sync: false
+      - key: ATLAS_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: ATLAS_SUPABASE_SERVICE_KEY
+        sync: false
+      - key: ATLAS_SUPABASE_STORAGE_BUCKET
+        sync: false
+      - key: ATLAS_BROWSER_USE_API_KEY
+        sync: false

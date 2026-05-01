@@ -80,6 +80,37 @@ class DashboardSummary(BaseModel):
     recent_crawls_failed: int
 
 
+class AuthLoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class AuthSessionResponse(BaseModel):
+    access_token: str
+    refresh_token: str | None = None
+    expires_in: int | None = None
+    token_type: str = "bearer"
+
+
+class AuthSignupResponse(BaseModel):
+    access_token: str | None = None
+    refresh_token: str | None = None
+    expires_in: int | None = None
+    token_type: str = "bearer"
+    user_id: str | None = None
+    email: str | None = None
+    email_confirmation_required: bool = False
+
+
+class QuotaStatusResponse(BaseModel):
+    status: str
+    limit: int
+    used: int
+    remaining: int
+    can_ask: bool
+    contact_url: str | None = None
+
+
 class RetrievalSourceCandidate(SourceSearchItem):
     rank: int
 

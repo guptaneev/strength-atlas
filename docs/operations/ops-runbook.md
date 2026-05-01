@@ -1,0 +1,62 @@
+# Operations Runbook (MVP)
+
+## Daily ingest reliability workflow
+
+1. Review backlog and stale succeeded sources:
+   - `atlas ops backlog --json`
+2. Review admission quality and blocked domains:
+   - `atlas ops domain-quality --domain-policy-file docs/engineering/domain-crawl-policies.example.json --json`
+3. Run dry-run before production ops changes:
+   - `atlas ops dry-run --json`
+4. Execute controlled batch:
+   - `atlas ops run --json`
+5. Review run metrics:
+   - `atlas ops metrics --limit 20 --json`
+
+## Ask API reliability checks
+
+1. Watch for spikes in:
+   - 5xx responses
+   - `auth_error`
+   - `quota_exceeded`
+   - `rate_limited`
+2. Validate quota behavior using a test user:
+   - sign in via `/auth/login`
+   - confirm `GET /me/quota`
+   - submit Ask until blocked at configured limit
+
+## Incident patterns and actions
+
+### High 5xx rate
+
+1. Check deployment revision and recent config changes.
+2. Verify DB and Supabase auth connectivity.
+3. Roll back to previous stable Render revision if unresolved within 15 minutes.
+
+### Auth failure spike
+
+1. Verify Supabase JWT issuer/JWKS settings:
+   - `ATLAS_SUPABASE_URL`, `ATLAS_SUPABASE_JWT_ISSUER`, `ATLAS_SUPABASE_JWKS_URL`
+2. Confirm clock sync on host.
+3. Check if Supabase rotated signing keys and restart service if needed.
+
+### Quota unexpectedly denying early
+
+1. Inspect `ask_quota_usage` rows for affected users.
+2. Confirm `ATLAS_ASK_LIFETIME_LIMIT` value.
+3. If needed, manually reset `used_count` for support-approved users.
+
+### Ask abuse / burst traffic
+
+1. Tighten:
+   - `ATLAS_ASK_IP_RATE_LIMIT_MAX_REQUESTS`
+   - `ATLAS_ASK_USER_RATE_LIMIT_MAX_REQUESTS`
+2. Add temporary reverse-proxy/WAF throttling.
+
+## Security hygiene
+
+1. Never expose:
+   - `ATLAS_SUPABASE_SERVICE_KEY`
+   - `ATLAS_BROWSER_USE_API_KEY`
+2. Rotate keys immediately if leaked.
+3. Keep `.env` local-only and excluded from git.

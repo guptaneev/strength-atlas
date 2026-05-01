@@ -18,6 +18,7 @@ Operator-focused CLI for ingesting strength-training sources, normalizing data, 
 - Supabase Postgres
 - Supabase Storage bucket
 - Browser Use API key
+- Supabase Auth users (for Ask endpoints)
 
 ## Environment
 
@@ -25,6 +26,7 @@ Required environment variables:
 
 - `ATLAS_DATABASE_URL` (Supabase Postgres connection string)
 - `ATLAS_SUPABASE_URL`
+- `ATLAS_SUPABASE_PUBLISHABLE_KEY` (used server-side for `/auth/login`)
 - `ATLAS_SUPABASE_SERVICE_KEY`
 - `ATLAS_SUPABASE_STORAGE_BUCKET`
 - `ATLAS_BROWSER_USE_API_KEY`
@@ -43,6 +45,20 @@ Optional:
 - `ATLAS_OPS_FAILURE_RATE_THRESHOLD` (default `0.35`)
 - `ATLAS_OPS_RUNS_LEDGER_PATH` (default `var/atlas/runs.jsonl`)
 - `ATLAS_RETRIEVAL_DEBUG_TRACE_PATH` (default `var/atlas/retrieval-debug.jsonl`)
+- `ATLAS_APP_ENV` (`development` or `production`)
+- `ATLAS_API_DOCS_ENABLED` (default `true`, automatically disabled in production)
+- `ATLAS_CORS_ALLOWED_ORIGINS` (comma-separated allowlist)
+- `ATLAS_TRUSTED_HOSTS` (comma-separated host allowlist)
+- `ATLAS_ENFORCE_HTTPS_REDIRECT` (default `false`)
+- `ATLAS_REQUEST_MAX_BODY_BYTES` (default `131072`)
+- `ATLAS_ASK_REQUEST_TIMEOUT_SECONDS` (default `30`)
+- `ATLAS_SUPABASE_JWT_AUDIENCE` (default `authenticated`)
+- `ATLAS_SUPABASE_JWT_ISSUER` (optional; defaults to `<SUPABASE_URL>/auth/v1`)
+- `ATLAS_SUPABASE_JWKS_URL` (optional; defaults to Supabase JWKS path)
+- `ATLAS_ASK_LIFETIME_LIMIT` (default `5`)
+- `ATLAS_ASK_IP_RATE_LIMIT_WINDOW_SECONDS` / `ATLAS_ASK_IP_RATE_LIMIT_MAX_REQUESTS`
+- `ATLAS_ASK_USER_RATE_LIMIT_WINDOW_SECONDS` / `ATLAS_ASK_USER_RATE_LIMIT_MAX_REQUESTS`
+- `ATLAS_ASK_CONTACT_CTA_URL` (default `mailto:support@strengthatlas.app`)
 
 Security notes:
 
@@ -128,6 +144,8 @@ Web UI:
 
 - Open `http://127.0.0.1:8000/app` after starting `atlas-api`.
 - The UI supports:
+  - Supabase email/password sign-up and sign-in
+  - quota indicator and post-limit contact CTA
   - corpus dashboard summary
   - Ask Atlas answer generation
   - program/source search
@@ -141,15 +159,25 @@ curl -s "http://127.0.0.1:8000/search/programs?query=bench&domain=strongerbyscie
 curl -s "http://127.0.0.1:8000/sources?status=pending&limit=20"
 curl -s "http://127.0.0.1:8000/sources/1"
 curl -s "http://127.0.0.1:8000/dashboard/summary"
+curl -s -X POST "http://127.0.0.1:8000/auth/signup" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"..."}'
+curl -s -X POST "http://127.0.0.1:8000/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"..."}'
 curl -s -X POST "http://127.0.0.1:8000/ask/retrieve" \
+  -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
   -d '{"query":"bench frequency","max_sources":5,"max_programs":10,"filters":{"domain":"strongerbyscience.com"}}'
 curl -s -X POST "http://127.0.0.1:8000/ask/retrieve/debug" \
+  -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
   -d '{"query":"bench frequency","max_sources":5,"max_programs":10,"filters":{"domain":"strongerbyscience.com"}}'
 curl -s -X POST "http://127.0.0.1:8000/ask/answer" \
+  -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
   -d '{"query":"bench frequency","max_sources":5,"max_programs":10,"include_evidence":true,"filters":{"domain":"strongerbyscience.com"}}'
+curl -s "http://127.0.0.1:8000/me/quota" -H "Authorization: Bearer <access_token>"
 ```
 
 JSON output:
@@ -204,6 +232,24 @@ Run unit tests:
 pytest
 ```
 
+## Deployment (Render)
+
+This repo includes:
+
+- `Dockerfile` for production API/web image
+- `render.yaml` blueprint for a Render web service
+- `.github/workflows/ci.yml` for tests + secret scanning
+
+Render notes:
+
+- Set all `ATLAS_*` runtime env vars in Render (database/auth keys must be set manually).
+- Keep `ATLAS_API_DOCS_ENABLED=false` and `ATLAS_ENFORCE_HTTPS_REDIRECT=true` in production.
+- Configure `ATLAS_CORS_ALLOWED_ORIGINS` and `ATLAS_TRUSTED_HOSTS` to exact production domains.
+
+Release/rollback checklist is documented in:
+- [`docs/operations/mvp-release-checklist.md`](/Users/neevgupta/browser-use-project/docs/operations/mvp-release-checklist.md)
+- [`docs/operations/ops-runbook.md`](/Users/neevgupta/browser-use-project/docs/operations/ops-runbook.md)
+
 ## Local Cron Automation
 
 Example cron entry to run automation every 2 hours:
@@ -221,6 +267,9 @@ Recommended workflow:
 
 - Missing `ATLAS_DATABASE_URL`: migrations and CLI DB commands will fail.
 - Browser Use calls require `ATLAS_BROWSER_USE_API_KEY`.
+- Ask endpoints require `Authorization: Bearer <supabase_access_token>`.
+- `/auth/login` requires `ATLAS_SUPABASE_PUBLISHABLE_KEY` configured server-side.
+- Ask quota defaults to 5 lifetime requests per user (`ATLAS_ASK_LIFETIME_LIMIT`).
 - If Browser Use tasks are slow, pass `--timeout-seconds` on ingest commands or set `ATLAS_BROWSER_USE_POLL_TIMEOUT_SECONDS`.
 - Extraction uses strict structured output. If output is unstructured or low quality, the crawl retries and can fail terminally with validation errors.
 - Extraction uses model fallback by attempt (`ATLAS_BROWSER_USE_EXTRACT_MODEL_PRIMARY` then `ATLAS_BROWSER_USE_EXTRACT_MODEL_FALLBACK`).
@@ -238,6 +287,7 @@ Recommended workflow:
 - If `atlas ops run` exits with code `2`, failure rate exceeded threshold (`ATLAS_OPS_FAILURE_RATE_THRESHOLD`).
 - `atlas ops` summaries include `blocked_domain_gates` so domain-level blocking events are visible in run totals.
 - Failure taxonomy now classifies DB truncation, DNS failures, and rate limits explicitly (instead of generic terminal errors).
+- If all API routes return `400` under custom domains, verify `ATLAS_TRUSTED_HOSTS` includes the request hostname.
 - If extraction fails with claims/program FK mismatch, upgrade to latest code; claim `program_id` references are now remapped to inserted program IDs.
 - Typical crawl statuses:
   - `pending`: job created, not started yet

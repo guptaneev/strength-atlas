@@ -78,6 +78,22 @@ body {
   max-width: 680px;
 }
 
+.hero-row {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auth-state,
+.quota-badge {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -218,6 +234,19 @@ select:focus {
 }
 
 .status-ok {
+  color: var(--ok);
+}
+
+.inline-message {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.inline-message.error {
+  color: #9e2f20;
+}
+
+.inline-message.success {
   color: var(--ok);
 }
 

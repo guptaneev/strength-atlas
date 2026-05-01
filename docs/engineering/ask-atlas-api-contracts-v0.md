@@ -23,10 +23,13 @@ Semantic hook contracts:
 Design notes:
 
 - Contracts are intentionally API-first and backend-facing.
-- Endpoints currently provide retrieval and evidence payloads only:
+- Endpoints currently provide retrieval/answer plus auth/quota support:
+  - `POST /auth/login` (email/password -> access token)
+  - `GET /me/quota` (authenticated quota status)
   - `GET /search/sources`
   - `GET /search/programs`
-  - `POST /ask/retrieve`
-  - `POST /ask/retrieve/debug` (candidate/evidence diagnostics)
-  - `POST /ask/answer` (deterministic synthesis over retrieved evidence)
+  - `POST /ask/retrieve` (authenticated + quota-enforced)
+  - `POST /ask/retrieve/debug` (authenticated + quota-enforced candidate/evidence diagnostics)
+  - `POST /ask/answer` (authenticated + quota-enforced deterministic synthesis over retrieved evidence)
+- Ask endpoints enforce a lifetime free quota (`ATLAS_ASK_LIFETIME_LIMIT`, default `5`) and return `status="quota_exceeded"` on limit breach.
 - Existing CLI ingest/search behavior remains unchanged.
