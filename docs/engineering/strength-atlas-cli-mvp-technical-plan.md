@@ -1,7 +1,7 @@
 ---
 purpose: Active implementation roadmap for the Strength Atlas CLI MVP
-status: draft
-scope: CLI MVP
+status: implemented-with-fullstack-mvp-extension
+scope: CLI + API + web MVP
 owner: TBD
 ---
 
@@ -9,7 +9,7 @@ owner: TBD
 
 ## Summary
 
-Build the MVP as a single-user Python CLI backed by Browser Use Cloud and a hosted Supabase Postgres database. The CLI will ingest allowlisted strength-training sources, store raw crawl artifacts, normalize program data into relational tables, and support structured plus full-text search over previously indexed content. It will not include a web app, end-user authentication, an admin UI, semantic embeddings, or natural-language Ask in this MVP.
+Build the MVP around a Python operator CLI plus a FastAPI/web surface backed by Browser Use Cloud and hosted Supabase Postgres. The system ingests allowlisted strength-training sources, stores raw crawl artifacts, normalizes program data into relational tables, and supports structured plus full-text search and retrieval-grounded Ask responses. Public web users authenticate through Supabase Auth and Ask is quota-limited.
 
 The concrete stack is:
 
@@ -180,6 +180,8 @@ Discovery flow:
 - validate the domain is allowlisted and not paused
 - run Browser Use against provided seed URLs
 - collect candidate URLs
+- apply URL policy guardrails to discard low-value/system/taxonomy/assets
+- cap accepted discovery candidates per run
 - canonicalize URLs
 - discard duplicates already present by `canonical_url`
 - create new `sources` rows with `status='pending'`
@@ -254,8 +256,19 @@ Implement these commands:
 - `atlas source show --source-id <id>`
 - `atlas search programs --query <text> [filters...]`
 - `atlas search sources --query <text> [--domain <domain>]`
+- `atlas ops run [automation flags]`
+- `atlas ops dry-run [automation flags]`
+- `atlas ops metrics [--limit <n>]`
+- `atlas ops domain-quality [--domain <domain>] [--domain-policy-file <path>]`
+- `atlas search eval --fixture <path>`
 
 Every command must support `--json`.
+
+Ops scale-up controls:
+
+- support optional domain policy file for domain-specific seed URLs and per-domain limits
+- support optional domain admission thresholds in policy file to gate unstable/low-quality domains from continuous runs
+- keep explicit operator caps (`--per-domain-limit`, `--global-limit`) as hard upper bounds
 
 `atlas source show` must display:
 
@@ -273,6 +286,24 @@ Every command must support `--json`.
 - No crawl-on-search behavior.
 - When data is insufficient for a query, search returns empty or low-result output; it does not trigger a crawl.
 - Operators refresh sources manually with CLI commands.
+- Scheduled automation is external-orchestrated (for example cron) and uses `atlas ops run`; this does not add an in-app scheduler service.
+
+### 9. Automation ledger and summary metrics
+
+`atlas ops run` writes one JSON line per run to `var/atlas/runs.jsonl` (configurable).
+
+Each run record includes:
+
+- `run_id`, `started_at`, `completed_at`, `policy`
+- `totals` for throughput, quality, reliability, and cost
+- `by_domain` aggregate breakdown
+- normalized `errors`
+- per-item outcomes in `items`
+
+Failure policy:
+
+- exit code `2` when run failure rate exceeds the configured threshold
+- exit code `0` otherwise
 
 ## Public Interfaces and Contracts
 
@@ -305,7 +336,10 @@ Required contract rules:
   - ranking tie-breaks by confidence and recency
   - empty-result behavior
 - extraction validation tests for unstructured/low-quality payloads
+- discovery URL policy tests (blocked paths/assets/candidate cap)
 - claim-to-program reference remapping tests (0/1-based local refs and invalid refs)
+- error classification tests for common terminal/retryable buckets
+- ops summary tests ensuring domain-gate blocked events are counted in totals
 - CLI tests for all commands, including `--json` output.
 - Storage tests ensuring `raw.html` and `extracted.json` are written to the expected bucket paths and linked from `documents`.
 
@@ -315,7 +349,9 @@ Required contract rules:
 - Browser Use is used only for acquisition and extraction, not for search-time operations.
 - Supabase is the hosted backend of record for both Postgres and artifact storage.
 - Search is full-text plus structured filtering only; semantic retrieval and Ask are deferred.
-- No authentication, no admin UI, no web surface, no scheduler, and no automatic crawling logic are included in this MVP.
+- Public web auth and Ask quota enforcement are included in this MVP.
+- No web-based ingest/ops admin UI is included; crawl operations remain operator CLI workflows.
+- No in-app scheduler or automatic crawl-on-search behavior is included.
 
 ## CLI Usage Notes
 

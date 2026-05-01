@@ -27,6 +27,7 @@ def test_program_search_uses_full_text_rank_and_order_chain() -> None:
     assert "order by" in sql
     assert "case when" in sql
     assert "ts_rank(documents.content_tsv" in sql
+    assert "canonical_url ilike" in sql
     assert "programs.confidence desc" in sql
     assert "coalesce(crawl_jobs.started_at, documents.created_at, programs.created_at) desc" in sql
 
@@ -38,3 +39,4 @@ def test_source_search_dedupes_via_grouped_source_subquery() -> None:
     assert "max(ts_rank" in sql
     assert "join (" in sql
     assert "source_id" in sql
+    assert "canonical_url ilike" in sql

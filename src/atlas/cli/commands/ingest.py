@@ -35,9 +35,8 @@ def discover(
                 f"(crawl_job_id={active.id}, status={active.status})"
             )
             raise typer.Exit(code=1)
-        client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
         try:
-            result = run_async(discover_and_create_sources(session, client, domain, seed_url))
+            result = run_async(_run_discover_with_client(session, domain, seed_url, timeout_seconds))
         except TimeoutError as exc:
             typer.echo(f"discover timeout: {exc}")
             raise typer.Exit(code=1)
@@ -229,6 +228,8 @@ def reextract_empty(
     timeout_seconds: int | None = typer.Option(None, "--timeout-seconds"),
     json_output: bool = typer.Option(False, "--json"),
 ) -> None:
+    import asyncio
+
     with SessionLocal() as session:
         active = get_active_crawl_for_domain(session, domain)
         if active is not None:
@@ -247,18 +248,26 @@ def reextract_empty(
             return
         client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
         storage = SupabaseStorageClient()
+        runner = asyncio.Runner()
 
         results: list[dict[str, object]] = []
-        for src in missing_program_sources:
+        try:
+            for src in missing_program_sources:
+                try:
+                    doc = runner.run(extract_url(session, client, src.url, src, storage=storage))
+                    results.append(
+                        {"source_id": src.id, "status": "succeeded", "document_id": doc.id, "error": None}
+                    )
+                except Exception as exc:
+                    results.append(
+                        {"source_id": src.id, "status": "failed", "document_id": None, "error": str(exc)}
+                    )
+        finally:
             try:
-                doc = run_async(extract_url(session, client, src.url, src, storage=storage))
-                results.append(
-                    {"source_id": src.id, "status": "succeeded", "document_id": doc.id, "error": None}
-                )
-            except Exception as exc:
-                results.append(
-                    {"source_id": src.id, "status": "failed", "document_id": None, "error": str(exc)}
-                )
+                runner.run(client.close())
+            except Exception:
+                pass
+            runner.close()
 
         succeeded = len([r for r in results if r["status"] == "succeeded"])
         failed = len(results) - succeeded
@@ -298,3 +307,11 @@ def _sources_with_empty_programs(session, *, domain: str, limit: int) -> list[So
 def run_async(coro):
     import asyncio
     return asyncio.run(coro)
+
+
+async def _run_discover_with_client(session, domain: str, seed_url: list[str], timeout_seconds: int | None):
+    client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
+    try:
+        return await discover_and_create_sources(session, client, domain, seed_url)
+    finally:
+        await client.close()

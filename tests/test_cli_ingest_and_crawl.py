@@ -235,10 +235,17 @@ def test_ingest_diagnose_json_output(monkeypatch) -> None:
 
 
 def test_ingest_reextract_empty_uses_helper(monkeypatch) -> None:
-    source = Source(
+    source_a = Source(
         id=6,
         url="https://example.com/program-bundle",
         canonical_url="https://example.com/program-bundle",
+        domain_id=1,
+        status="succeeded",
+    )
+    source_b = Source(
+        id=7,
+        url="https://example.com/program-bundle-2",
+        canonical_url="https://example.com/program-bundle-2",
         domain_id=1,
         status="succeeded",
     )
@@ -251,20 +258,30 @@ def test_ingest_reextract_empty_uses_helper(monkeypatch) -> None:
         pass
 
     class FakeClient:
-        pass
+        def __init__(self):
+            self.closed = False
+
+        async def close(self):
+            self.closed = True
 
     class FakeDoc:
         id = 77
 
+    extracted_source_ids: list[int] = []
+
     async def fake_extract(_session, _client, _url, _source, storage=None):
         assert storage is not None
+        extracted_source_ids.append(_source.id)
         return FakeDoc()
 
     monkeypatch.setattr("atlas.cli.commands.ingest.SessionLocal", lambda: _SessionCtx(FakeSession()))
     monkeypatch.setattr("atlas.cli.commands.ingest.BrowserUseClient", lambda poll_timeout_seconds=None: FakeClient())
     monkeypatch.setattr("atlas.cli.commands.ingest.SupabaseStorageClient", FakeStorage)
     monkeypatch.setattr("atlas.cli.commands.ingest.get_active_crawl_for_domain", lambda _s, _d: None)
-    monkeypatch.setattr("atlas.cli.commands.ingest._sources_with_empty_programs", lambda _s, domain, limit: [source])
+    monkeypatch.setattr(
+        "atlas.cli.commands.ingest._sources_with_empty_programs",
+        lambda _s, domain, limit: [source_a, source_b],
+    )
     monkeypatch.setattr("atlas.cli.commands.ingest.extract_url", fake_extract)
 
     runner = CliRunner()
@@ -274,5 +291,6 @@ def test_ingest_reextract_empty_uses_helper(monkeypatch) -> None:
     )
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
-    assert payload["queued"] == 1
-    assert payload["succeeded"] == 1
+    assert payload["queued"] == 2
+    assert payload["succeeded"] == 2
+    assert extracted_source_ids == [6, 7]

@@ -14,6 +14,7 @@ from atlas.browser_use.client import BrowserUseClient
 from atlas.config.settings import get_settings
 from atlas.db.models import CrawlJob, Domain, Source
 from atlas.ingest.retries import is_retryable_browser_use_error
+from atlas.ingest.url_policy import apply_discovery_url_policy, build_discovery_url_policy
 
 
 @dataclass(frozen=True)
@@ -132,9 +133,14 @@ async def discover_and_create_sources(
         crawl_job.browser_use_live_url = result.live_url
         crawl_job.browser_use_cost_usd = result.total_cost_usd
 
-        candidate_urls = parse_candidate_urls(result.output)
-        candidate_urls = [u for u in candidate_urls if is_url_in_domain(u, domain)]
-        created = create_sources_from_urls(session, domain, candidate_urls)
+        discovered = parse_candidate_urls(result.output)
+        discovered = [u for u in discovered if is_url_in_domain(u, domain)]
+        policy = build_discovery_url_policy(
+            blocked_path_tokens_csv=getattr(settings, "discovery_blocked_path_tokens", ""),
+            max_candidates=getattr(settings, "discovery_max_candidates_per_run", 200),
+        )
+        filtered = apply_discovery_url_policy(discovered, policy)
+        created = create_sources_from_urls(session, domain, filtered.accepted_urls)
 
         crawl_job.status = "succeeded"
         crawl_job.error_message = None
@@ -142,9 +148,9 @@ async def discover_and_create_sources(
         session.commit()
         return DiscoveryResult(
             created_sources=created.created_sources,
-            skipped_urls=created.skipped_urls,
+            skipped_urls=created.skipped_urls + filtered.rejected_urls,
             crawl_job=crawl_job,
-            candidate_urls=candidate_urls,
+            candidate_urls=filtered.accepted_urls,
         )
     except Exception as exc:
         if hasattr(session, "rollback"):
@@ -152,7 +158,8 @@ async def discover_and_create_sources(
         crawl_job.status = "failed"
         settings = get_settings()
         total_attempts = max(0, settings.max_crawl_retries) + 1
-        crawl_job.error_message = f"discover failed after {crawl_job.retry_count + 1}/{total_attempts} attempts: {exc}"
+        retry_count = int(crawl_job.retry_count or 0)
+        crawl_job.error_message = f"discover failed after {retry_count + 1}/{total_attempts} attempts: {exc}"
         crawl_job.completed_at = dt.datetime.now(dt.UTC)
         session.commit()
         raise

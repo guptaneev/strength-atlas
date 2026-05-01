@@ -5,6 +5,8 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+SHORT_TEXT_LIMIT = 64
+
 
 @dataclass
 class NormalizedExtraction:
@@ -39,7 +41,7 @@ def normalize_extraction(output: Any, *, url: str | None = None) -> NormalizedEx
 
     title = _first_non_empty(output, "title", "page_title", "headline", "name")
     author = _first_non_empty(output, "author", "byline")
-    source_type = _first_non_empty(output, "source_type", "type")
+    source_type = _sanitize_short_text(_first_non_empty(output, "source_type", "type"))
     raw_text = _first_non_empty(output, "text", "raw_text", "content", "main_text", "body", "markdown")
     summary = _first_non_empty(output, "summary", "description", "excerpt")
     if not raw_text and raw_text_fallback:
@@ -271,7 +273,7 @@ def _normalize_claim(value: Any) -> dict[str, Any] | None:
         return None
     return {
         "program_id": value.get("program_id"),
-        "claim_type": claim_type,
+        "claim_type": _sanitize_short_text(claim_type),
         "raw_text": raw_text,
         "normalized_value": normalized_value,
         "confidence": confidence,
@@ -385,8 +387,20 @@ def _normalize_enum(value: str | None, mapping: dict[str, str]) -> str | None:
         return None
     for key, normalized in mapping.items():
         if key in lowered:
-            return normalized
-    return lowered
+            return _sanitize_short_text(normalized)
+    # Keep enum-backed DB fields bounded to known values only.
+    return None
+
+
+def _sanitize_short_text(value: str | None, *, limit: int = SHORT_TEXT_LIMIT) -> str | None:
+    if value is None:
+        return None
+    cleaned = " ".join(value.strip().split())
+    if not cleaned:
+        return None
+    if len(cleaned) <= limit:
+        return cleaned
+    return cleaned[:limit].rstrip()
 
 
 def _clamp_confidence(value: Any) -> float | None:

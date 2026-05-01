@@ -61,6 +61,42 @@ def test_normalize_extraction_clamps_confidence_and_coerces_days() -> None:
     assert normalized.programs[0]["experience_level"] == "intermediate"
 
 
+def test_normalize_extraction_drops_unmapped_long_enum_values() -> None:
+    output = {
+        "title": "Program",
+        "main_text": "text body " * 40,
+        "programs": [
+            {
+                "name": "Bench Builder",
+                "progression_type": "periodized - specificity increases as meet approaches",
+                "split_type": "strength-focused: squat, press, deadlift, bench press",
+            }
+        ],
+    }
+    normalized = normalize_extraction(output)
+    assert normalized.programs[0]["progression_type"] is None
+    assert normalized.programs[0]["split_type"] is None
+
+
+def test_normalize_extraction_sanitizes_short_text_fields_to_db_safe_length() -> None:
+    output = {
+        "source_type": "x" * 120,
+        "main_text": "body " * 60,
+        "claims": [
+            {
+                "claim_type": "y" * 120,
+                "raw_text": "Bench 3x/week",
+                "normalized_value": "3",
+            }
+        ],
+    }
+    normalized = normalize_extraction(output)
+    assert normalized.source_type is not None
+    assert len(normalized.source_type) == 64
+    assert normalized.claims[0]["claim_type"] is not None
+    assert len(normalized.claims[0]["claim_type"]) == 64
+
+
 def test_validate_normalized_extraction_flags_low_quality_and_program_page() -> None:
     normalized = normalize_extraction({"title": "Program", "main_text": "Too short", "programs": []})
     errors = validate_normalized_extraction(normalized, url="https://example.com/program-bundle")

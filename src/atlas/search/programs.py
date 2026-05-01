@@ -68,16 +68,26 @@ def build_program_search_statement(query: str | None, filters: ProgramSearchFilt
         stmt = stmt.where(Document.content_tsv.op("@@")(ts_query))
         text_rank = func.ts_rank(Document.content_tsv, ts_query)
 
+    # Downweight aggregate/listing URLs that often match broad terms but are
+    # less useful than program/detail pages for intent-focused program search.
+    page_quality_score = literal(0)
+    for pattern in ("%/category/%", "%/tag/%", "%/author/%", "%/blog/best-%", "%/product-category/%"):
+        page_quality_score = page_quality_score + case((Source.canonical_url.ilike(pattern), -1), else_=0)
+    for pattern in ("%/program%", "%/template%", "%/how-to-%", "%/shop/%"):
+        page_quality_score = page_quality_score + case((Source.canonical_url.ilike(pattern), 1), else_=0)
+
     newest_crawl = func.coalesce(CrawlJob.started_at, Document.created_at, Program.created_at)
     stmt = stmt.with_only_columns(
         Program,
         structured_score.label("structured_score"),
         text_rank.label("text_rank"),
+        page_quality_score.label("page_quality_score"),
         newest_crawl.label("newest_crawl"),
     )
     stmt = stmt.order_by(
         structured_score.desc(),
         text_rank.desc(),
+        page_quality_score.desc(),
         Program.confidence.desc().nullslast(),
         newest_crawl.desc().nullslast(),
     )

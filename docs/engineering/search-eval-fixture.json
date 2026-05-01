@@ -1,0 +1,316 @@
+{
+  "queries": [
+    {
+      "name": "Bench Source Retrieval",
+      "mode": "sources",
+      "query": "bench",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/how-to-bench"
+      ]
+    },
+    {
+      "name": "Bench Program Retrieval",
+      "mode": "programs",
+      "query": "bench",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/how-to-bench"
+      ]
+    },
+    {
+      "name": "Deadlift Source Retrieval",
+      "mode": "sources",
+      "query": "deadlift",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/how-to-deadlift"
+      ]
+    },
+    {
+      "name": "Deadlift Program Retrieval",
+      "mode": "programs",
+      "query": "deadlift",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/how-to-deadlift"
+      ]
+    },
+    {
+      "name": "Squat Source Retrieval",
+      "mode": "sources",
+      "query": "squat",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/how-to-squat"
+      ]
+    },
+    {
+      "name": "Programming Source Retrieval",
+      "mode": "sources",
+      "query": "programming",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/programming"
+      ]
+    },
+    {
+      "name": "Powerlifting Source Retrieval",
+      "mode": "sources",
+      "query": "powerlifting",
+      "top_k": 10,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/blog/best-powerlifting-programs"
+      ]
+    },
+    {
+      "name": "Powerlifting Program Retrieval",
+      "mode": "programs",
+      "query": "powerlifting",
+      "top_k": 10,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/blog/best-powerlifting-programs"
+      ]
+    },
+    {
+      "name": "Template Source Retrieval",
+      "mode": "sources",
+      "query": "template",
+      "top_k": 15,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/product-category/training-templates"
+      ]
+    },
+    {
+      "name": "Template Program Retrieval",
+      "mode": "programs",
+      "query": "template",
+      "top_k": 15,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/product-category/training-templates"
+      ]
+    },
+    {
+      "name": "Hypertrophy Source Retrieval",
+      "mode": "sources",
+      "query": "hypertrophy",
+      "top_k": 15,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/product-category/training-templates/hypertrophy"
+      ]
+    },
+    {
+      "name": "Rehab Source Retrieval",
+      "mode": "sources",
+      "query": "rehab",
+      "top_k": 15,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/product-category/training-templates/rehab"
+      ]
+    },
+    {
+      "name": "Endurance Source Retrieval",
+      "mode": "sources",
+      "query": "endurance",
+      "top_k": 15,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/product-category/training-templates/endurance"
+      ]
+    },
+    {
+      "name": "Coaching Source Retrieval SBS",
+      "mode": "sources",
+      "query": "coaching",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/coaching"
+      ]
+    },
+    {
+      "name": "Coaching Source Retrieval BBM",
+      "mode": "sources",
+      "query": "coaching",
+      "top_k": 10,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/product-category/coaching"
+      ]
+    },
+    {
+      "name": "Program Bundle Source Retrieval",
+      "mode": "sources",
+      "query": "program bundle",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/program-bundle"
+      ]
+    },
+    {
+      "name": "Strength Training Source Retrieval",
+      "mode": "sources",
+      "query": "strength training",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/complete-strength-training-guide"
+      ]
+    },
+    {
+      "name": "Bodybuilding Source Retrieval",
+      "mode": "sources",
+      "query": "bodybuilding",
+      "top_k": 10,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/blog/bodybuilding-programs"
+      ]
+    },
+    {
+      "name": "Crossfit Source Retrieval",
+      "mode": "sources",
+      "query": "crossfit",
+      "top_k": 10,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-part-i"
+      ]
+    },
+    {
+      "name": "Bulgarian Manual Source Retrieval",
+      "mode": "sources",
+      "query": "bulgarian",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/bulgarian-manual"
+      ]
+    },
+    {
+      "name": "Diet Source Retrieval",
+      "mode": "sources",
+      "query": "diet",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/diet"
+      ]
+    },
+    {
+      "name": "Training Source Retrieval",
+      "mode": "sources",
+      "query": "training",
+      "top_k": 10,
+      "filters": {
+        "domain": "strongerbyscience.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.strongerbyscience.com/training"
+      ]
+    },
+    {
+      "name": "Injury Rehab Source Retrieval",
+      "mode": "sources",
+      "query": "injury rehab",
+      "top_k": 10,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/coaching/injury-rehab"
+      ]
+    },
+    {
+      "name": "Nutrition Source Retrieval",
+      "mode": "sources",
+      "query": "nutrition",
+      "top_k": 10,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/coaching/nutrition"
+      ]
+    },
+    {
+      "name": "Fitness Coaching Source Retrieval",
+      "mode": "sources",
+      "query": "fitness coaching",
+      "top_k": 10,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/coaching/fitness"
+      ]
+    },
+    {
+      "name": "Meet Prep Program Retrieval",
+      "mode": "programs",
+      "query": "meet prep",
+      "top_k": 15,
+      "filters": {
+        "domain": "barbellmedicine.com"
+      },
+      "must_include_canonical_urls": [
+        "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming"
+      ]
+    }
+  ]
+}

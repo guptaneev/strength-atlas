@@ -4,6 +4,7 @@ import typer
 
 from atlas.db.engine import SessionLocal
 from atlas.db.models import Document, Source
+from atlas.search.evaluation import load_eval_suite, run_search_eval_suite
 from atlas.search.programs import ProgramSearchFilters, search_programs
 from atlas.search.sources import search_sources
 
@@ -74,3 +75,37 @@ def search_sources_cmd(
             return
         for row in rows:
             typer.echo(f"{row.id} {row.canonical_url}")
+
+
+@app.command("eval")
+def eval_search_cmd(
+    fixture: str = typer.Option(
+        "docs/engineering/search-eval-fixture.json",
+        "--fixture",
+        help="Path to JSON eval suite.",
+    ),
+    min_pass_rate: float | None = typer.Option(
+        None,
+        "--min-pass-rate",
+        min=0.0,
+        max=1.0,
+        help="Optional threshold. Exit code 2 if pass_rate is below this value.",
+    ),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    suite = load_eval_suite(fixture)
+    with SessionLocal() as session:
+        summary = run_search_eval_suite(session, suite)
+    if json_output:
+        typer.echo(json.dumps(summary))
+        return
+    typer.echo(f"queries_total {summary['queries_total']}")
+    typer.echo(f"queries_passed {summary['queries_passed']}")
+    typer.echo(f"pass_rate {summary['pass_rate']:.3f}")
+    for row in summary["results"]:
+        status = "PASS" if row["passed"] else "FAIL"
+        typer.echo(f"[{status}] {row['name']} mode={row['mode']} query={row['query']}")
+        if row["missing_urls"]:
+            typer.echo(f"missing_urls {', '.join(row['missing_urls'])}")
+    if min_pass_rate is not None and float(summary["pass_rate"]) < min_pass_rate:
+        raise typer.Exit(code=2)
