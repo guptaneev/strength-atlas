@@ -35,9 +35,8 @@ def discover(
                 f"(crawl_job_id={active.id}, status={active.status})"
             )
             raise typer.Exit(code=1)
-        client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
         try:
-            result = run_async(discover_and_create_sources(session, client, domain, seed_url))
+            result = run_async(_run_discover_with_client(session, domain, seed_url, timeout_seconds))
         except TimeoutError as exc:
             typer.echo(f"discover timeout: {exc}")
             raise typer.Exit(code=1)
@@ -308,3 +307,8 @@ def _sources_with_empty_programs(session, *, domain: str, limit: int) -> list[So
 def run_async(coro):
     import asyncio
     return asyncio.run(coro)
+
+
+async def _run_discover_with_client(session, domain: str, seed_url: list[str], timeout_seconds: int | None):
+    client = BrowserUseClient(poll_timeout_seconds=timeout_seconds)
+    return await discover_and_create_sources(session, client, domain, seed_url)
