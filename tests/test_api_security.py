@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 from types import SimpleNamespace
 
 import pytest
 from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 from atlas.api.security import configure_security
 
@@ -22,3 +24,82 @@ def test_configure_security_rejects_wildcard_cors_in_production(monkeypatch) -> 
     )
     with pytest.raises(RuntimeError, match="Wildcard CORS origin"):
         configure_security(FastAPI())
+
+
+def test_security_adds_hsts_in_production(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "atlas.api.security.get_settings",
+        lambda: SimpleNamespace(
+            app_env="production",
+            cors_allowed_origins="https://atlas.example.com",
+            trusted_hosts="atlas.example.com",
+            enforce_https_redirect=False,
+            request_max_body_bytes=1024,
+            ask_request_timeout_seconds=5,
+            csv_items=lambda value: [item.strip() for item in value.split(",") if item.strip()],
+        ),
+    )
+    app = FastAPI()
+    configure_security(app)
+
+    @app.get("/health")
+    async def health():
+        return {"status": "ok"}
+
+    client = TestClient(app)
+    response = client.get("/health", headers={"host": "atlas.example.com"})
+    assert response.status_code == 200
+    assert response.headers["strict-transport-security"].startswith("max-age=31536000")
+
+
+def test_request_size_limit_checks_body(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "atlas.api.security.get_settings",
+        lambda: SimpleNamespace(
+            app_env="development",
+            cors_allowed_origins="http://localhost:8000",
+            trusted_hosts="localhost,testserver",
+            enforce_https_redirect=False,
+            request_max_body_bytes=20,
+            ask_request_timeout_seconds=5,
+            csv_items=lambda value: [item.strip() for item in value.split(",") if item.strip()],
+        ),
+    )
+    app = FastAPI()
+    configure_security(app)
+
+    @app.post("/echo")
+    async def echo():
+        return {"status": "ok"}
+
+    client = TestClient(app)
+    response = client.post("/echo", json={"x": "this payload exceeds configured max bytes"})
+    assert response.status_code == 413
+    assert response.json()["detail"] == "request_body_too_large"
+
+
+def test_ask_timeout_middleware(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "atlas.api.security.get_settings",
+        lambda: SimpleNamespace(
+            app_env="development",
+            cors_allowed_origins="http://localhost:8000",
+            trusted_hosts="localhost,testserver",
+            enforce_https_redirect=False,
+            request_max_body_bytes=4096,
+            ask_request_timeout_seconds=1,
+            csv_items=lambda value: [item.strip() for item in value.split(",") if item.strip()],
+        ),
+    )
+    app = FastAPI()
+    configure_security(app)
+
+    @app.post("/ask/slow")
+    async def slow():
+        await asyncio.sleep(2)
+        return {"status": "ok"}
+
+    client = TestClient(app)
+    response = client.post("/ask/slow", json={"q": "bench"})
+    assert response.status_code == 504
+    assert response.json()["status"] == "timeout"

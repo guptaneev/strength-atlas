@@ -14,17 +14,21 @@ Use this checklist before promoting staging to production.
 ## Functional gates
 
 - [ ] User can sign in via `/auth/login`.
+- [ ] User sign-up flow handles both immediate session and email-confirmation-required states.
 - [ ] `/me/quota` returns `used/limit/remaining`.
 - [ ] First 5 Ask requests succeed, 6th returns `status=quota_exceeded`.
 - [ ] Search/source endpoints return expected payloads.
 - [ ] Web app `/app` renders and supports mobile layout.
+- [ ] Ask endpoints return timeout payload (`status=timeout`) when exceeding `ATLAS_ASK_REQUEST_TIMEOUT_SECONDS`.
 
 ## Operational gates
 
 - [ ] `pytest -q` passes in CI.
 - [ ] `/health` returns 200 on deployed service.
+- [ ] `/ready` returns 200 on deployed service.
 - [ ] Logs include auth failures, quota exceeded, and rate-limit events.
 - [ ] Alerting configured for API 5xx spikes and auth/ask anomaly spikes.
+- [ ] Deployment is single-instance (rate limiting is in-memory for MVP).
 
 ## Rollback
 

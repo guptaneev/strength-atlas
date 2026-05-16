@@ -66,9 +66,9 @@ def verify_supabase_jwt(token: str) -> dict[str, Any]:
             options={"require": ["sub", "exp", "aud", "iss"]},
         )
     except InvalidTokenError as exc:
-        raise AuthError(f"token_verification_failed:{exc}") from exc
+        raise AuthError("token_verification_failed") from exc
     except Exception as exc:  # noqa: BLE001
-        raise AuthError(f"token_verification_failed:{exc}") from exc
+        raise AuthError("token_verification_failed") from exc
     if claims.get("role") != "authenticated":
         raise AuthError("token_role_not_authenticated")
     return claims
@@ -155,6 +155,21 @@ def _get_jwks() -> dict[str, dict[str, Any]]:
         _JWKS_CACHE["keys"] = keys
         _JWKS_CACHE["expires_at"] = time.time() + 300
     return keys
+
+
+def auth_readiness() -> tuple[bool, str]:
+    settings = get_settings()
+    if not settings.supabase_url:
+        return False, "missing_supabase_url"
+    if not settings.supabase_publishable_key:
+        return False, "missing_supabase_publishable_key"
+    try:
+        _get_jwks()
+    except AuthError as exc:
+        return False, f"jwks_unavailable:{exc}"
+    except Exception:
+        return False, "jwks_unavailable"
+    return True, "ok"
 
 
 def _default_issuer(settings) -> str:

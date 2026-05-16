@@ -34,6 +34,7 @@ Required environment variables:
 Optional:
 
 - `.env` file in the repo root for local development
+- `.env.example` template for local/staging/prod env setup
 - `ATLAS_BROWSER_USE_POLL_TIMEOUT_SECONDS` (default `300`)
 - `ATLAS_BROWSER_USE_EXTRACT_MODEL_PRIMARY` (default `bu-mini`)
 - `ATLAS_BROWSER_USE_EXTRACT_MODEL_FALLBACK` (default `bu-max`)
@@ -140,6 +141,11 @@ atlas-api
 uvicorn atlas.api.app:app --host 0.0.0.0 --port 8000
 ```
 
+Readiness/health:
+
+- `GET /health` checks process liveness.
+- `GET /ready` checks DB + Supabase auth/JWKS readiness.
+
 Web UI:
 
 - Open `http://127.0.0.1:8000/app` after starting `atlas-api`.
@@ -245,6 +251,7 @@ Render notes:
 - Set all `ATLAS_*` runtime env vars in Render (database/auth keys must be set manually).
 - Keep `ATLAS_API_DOCS_ENABLED=false` and `ATLAS_ENFORCE_HTTPS_REDIRECT=true` in production.
 - Configure `ATLAS_CORS_ALLOWED_ORIGINS` and `ATLAS_TRUSTED_HOSTS` to exact production domains.
+- Run a single API instance for this MVP (in-memory user/IP rate limiting is per-instance).
 
 Release/rollback checklist is documented in:
 - [`docs/operations/mvp-release-checklist.md`](docs/operations/mvp-release-checklist.md)

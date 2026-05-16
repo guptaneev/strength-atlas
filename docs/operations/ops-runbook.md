@@ -24,6 +24,9 @@
    - sign in via `/auth/login`
    - confirm `GET /me/quota`
    - submit Ask until blocked at configured limit
+3. Validate readiness before and after deploy:
+   - `GET /health` should return `200` with `{"status":"ok"}`
+   - `GET /ready` should return `200` only when DB and JWKS checks are healthy
 
 ## Incident patterns and actions
 
@@ -52,6 +55,7 @@
    - `ATLAS_ASK_IP_RATE_LIMIT_MAX_REQUESTS`
    - `ATLAS_ASK_USER_RATE_LIMIT_MAX_REQUESTS`
 2. Add temporary reverse-proxy/WAF throttling.
+3. Keep deployment single-instance for MVP rate-limit consistency.
 
 ## Security hygiene
 

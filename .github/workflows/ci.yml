@@ -5,6 +5,19 @@ on:
   pull_request:
 
 jobs:
+  docs-sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject local absolute paths in docs
+        run: |
+          if rg -n "/Users/|C:\\\\" README.md docs; then
+            echo "Found local absolute path(s) in docs."
+            exit 1
+          fi
+
   test:
     runs-on: ubuntu-latest
     steps:

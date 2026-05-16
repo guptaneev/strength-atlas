@@ -392,3 +392,43 @@ def test_auth_signup_endpoint_email_confirmation_required(monkeypatch) -> None:
     payload = AuthSignupResponse.model_validate(response.json())
     assert payload.access_token is None
     assert payload.email_confirmation_required is True
+
+
+def test_ready_endpoint_ok(monkeypatch) -> None:
+    class _Session:
+        def execute(self, _stmt):
+            return 1
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, _exc_type, _exc, _tb):
+            return False
+
+    monkeypatch.setattr("atlas.api.app.SessionLocal", lambda: _Session())
+    monkeypatch.setattr("atlas.api.app.auth_readiness", lambda: (True, "ok"))
+    client = TestClient(app)
+    response = client.get("/ready")
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+
+
+def test_ready_endpoint_degraded(monkeypatch) -> None:
+    class _Session:
+        def execute(self, _stmt):
+            raise RuntimeError("db down")
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, _exc_type, _exc, _tb):
+            return False
+
+    monkeypatch.setattr("atlas.api.app.SessionLocal", lambda: _Session())
+    monkeypatch.setattr("atlas.api.app.auth_readiness", lambda: (False, "jwks_unavailable"))
+    client = TestClient(app)
+    response = client.get("/ready")
+    assert response.status_code == 503
+    payload = response.json()
+    assert payload["status"] == "degraded"
+    assert payload["auth"] == "jwks_unavailable"
