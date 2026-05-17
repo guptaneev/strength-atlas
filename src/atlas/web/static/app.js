@@ -1,13 +1,72 @@
 const AUTH_TOKEN_KEY = "atlas_auth_token";
 const AUTH_TOKEN_TYPE = "atlas_auth_token_type";
+const ASK_ADVANCED_OPEN_KEY = "atlas_ask_advanced_open";
+
+const state = {
+  activeTab: "ask",
+  askCanAsk: true,
+  askContactUrl: "",
+  currentUserEmail: "",
+  pendingAskQuery: "",
+  summary: null,
+  domains: [],
+  activeModal: null,
+};
+
+const refs = {
+  quotaBadge: document.getElementById("quotaBadge"),
+  authActionBtn: document.getElementById("authActionBtn"),
+  userMenu: document.getElementById("userMenu"),
+  userMenuBtn: document.getElementById("userMenuBtn"),
+  userMenuPopup: document.getElementById("userMenuPopup"),
+  userEmail: document.getElementById("userEmail"),
+  signOutBtn: document.getElementById("signOutBtn"),
+  trustChips: document.getElementById("trustChips"),
+  globalBanner: document.getElementById("globalBanner"),
+  quickQueryForm: document.getElementById("quickQueryForm"),
+  quickQuery: document.getElementById("quickQuery"),
+  quickSubmit: document.getElementById("quickSubmit"),
+  tabs: Array.from(document.querySelectorAll(".tab")),
+  tabUnderline: document.getElementById("tabUnderline"),
+  panels: {
+    ask: document.getElementById("panel-ask"),
+    program: document.getElementById("panel-program"),
+    source: document.getElementById("panel-source"),
+  },
+  askGateMessage: document.getElementById("askGateMessage"),
+  askResults: document.getElementById("askResults"),
+  advancedToggle: document.getElementById("advancedToggle"),
+  advancedChevron: document.getElementById("advancedChevron"),
+  askAdvanced: document.getElementById("askAdvanced"),
+  askDomain: document.getElementById("askDomain"),
+  askMaxEvidence: document.getElementById("askMaxEvidence"),
+  programDomain: document.getElementById("programDomain"),
+  programLimit: document.getElementById("programLimit"),
+  programResults: document.getElementById("programResults"),
+  sourceDomain: document.getElementById("sourceDomain"),
+  sourceLimit: document.getElementById("sourceLimit"),
+  sourceResults: document.getElementById("sourceResults"),
+  sourceListForm: document.getElementById("sourceListForm"),
+  sourceListBtn: document.getElementById("sourceListBtn"),
+  listDomain: document.getElementById("listDomain"),
+  listStatus: document.getElementById("listStatus"),
+  listLimit: document.getElementById("listLimit"),
+  sourceListResults: document.getElementById("sourceListResults"),
+  sourceDetailOutput: document.getElementById("sourceDetailOutput"),
+  openStatusBtn: document.getElementById("openStatusBtn"),
+  statusBody: document.getElementById("statusBody"),
+  authModal: document.getElementById("authModal"),
+  authForm: document.getElementById("authForm"),
+  authEmail: document.getElementById("authEmail"),
+  authPassword: document.getElementById("authPassword"),
+  signInBtn: document.getElementById("signInBtn"),
+  signUpBtn: document.getElementById("signUpBtn"),
+  authMessage: document.getElementById("authMessage"),
+  statusModal: document.getElementById("statusModal"),
+};
 
 function getAuthToken() {
   return localStorage.getItem(AUTH_TOKEN_KEY) || "";
-}
-
-function setAuthToken(token, tokenType = "bearer") {
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
-  localStorage.setItem(AUTH_TOKEN_TYPE, tokenType);
 }
 
 function getAuthTokenType() {
@@ -16,9 +75,22 @@ function getAuthTokenType() {
   return `${tokenType.charAt(0).toUpperCase()}${tokenType.slice(1)}`;
 }
 
+function setAuthToken(token, tokenType = "bearer") {
+  localStorage.setItem(AUTH_TOKEN_KEY, token);
+  localStorage.setItem(AUTH_TOKEN_TYPE, tokenType);
+}
+
 function clearAuthToken() {
   localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(AUTH_TOKEN_TYPE);
+}
+
+function getAdvancedOpen() {
+  return localStorage.getItem(ASK_ADVANCED_OPEN_KEY) === "1";
+}
+
+function setAdvancedOpen(open) {
+  localStorage.setItem(ASK_ADVANCED_OPEN_KEY, open ? "1" : "0");
 }
 
 function authHeaders(extra = {}) {
@@ -29,317 +101,942 @@ function authHeaders(extra = {}) {
 
 async function readJson(response) {
   const text = await response.text();
-  const parsed = text ? JSON.parse(text) : {};
+  const payload = text ? JSON.parse(text) : {};
   if (!response.ok) {
-    const message = parsed.detail || parsed.status || `request_failed_${response.status}`;
+    const message = payload.detail || payload.status || `request_failed_${response.status}`;
     const err = new Error(typeof message === "string" ? message : JSON.stringify(message));
-    err.payload = parsed;
     err.status = response.status;
+    err.payload = payload;
     throw err;
   }
-  return parsed;
+  return payload;
 }
 
-function setOutput(id, value) {
-  const node = document.getElementById(id);
-  node.textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+function setGlobalBanner(message, mode = "") {
+  refs.globalBanner.textContent = message || "";
+  refs.globalBanner.className = `global-banner${mode ? ` ${mode}` : ""}`;
 }
 
-function setMessage(id, text, mode = "") {
-  const node = document.getElementById(id);
-  node.textContent = text || "";
+function setInlineMessage(node, message, mode = "") {
+  node.textContent = message || "";
   node.className = `inline-message${mode ? ` ${mode}` : ""}`;
 }
 
-function renderResults(containerId, rows, renderRow) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = "";
-  if (!rows.length) {
-    const empty = document.createElement("div");
-    empty.className = "result";
-    empty.textContent = "No results.";
-    container.appendChild(empty);
+function clearNode(node) {
+  while (node.firstChild) node.removeChild(node.firstChild);
+}
+
+function createText(className, text) {
+  const node = document.createElement("div");
+  node.className = className;
+  node.textContent = text;
+  return node;
+}
+
+function createMetaPill(text) {
+  const node = document.createElement("span");
+  node.className = "meta-pill";
+  node.textContent = text;
+  return node;
+}
+
+function createTrustChip(text) {
+  const node = document.createElement("span");
+  node.className = "trust-chip";
+  node.textContent = text;
+  return node;
+}
+
+function formatDate(value) {
+  if (!value) return "n/a";
+  const date = new Date(value);
+  if (Number.isNaN(date.valueOf())) return value;
+  return date.toLocaleString();
+}
+
+function domainFromUrl(url) {
+  try {
+    return new URL(url).hostname;
+  } catch (_err) {
+    return "source";
+  }
+}
+
+function setLoadingButton(button, busy, busyText, idleText) {
+  if (!button) return;
+  button.disabled = busy;
+  button.textContent = busy ? busyText : idleText;
+}
+
+function renderSkeleton(container, count = 3) {
+  clearNode(container);
+  for (let i = 0; i < count; i += 1) {
+    const shell = document.createElement("div");
+    shell.className = "skeleton";
+    for (let j = 0; j < 3; j += 1) {
+      const line = document.createElement("div");
+      line.className = "skeleton-line";
+      shell.appendChild(line);
+    }
+    container.appendChild(shell);
+  }
+}
+
+function renderEmpty(container, message) {
+  clearNode(container);
+  const node = document.createElement("div");
+  node.className = "empty-state";
+  node.textContent = message;
+  container.appendChild(node);
+}
+
+function renderError(container, message) {
+  clearNode(container);
+  const node = document.createElement("div");
+  node.className = "error-state";
+  node.textContent = message;
+  container.appendChild(node);
+}
+
+function renderTrustChips() {
+  clearNode(refs.trustChips);
+
+  if (!state.summary) {
+    refs.trustChips.appendChild(createTrustChip("Corpus summary unavailable"));
     return;
   }
-  rows.forEach((row) => container.appendChild(renderRow(row)));
-}
 
-function summaryCard(label, value) {
-  const card = document.createElement("div");
-  card.className = "card";
-  const k = document.createElement("div");
-  k.className = "k";
-  k.textContent = label;
-  const v = document.createElement("div");
-  v.className = "v";
-  v.textContent = `${value}`;
-  card.appendChild(k);
-  card.appendChild(v);
-  return card;
-}
+  refs.trustChips.appendChild(createTrustChip(`${state.summary.programs_total} programs indexed`));
 
-function refreshAuthDisplay(isSignedIn) {
-  document.getElementById("authState").textContent = isSignedIn ? "Signed in" : "Not signed in";
-  document.getElementById("askForm").style.display = isSignedIn ? "grid" : "none";
-  setMessage(
-    "askGateMessage",
-    isSignedIn ? "" : "Sign in to use Ask Atlas. Free tier includes 5 lifetime asks.",
-    isSignedIn ? "" : "error",
+  if (state.domains.length) {
+    refs.trustChips.appendChild(createTrustChip(`Sources include ${state.domains.slice(0, 2).join(", ")}`));
+  } else {
+    refs.trustChips.appendChild(createTrustChip(`${state.summary.allowlisted_domains} allowlisted domains`));
+  }
+
+  refs.trustChips.appendChild(
+    createTrustChip(`Last indexed ${formatDate(state.summary.latest_successful_crawl_at)}`),
   );
 }
 
-async function loadSummary() {
-  try {
-    const data = await readJson(await fetch("/dashboard/summary"));
-    const node = document.getElementById("summaryCards");
-    node.innerHTML = "";
-    node.appendChild(summaryCard("Domains", `${data.domains_total} (${data.allowlisted_domains} allowlisted)`));
-    node.appendChild(summaryCard("Sources", `${data.sources_total} (${data.sources_pending} pending)`));
-    node.appendChild(summaryCard("Programs", data.programs_total));
-    node.appendChild(summaryCard("Recent Failures", `${data.recent_crawls_failed}/${data.recent_crawls_analyzed}`));
-  } catch (err) {
-    setOutput("askOutput", `Summary load failed: ${err.message}`);
+function renderStatusBody() {
+  clearNode(refs.statusBody);
+
+  if (!state.summary) {
+    refs.statusBody.appendChild(createText("empty-state", "Status unavailable right now."));
+    return;
   }
+
+  const rows = [
+    ["Domains", `${state.summary.domains_total} total (${state.summary.allowlisted_domains} allowlisted)`],
+    ["Sources", `${state.summary.sources_total} total (${state.summary.sources_pending} pending)`],
+    ["Programs", `${state.summary.programs_total}`],
+    ["Claims", `${state.summary.claims_total}`],
+    ["Recent failures", `${state.summary.recent_crawls_failed}/${state.summary.recent_crawls_analyzed}`],
+    ["Latest successful crawl", formatDate(state.summary.latest_successful_crawl_at)],
+  ];
+
+  rows.forEach(([label, value]) => {
+    const row = document.createElement("div");
+    row.className = "status-row";
+    row.appendChild(createText("status-label", label));
+    row.appendChild(createText("status-value", value));
+    refs.statusBody.appendChild(row);
+  });
+}
+
+function updateQuickInputForTab() {
+  if (state.activeTab === "ask") {
+    refs.quickQuery.placeholder = "How often should I bench as an intermediate?";
+    refs.quickSubmit.textContent = state.askCanAsk && getAuthToken() ? "Ask" : "Ask";
+    refs.advancedToggle.classList.remove("hidden");
+  } else if (state.activeTab === "program") {
+    refs.quickQuery.placeholder = "Search programs (e.g., bench hypertrophy novice)";
+    refs.quickSubmit.textContent = "Search Programs";
+    refs.advancedToggle.classList.add("hidden");
+  } else {
+    refs.quickQuery.placeholder = "Search sources (e.g., deadlift setup)";
+    refs.quickSubmit.textContent = "Search Sources";
+    refs.advancedToggle.classList.add("hidden");
+  }
+
+  if (state.activeTab === "ask" && getAuthToken() && !state.askCanAsk) {
+    refs.quickSubmit.disabled = true;
+    refs.quickSubmit.textContent = "Upgrade";
+  } else {
+    refs.quickSubmit.disabled = false;
+  }
+}
+
+function moveTabUnderline() {
+  const activeTab = refs.tabs.find((tab) => tab.dataset.tab === state.activeTab);
+  if (!activeTab) return;
+
+  const navRect = activeTab.parentElement.getBoundingClientRect();
+  const tabRect = activeTab.getBoundingClientRect();
+  refs.tabUnderline.style.width = `${tabRect.width}px`;
+  refs.tabUnderline.style.transform = `translateX(${tabRect.left - navRect.left}px)`;
+}
+
+function setTab(tabName, focusTab = false) {
+  state.activeTab = tabName;
+
+  refs.tabs.forEach((tab) => {
+    const active = tab.dataset.tab === tabName;
+    tab.setAttribute("aria-selected", active ? "true" : "false");
+    tab.tabIndex = active ? 0 : -1;
+    if (active && focusTab) tab.focus();
+  });
+
+  Object.entries(refs.panels).forEach(([key, panel]) => {
+    panel.classList.toggle("hidden", key !== tabName);
+  });
+
+  updateQuickInputForTab();
+  moveTabUnderline();
+}
+
+function setAdvancedVisibility(open) {
+  refs.askAdvanced.classList.toggle("hidden", !open);
+  refs.advancedToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  refs.advancedChevron.classList.toggle("open", open);
+  setAdvancedOpen(open);
+}
+
+function openModal(kind) {
+  closeUserMenu();
+  const modal = kind === "auth" ? refs.authModal : refs.statusModal;
+  if (!modal) return;
+
+  state.activeModal = modal;
+  modal.classList.remove("hidden");
+
+  if (kind === "auth") {
+    refs.authEmail.focus();
+  }
+}
+
+function closeModal(kind) {
+  const modal = kind === "auth" ? refs.authModal : refs.statusModal;
+  if (!modal) return;
+
+  modal.classList.add("hidden");
+  if (state.activeModal === modal) {
+    state.activeModal = null;
+  }
+}
+
+function closeAllModals() {
+  closeModal("auth");
+  closeModal("status");
+}
+
+function openUserMenu() {
+  refs.userMenuPopup.classList.remove("hidden");
+  refs.userMenuBtn.setAttribute("aria-expanded", "true");
+}
+
+function closeUserMenu() {
+  refs.userMenuPopup.classList.add("hidden");
+  refs.userMenuBtn.setAttribute("aria-expanded", "false");
+}
+
+function updateAuthUI() {
+  const token = getAuthToken();
+  const signedIn = Boolean(token);
+
+  if (!signedIn) {
+    refs.authActionBtn.classList.remove("hidden");
+    refs.userMenu.classList.add("hidden");
+    state.currentUserEmail = "";
+    if (state.activeTab === "ask") {
+      setInlineMessage(refs.askGateMessage, "Sign in to use Ask Atlas. Free tier includes 5 lifetime asks.", "");
+    }
+    return;
+  }
+
+  refs.authActionBtn.classList.add("hidden");
+  refs.userMenu.classList.remove("hidden");
+  const label = (state.currentUserEmail || "U").trim();
+  refs.userMenuBtn.textContent = label ? label.charAt(0).toUpperCase() : "U";
+  refs.userEmail.textContent = state.currentUserEmail || "Signed in";
+}
+
+async function loadTrustAndStatus() {
+  try {
+    const [summary, sourceRows] = await Promise.all([
+      readJson(await fetch("/dashboard/summary")),
+      readJson(await fetch("/sources?limit=30")),
+    ]);
+
+    state.summary = summary;
+    const distinctDomains = [];
+    const seen = new Set();
+    sourceRows.forEach((row) => {
+      if (!row || !row.domain) return;
+      if (seen.has(row.domain)) return;
+      seen.add(row.domain);
+      distinctDomains.push(row.domain);
+    });
+    state.domains = distinctDomains;
+  } catch (_err) {
+    state.summary = null;
+    state.domains = [];
+  }
+
+  renderTrustChips();
+  renderStatusBody();
 }
 
 async function loadQuota() {
   const token = getAuthToken();
-  const badge = document.getElementById("quotaBadge");
   if (!token) {
-    badge.textContent = "Ask quota: sign in required";
-    refreshAuthDisplay(false);
+    refs.quotaBadge.classList.remove("exhausted");
+    refs.quotaBadge.textContent = "Ask quota: sign in required";
+    state.askCanAsk = true;
+    state.askContactUrl = "";
+    updateAuthUI();
+    updateQuickInputForTab();
     return;
   }
+
   try {
-    const data = await readJson(
-      await fetch("/me/quota", {
-        headers: authHeaders(),
-      }),
-    );
-    badge.textContent = `Ask quota: ${data.used}/${data.limit} used (${data.remaining} left)`;
-    refreshAuthDisplay(true);
-    if (!data.can_ask) {
-      setMessage(
-        "askGateMessage",
-        `Free ask quota reached. Contact: ${data.contact_url || "support"}`,
+    const data = await readJson(await fetch("/me/quota", { headers: authHeaders() }));
+    refs.quotaBadge.textContent = `Ask quota: ${data.remaining} left`;
+    refs.quotaBadge.classList.toggle("exhausted", !data.can_ask);
+    state.askCanAsk = Boolean(data.can_ask);
+    state.askContactUrl = data.contact_url || "";
+    updateQuickInputForTab();
+
+    if (!data.can_ask && state.activeTab === "ask") {
+      setInlineMessage(
+        refs.askGateMessage,
+        `You've used all ${data.limit} free asks. Contact: ${data.contact_url || "support"}`,
         "error",
       );
+    } else {
+      setInlineMessage(refs.askGateMessage, "", "");
     }
   } catch (err) {
     if (err.status === 401) {
       clearAuthToken();
-      refreshAuthDisplay(false);
-      badge.textContent = "Ask quota: auth expired";
+      state.currentUserEmail = "";
+      refs.quotaBadge.textContent = "Ask quota: auth expired";
+      state.askCanAsk = true;
+      updateAuthUI();
+      updateQuickInputForTab();
       return;
     }
-    badge.textContent = "Ask quota: unavailable";
+    refs.quotaBadge.textContent = "Ask quota: unavailable";
+    state.askCanAsk = true;
   }
+
+  updateAuthUI();
 }
 
-async function runSignIn(event) {
-  event.preventDefault();
-  const email = document.getElementById("authEmail").value.trim();
-  const password = document.getElementById("authPassword").value;
-  setMessage("authMessage", "Signing in...");
-  try {
-    const data = await readJson(
-      await fetch("/auth/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      }),
-    );
-    setAuthToken(data.access_token, data.token_type || "bearer");
-    setMessage("authMessage", "Signed in successfully.", "success");
-    await loadQuota();
-  } catch (err) {
-    setMessage("authMessage", `Sign-in failed: ${err.message}`, "error");
+function renderAskResponse(payload) {
+  clearNode(refs.askResults);
+
+  const card = document.createElement("article");
+  card.className = "result-card";
+
+  const title = document.createElement("h2");
+  title.className = "result-title";
+  title.textContent = payload.status === "ok" ? "Grounded Answer" : "Insufficient Evidence";
+  card.appendChild(title);
+
+  const answer = document.createElement("p");
+  answer.className = "result-text";
+  answer.textContent = payload.answer || "No answer available.";
+  card.appendChild(answer);
+
+  const meta = document.createElement("div");
+  meta.className = "result-meta";
+  const evidenceCount = Array.isArray(payload.evidence) ? payload.evidence.length : 0;
+  meta.appendChild(createMetaPill(`Evidence: ${evidenceCount}`));
+  if (typeof payload.confidence === "number") {
+    meta.appendChild(createMetaPill(`Confidence: ${payload.confidence.toFixed(2)}`));
   }
+  meta.appendChild(createMetaPill(`Status: ${payload.status || "unknown"}`));
+  card.appendChild(meta);
+
+  if (evidenceCount > 0) {
+    payload.evidence.forEach((item, idx) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "evidence-item";
+      wrapper.appendChild(
+        createText(
+          "evidence-ref",
+          `[${idx + 1}] ${domainFromUrl(item.canonical_url || "")} · source ${item.source_id} · doc ${item.document_id}`,
+        ),
+      );
+
+      if (item.title) {
+        wrapper.appendChild(createText("result-text", item.title));
+      }
+
+      if (item.canonical_url) {
+        const link = document.createElement("a");
+        link.href = item.canonical_url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "Open source";
+        wrapper.appendChild(link);
+      }
+      card.appendChild(wrapper);
+    });
+  }
+
+  refs.askResults.appendChild(card);
 }
 
-async function runSignUp() {
-  const email = document.getElementById("authEmail").value.trim();
-  const password = document.getElementById("authPassword").value;
-  if (!email || !password) {
-    setMessage("authMessage", "Provide email and password before signing up.", "error");
+function renderProgramResults(rows) {
+  clearNode(refs.programResults);
+  if (!rows.length) {
+    renderEmpty(refs.programResults, "No matching programs. Try a broader query.");
     return;
   }
-  setMessage("authMessage", "Creating account...");
-  try {
-    const data = await readJson(
-      await fetch("/auth/signup", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      }),
-    );
-    if (data.access_token) {
-      setAuthToken(data.access_token, data.token_type || "bearer");
-      setMessage("authMessage", "Account created and signed in.", "success");
-      await loadQuota();
-      return;
+
+  rows.forEach((row) => {
+    const card = document.createElement("article");
+    card.className = "result-card";
+    const title = document.createElement("h2");
+    title.className = "result-title";
+    title.textContent = row.name || `Program #${row.id}`;
+    card.appendChild(title);
+
+    const meta = document.createElement("div");
+    meta.className = "result-meta";
+    meta.appendChild(createMetaPill(`Program: ${row.id}`));
+    meta.appendChild(createMetaPill(`Source: ${row.source_id || "n/a"}`));
+    if (typeof row.confidence === "number") {
+      meta.appendChild(createMetaPill(`Confidence: ${row.confidence.toFixed(2)}`));
     }
-    setMessage(
-      "authMessage",
-      "Account created. Check your email for confirmation, then sign in.",
-      "success",
-    );
-  } catch (err) {
-    setMessage("authMessage", `Sign-up failed: ${err.message}`, "error");
+    card.appendChild(meta);
+
+    if (row.canonical_url) {
+      const link = document.createElement("a");
+      link.href = row.canonical_url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Open source";
+      card.appendChild(link);
+    }
+
+    refs.programResults.appendChild(card);
+  });
+}
+
+function renderSourceResults(rows) {
+  clearNode(refs.sourceResults);
+  if (!rows.length) {
+    renderEmpty(refs.sourceResults, "No matching sources. Try a different phrase.");
+    return;
   }
+
+  rows.forEach((row) => {
+    const card = document.createElement("article");
+    card.className = "result-card";
+    const title = document.createElement("h2");
+    title.className = "result-title";
+    title.textContent = `Source #${row.id}`;
+    card.appendChild(title);
+    card.appendChild(createText("result-text", row.canonical_url));
+
+    const meta = document.createElement("div");
+    meta.className = "result-meta";
+    meta.appendChild(createMetaPill(`Status: ${row.status || "n/a"}`));
+    meta.appendChild(createMetaPill(`Last crawled: ${formatDate(row.last_crawled_at)}`));
+    card.appendChild(meta);
+
+    refs.sourceResults.appendChild(card);
+  });
 }
 
-function runSignOut() {
-  clearAuthToken();
-  setMessage("authMessage", "Signed out.", "success");
-  document.getElementById("quotaBadge").textContent = "Ask quota: sign in required";
-  refreshAuthDisplay(false);
+function renderSourceList(rows) {
+  clearNode(refs.sourceListResults);
+  if (!rows.length) {
+    renderEmpty(refs.sourceListResults, "No sources found for this filter.");
+    return;
+  }
+
+  rows.forEach((row) => {
+    const card = document.createElement("article");
+    card.className = "result-card";
+    const title = document.createElement("h2");
+    title.className = "result-title";
+    title.textContent = row.title || `Source #${row.id}`;
+    card.appendChild(title);
+
+    const meta = document.createElement("div");
+    meta.className = "result-meta";
+    meta.appendChild(createMetaPill(`Domain: ${row.domain || "n/a"}`));
+    meta.appendChild(createMetaPill(`Status: ${row.status || "n/a"}`));
+    meta.appendChild(createMetaPill(`Last crawled: ${formatDate(row.last_crawled_at)}`));
+    card.appendChild(meta);
+
+    card.appendChild(createText("result-text", row.canonical_url));
+
+    const inspectBtn = document.createElement("button");
+    inspectBtn.className = "btn-secondary";
+    inspectBtn.type = "button";
+    inspectBtn.textContent = "Inspect";
+    inspectBtn.addEventListener("click", () => loadSourceDetail(row.id));
+    card.appendChild(inspectBtn);
+
+    refs.sourceListResults.appendChild(card);
+  });
 }
 
-async function runAsk(event) {
-  event.preventDefault();
+function renderSourceDetail(data) {
+  clearNode(refs.sourceDetailOutput);
+
+  if (!data || typeof data !== "object") {
+    renderEmpty(refs.sourceDetailOutput, "No source selected.");
+    return;
+  }
+
+  const card = document.createElement("article");
+  card.className = "result-card";
+  const title = document.createElement("h2");
+  title.className = "result-title";
+  title.textContent = data.title || `Source #${data.id}`;
+  card.appendChild(title);
+
+  const meta = document.createElement("div");
+  meta.className = "result-meta";
+  meta.appendChild(createMetaPill(`Domain: ${data.domain || "n/a"}`));
+  meta.appendChild(createMetaPill(`Status: ${data.status || "n/a"}`));
+  meta.appendChild(createMetaPill(`Type: ${data.source_type || "n/a"}`));
+  card.appendChild(meta);
+
+  card.appendChild(createText("result-text", `Last crawled: ${formatDate(data.last_crawled_at)}`));
+
+  if (data.canonical_url) {
+    const link = document.createElement("a");
+    link.href = data.canonical_url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "Open source";
+    card.appendChild(link);
+  }
+
+  if (Array.isArray(data.programs) && data.programs.length) {
+    const label = document.createElement("div");
+    label.className = "evidence-ref";
+    label.textContent = "Programs:";
+    card.appendChild(label);
+
+    data.programs.slice(0, 8).forEach((program) => {
+      const row = document.createElement("div");
+      row.className = "evidence-item";
+      row.appendChild(createText("result-text", program.name || `Program #${program.id}`));
+      if (typeof program.confidence === "number") {
+        row.appendChild(createText("evidence-ref", `Confidence: ${program.confidence.toFixed(2)}`));
+      }
+      card.appendChild(row);
+    });
+  }
+
+  refs.sourceDetailOutput.appendChild(card);
+}
+
+async function runAskQuery(query) {
   const token = getAuthToken();
   if (!token) {
-    setMessage("askGateMessage", "Sign in required before asking.", "error");
+    state.pendingAskQuery = query;
+    openModal("auth");
+    setInlineMessage(refs.askGateMessage, "Sign in to submit Ask Atlas queries.", "error");
     return;
   }
+
+  if (!state.askCanAsk) {
+    setInlineMessage(
+      refs.askGateMessage,
+      `You've used your free asks. Contact: ${state.askContactUrl || "support"}`,
+      "error",
+    );
+    return;
+  }
+
   const payload = {
-    query: document.getElementById("askQuery").value.trim(),
+    query,
     max_sources: 8,
     max_programs: 20,
     include_evidence: true,
-    max_evidence: Number(document.getElementById("askMaxEvidence").value || 8),
+    max_evidence: Number(refs.askMaxEvidence.value || 8),
     filters: {},
   };
-  const domain = document.getElementById("askDomain").value.trim();
-  if (domain) {
-    payload.filters.domain = domain;
-  }
-  setOutput("askOutput", "Generating answer...");
+  const domain = refs.askDomain.value.trim();
+  if (domain) payload.filters.domain = domain;
+
+  renderSkeleton(refs.askResults, 2);
+  setLoadingButton(refs.quickSubmit, true, "Thinking...", "Ask");
+
   try {
-    const data = await readJson(
+    const response = await readJson(
       await fetch("/ask/answer", {
         method: "POST",
         headers: authHeaders({ "content-type": "application/json" }),
         body: JSON.stringify(payload),
       }),
     );
-    setOutput("askOutput", data);
-    setMessage("askGateMessage", "", "");
+
+    renderAskResponse(response);
+    setInlineMessage(refs.askGateMessage, "", "");
+    setGlobalBanner("", "");
     await loadQuota();
   } catch (err) {
     if (err.payload && err.payload.status === "quota_exceeded") {
-      const contact = err.payload.contact_url || "support";
-      setMessage(
-        "askGateMessage",
-        `Free ask quota reached (used ${err.payload.used}/${err.payload.limit}). Contact: ${contact}`,
+      state.askCanAsk = false;
+      state.askContactUrl = err.payload.contact_url || "";
+      refs.quotaBadge.classList.add("exhausted");
+      refs.quotaBadge.textContent = `Ask quota: 0 left`;
+      setInlineMessage(
+        refs.askGateMessage,
+        `Free ask quota reached (${err.payload.used}/${err.payload.limit}). Contact: ${state.askContactUrl || "support"}`,
         "error",
       );
-      setOutput("askOutput", err.payload);
-      await loadQuota();
+      renderError(refs.askResults, "You've used all 5 free asks. Upgrade to continue.");
+      updateQuickInputForTab();
       return;
     }
-    setOutput("askOutput", `Ask failed: ${err.message}`);
+    renderError(refs.askResults, `Ask failed: ${err.message}`);
+  } finally {
+    setLoadingButton(refs.quickSubmit, false, "Ask", "Ask");
+    updateQuickInputForTab();
   }
 }
 
-async function runProgramSearch(event) {
-  event.preventDefault();
+async function runProgramQuery(query) {
   const params = new URLSearchParams();
-  params.set("query", document.getElementById("programQuery").value.trim());
-  params.set("limit", document.getElementById("programLimit").value);
-  const domain = document.getElementById("programDomain").value.trim();
+  params.set("query", query);
+  params.set("limit", refs.programLimit.value || "10");
+  const domain = refs.programDomain.value.trim();
   if (domain) params.set("domain", domain);
+
+  renderSkeleton(refs.programResults, 3);
+  setLoadingButton(refs.quickSubmit, true, "Searching...", "Search Programs");
+
   try {
     const rows = await readJson(await fetch(`/search/programs?${params.toString()}`));
-    renderResults("programResults", rows, (row) => {
-      const node = document.createElement("div");
-      node.className = "result";
-      node.innerHTML = `
-        <div class="title">${row.name || "Unnamed Program"}</div>
-        <div class="meta">program_id=${row.id} source_id=${row.source_id || "n/a"} confidence=${row.confidence ?? "n/a"}</div>
-        <div class="meta">${row.canonical_url || ""}</div>
-      `;
-      return node;
-    });
+    renderProgramResults(rows);
   } catch (err) {
-    setOutput("askOutput", `Program search failed: ${err.message}`);
+    renderError(refs.programResults, `Program search failed: ${err.message}`);
+  } finally {
+    setLoadingButton(refs.quickSubmit, false, "Search Programs", "Search Programs");
+    updateQuickInputForTab();
   }
 }
 
-async function runSourceSearch(event) {
-  event.preventDefault();
+async function runSourceQuery(query) {
   const params = new URLSearchParams();
-  params.set("query", document.getElementById("sourceQuery").value.trim());
-  params.set("limit", document.getElementById("sourceLimit").value);
-  const domain = document.getElementById("sourceDomain").value.trim();
+  params.set("query", query);
+  params.set("limit", refs.sourceLimit.value || "10");
+  const domain = refs.sourceDomain.value.trim();
   if (domain) params.set("domain", domain);
+
+  renderSkeleton(refs.sourceResults, 3);
+  setLoadingButton(refs.quickSubmit, true, "Searching...", "Search Sources");
+
   try {
     const rows = await readJson(await fetch(`/search/sources?${params.toString()}`));
-    renderResults("sourceResults", rows, (row) => {
-      const node = document.createElement("div");
-      node.className = "result";
-      node.innerHTML = `
-        <div class="title">source_id=${row.id}</div>
-        <div class="meta">${row.canonical_url}</div>
-        <div class="meta">status=${row.status || "n/a"} last_crawled=${row.last_crawled_at || "n/a"}</div>
-      `;
-      return node;
-    });
+    renderSourceResults(rows);
   } catch (err) {
-    setOutput("askOutput", `Source search failed: ${err.message}`);
+    renderError(refs.sourceResults, `Source search failed: ${err.message}`);
+  } finally {
+    setLoadingButton(refs.quickSubmit, false, "Search Sources", "Search Sources");
+    updateQuickInputForTab();
+  }
+}
+
+async function loadSourceList(event) {
+  event.preventDefault();
+
+  const params = new URLSearchParams();
+  params.set("limit", refs.listLimit.value || "20");
+  const domain = refs.listDomain.value.trim();
+  const status = refs.listStatus.value.trim();
+  if (domain) params.set("domain", domain);
+  if (status) params.set("status", status);
+
+  renderSkeleton(refs.sourceListResults, 2);
+  setLoadingButton(refs.sourceListBtn, true, "Loading...", "Load Sources");
+
+  try {
+    const rows = await readJson(await fetch(`/sources?${params.toString()}`));
+    renderSourceList(rows);
+  } catch (err) {
+    renderError(refs.sourceListResults, `Source list failed: ${err.message}`);
+  } finally {
+    setLoadingButton(refs.sourceListBtn, false, "Load Sources", "Load Sources");
   }
 }
 
 async function loadSourceDetail(sourceId) {
+  renderSkeleton(refs.sourceDetailOutput, 1);
   try {
-    const data = await readJson(await fetch(`/sources/${sourceId}`));
-    setOutput("sourceDetailOutput", data);
+    const row = await readJson(await fetch(`/sources/${sourceId}`));
+    renderSourceDetail(row);
   } catch (err) {
-    setOutput("sourceDetailOutput", `Source detail failed: ${err.message}`);
+    renderError(refs.sourceDetailOutput, `Source detail failed: ${err.message}`);
   }
 }
 
-async function runSourceList(event) {
+async function handleQuickSubmit(event) {
   event.preventDefault();
-  const params = new URLSearchParams();
-  params.set("limit", document.getElementById("listLimit").value);
-  const domain = document.getElementById("listDomain").value.trim();
-  const status = document.getElementById("listStatus").value.trim();
-  if (domain) params.set("domain", domain);
-  if (status) params.set("status", status);
+  const query = refs.quickQuery.value.trim();
+  if (!query) {
+    setGlobalBanner("Enter a query to continue.", "error");
+    return;
+  }
+
+  setGlobalBanner("", "");
+
+  if (state.activeTab === "ask") {
+    await runAskQuery(query);
+    return;
+  }
+  if (state.activeTab === "program") {
+    await runProgramQuery(query);
+    return;
+  }
+  await runSourceQuery(query);
+}
+
+async function runSignIn(event) {
+  event.preventDefault();
+
+  const email = refs.authEmail.value.trim();
+  const password = refs.authPassword.value;
+  if (!email || !password) {
+    setInlineMessage(refs.authMessage, "Provide email and password.", "error");
+    return;
+  }
+
+  setInlineMessage(refs.authMessage, "Signing in...", "");
+  setLoadingButton(refs.signInBtn, true, "Signing In...", "Sign In");
+
   try {
-    const rows = await readJson(await fetch(`/sources?${params.toString()}`));
-    renderResults("sourceListResults", rows, (row) => {
-      const node = document.createElement("div");
-      node.className = "result";
-      node.innerHTML = `
-        <div class="title">${row.title || "Untitled Source"}</div>
-        <div class="meta">source_id=${row.id} domain=${row.domain || "n/a"} status=${row.status || "n/a"}</div>
-        <div class="meta">${row.canonical_url}</div>
-      `;
-      const btn = document.createElement("button");
-      btn.className = "btn btn-quiet";
-      btn.type = "button";
-      btn.textContent = "Inspect";
-      btn.addEventListener("click", () => loadSourceDetail(row.id));
-      node.appendChild(btn);
-      return node;
-    });
+    const payload = await readJson(
+      await fetch("/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      }),
+    );
+
+    setAuthToken(payload.access_token, payload.token_type || "bearer");
+    state.currentUserEmail = email;
+    setInlineMessage(refs.authMessage, "Signed in successfully.", "success");
+    await loadQuota();
+    closeModal("auth");
+
+    if (state.pendingAskQuery) {
+      const queued = state.pendingAskQuery;
+      state.pendingAskQuery = "";
+      refs.quickQuery.value = queued;
+      await runAskQuery(queued);
+    }
   } catch (err) {
-    setOutput("sourceDetailOutput", `Source list failed: ${err.message}`);
+    setInlineMessage(refs.authMessage, `Sign in failed: ${err.message}`, "error");
+  } finally {
+    setLoadingButton(refs.signInBtn, false, "Sign In", "Sign In");
   }
 }
 
-document.getElementById("authForm").addEventListener("submit", runSignIn);
-document.getElementById("signUpBtn").addEventListener("click", runSignUp);
-document.getElementById("signOutBtn").addEventListener("click", runSignOut);
-document.getElementById("askForm").addEventListener("submit", runAsk);
-document.getElementById("programForm").addEventListener("submit", runProgramSearch);
-document.getElementById("sourceSearchForm").addEventListener("submit", runSourceSearch);
-document.getElementById("sourceListForm").addEventListener("submit", runSourceList);
-document.getElementById("refreshSummary").addEventListener("click", loadSummary);
+async function runSignUp() {
+  const email = refs.authEmail.value.trim();
+  const password = refs.authPassword.value;
+  if (!email || !password) {
+    setInlineMessage(refs.authMessage, "Provide email and password.", "error");
+    return;
+  }
 
-refreshAuthDisplay(Boolean(getAuthToken()));
-loadSummary();
-loadQuota();
+  setInlineMessage(refs.authMessage, "Creating account...", "");
+  setLoadingButton(refs.signUpBtn, true, "Creating...", "Sign Up");
+
+  try {
+    const payload = await readJson(
+      await fetch("/auth/signup", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      }),
+    );
+
+    if (payload.access_token) {
+      setAuthToken(payload.access_token, payload.token_type || "bearer");
+      state.currentUserEmail = payload.email || email;
+      setInlineMessage(refs.authMessage, "Account created and signed in.", "success");
+      await loadQuota();
+      closeModal("auth");
+
+      if (state.pendingAskQuery) {
+        const queued = state.pendingAskQuery;
+        state.pendingAskQuery = "";
+        refs.quickQuery.value = queued;
+        await runAskQuery(queued);
+      }
+      return;
+    }
+
+    setInlineMessage(
+      refs.authMessage,
+      "Account created. Verify your email, then sign in.",
+      "success",
+    );
+  } catch (err) {
+    setInlineMessage(refs.authMessage, `Sign up failed: ${err.message}`, "error");
+  } finally {
+    setLoadingButton(refs.signUpBtn, false, "Sign Up", "Sign Up");
+  }
+}
+
+function runSignOut() {
+  clearAuthToken();
+  state.currentUserEmail = "";
+  state.askCanAsk = true;
+  state.askContactUrl = "";
+  refs.quotaBadge.classList.remove("exhausted");
+  refs.quotaBadge.textContent = "Ask quota: sign in required";
+  updateAuthUI();
+  updateQuickInputForTab();
+  closeUserMenu();
+  setInlineMessage(refs.askGateMessage, "Sign in to use Ask Atlas. Free tier includes 5 lifetime asks.", "");
+  renderEmpty(refs.askResults, "Sign in and submit a question to get a grounded answer.");
+}
+
+function handleTabClick(event) {
+  const tabName = event.currentTarget.dataset.tab;
+  setTab(tabName, false);
+  refs.quickQuery.focus();
+}
+
+function handleTabKeydown(event) {
+  const idx = refs.tabs.indexOf(event.currentTarget);
+  if (idx < 0) return;
+
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    const next = (idx + 1) % refs.tabs.length;
+    const tabName = refs.tabs[next].dataset.tab;
+    setTab(tabName, true);
+    return;
+  }
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    const prev = (idx - 1 + refs.tabs.length) % refs.tabs.length;
+    const tabName = refs.tabs[prev].dataset.tab;
+    setTab(tabName, true);
+  }
+}
+
+function handleDocumentClick(event) {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+
+  if (target.closest("[data-close-modal='auth']")) {
+    closeModal("auth");
+  }
+  if (target.closest("[data-close-modal='status']")) {
+    closeModal("status");
+  }
+
+  if (target.closest("#userMenuBtn")) {
+    if (refs.userMenuPopup.classList.contains("hidden")) openUserMenu();
+    else closeUserMenu();
+    return;
+  }
+
+  if (!target.closest("#userMenu")) {
+    closeUserMenu();
+  }
+}
+
+function trapFocus(modal, event) {
+  const focusables = Array.from(
+    modal.querySelectorAll(
+      "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])",
+    ),
+  );
+
+  if (!focusables.length) return;
+
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+    return;
+  }
+
+  if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+function handleKeydown(event) {
+  if (event.key === "Escape") {
+    closeAllModals();
+    closeUserMenu();
+    return;
+  }
+
+  if (event.key === "Tab" && state.activeModal && !state.activeModal.classList.contains("hidden")) {
+    trapFocus(state.activeModal, event);
+  }
+}
+
+function bindEvents() {
+  refs.quickQueryForm.addEventListener("submit", handleQuickSubmit);
+  refs.sourceListForm.addEventListener("submit", loadSourceList);
+
+  refs.tabs.forEach((tab) => {
+    tab.addEventListener("click", handleTabClick);
+    tab.addEventListener("keydown", handleTabKeydown);
+  });
+
+  refs.advancedToggle.addEventListener("click", () => {
+    const isOpen = refs.askAdvanced.classList.contains("hidden");
+    setAdvancedVisibility(isOpen);
+  });
+
+  refs.authActionBtn.addEventListener("click", () => {
+    openModal("auth");
+    setInlineMessage(refs.authMessage, "", "");
+  });
+
+  refs.authForm.addEventListener("submit", runSignIn);
+  refs.signUpBtn.addEventListener("click", runSignUp);
+  refs.signOutBtn.addEventListener("click", runSignOut);
+
+  refs.openStatusBtn.addEventListener("click", () => {
+    renderStatusBody();
+    openModal("status");
+  });
+
+  document.addEventListener("click", handleDocumentClick);
+  document.addEventListener("keydown", handleKeydown);
+
+  window.addEventListener("resize", moveTabUnderline);
+}
+
+async function init() {
+  bindEvents();
+  setAdvancedVisibility(getAdvancedOpen());
+  setTab("ask", false);
+  renderEmpty(refs.askResults, "Sign in and submit a question to get a grounded answer.");
+  renderEmpty(refs.programResults, "Search indexed programs from coaching sources.");
+  renderEmpty(refs.sourceResults, "Search sources to inspect provenance.");
+  renderEmpty(refs.sourceListResults, "Load sources by domain/status.");
+  renderEmpty(refs.sourceDetailOutput, "Select a source to inspect details.");
+
+  await loadTrustAndStatus();
+  await loadQuota();
+}
+
+init();

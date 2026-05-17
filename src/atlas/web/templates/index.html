@@ -3,129 +3,108 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Strength Atlas MVP</title>
+    <title>Strength Atlas</title>
     <link rel="stylesheet" href="/assets/styles.css" />
   </head>
   <body>
-    <div class="bg-orb bg-orb-a"></div>
-    <div class="bg-orb bg-orb-b"></div>
-    <main class="shell">
-      <header class="hero">
-        <p class="eyebrow">Strength Atlas</p>
-        <h1>Full-Stack MVP</h1>
-        <p class="subtitle">
-          Search indexed programs, inspect source quality, and run retrieval-grounded Ask responses.
-        </p>
-        <div class="hero-row">
-          <div id="authState" class="auth-state">Not signed in</div>
-          <div id="quotaBadge" class="quota-badge">Ask quota: n/a</div>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="/app" class="wordmark" aria-label="Strength Atlas home">STRENGTH ATLAS</a>
+        <div class="topbar-right">
+          <div id="quotaBadge" class="quota-pill">Ask quota: sign in required</div>
+          <button id="authActionBtn" class="btn-ghost" type="button">Sign In</button>
+          <div id="userMenu" class="user-menu hidden">
+            <button id="userMenuBtn" class="avatar-btn" type="button" aria-haspopup="menu" aria-expanded="false">U</button>
+            <div id="userMenuPopup" class="user-menu-popup hidden" role="menu">
+              <div id="userEmail" class="user-email">Signed in</div>
+              <button id="signOutBtn" class="menu-item" type="button" role="menuitem">Sign Out</button>
+            </div>
+          </div>
         </div>
-      </header>
+      </div>
+    </header>
 
-      <section class="panel" aria-labelledby="auth-title">
-        <h2 id="auth-title">Sign In</h2>
-        <form id="authForm" class="stack">
-          <div class="row">
-            <label>
-              Email
-              <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required />
-            </label>
-            <label>
-              Password
-              <input id="authPassword" type="password" autocomplete="current-password" required />
-            </label>
+    <main class="main-shell">
+      <section class="hero" aria-labelledby="hero-title">
+        <h1 id="hero-title">Ask Better. Lift Smarter.</h1>
+        <p class="subtitle">Grounded training guidance from indexed coaching sources.</p>
+        <form id="quickQueryForm" class="query-form" aria-label="Primary query form">
+          <label class="sr-only" for="quickQuery">Query</label>
+          <div class="query-input-wrap">
+            <input
+              id="quickQuery"
+              class="query-input"
+              type="text"
+              placeholder="How often should I bench as an intermediate?"
+              required
+            />
+            <button id="quickSubmit" class="btn-primary" type="submit">Ask</button>
           </div>
-          <div class="row">
-            <button class="btn" type="submit">Sign In</button>
-            <button id="signUpBtn" class="btn btn-quiet" type="button">Sign Up</button>
-            <button id="signOutBtn" class="btn btn-quiet" type="button">Sign Out</button>
-          </div>
-          <div id="authMessage" class="inline-message"></div>
         </form>
+        <div id="trustChips" class="trust-chips" aria-live="polite"></div>
+        <div id="globalBanner" class="global-banner" aria-live="polite"></div>
       </section>
 
-      <section class="panel" aria-labelledby="summary-title">
-        <div class="panel-head">
-          <h2 id="summary-title">Corpus Snapshot</h2>
-          <button id="refreshSummary" class="btn btn-quiet" type="button">Refresh</button>
-        </div>
-        <div id="summaryCards" class="cards"></div>
-      </section>
+      <section class="workspace" aria-label="Atlas workspace">
+        <nav class="tabs" role="tablist" aria-label="Atlas tools">
+          <button id="tab-ask" class="tab" role="tab" aria-selected="true" aria-controls="panel-ask" data-tab="ask" tabindex="0" type="button">Ask Atlas</button>
+          <button id="tab-program" class="tab" role="tab" aria-selected="false" aria-controls="panel-program" data-tab="program" tabindex="-1" type="button">Program Explorer</button>
+          <button id="tab-source" class="tab" role="tab" aria-selected="false" aria-controls="panel-source" data-tab="source" tabindex="-1" type="button">Source Explorer</button>
+          <span id="tabUnderline" class="tab-underline" aria-hidden="true"></span>
+        </nav>
 
-      <section class="grid">
-        <article class="panel">
-          <h2>Ask Atlas</h2>
-          <form id="askForm" class="stack">
+        <section id="panel-ask" class="panel" role="tabpanel" aria-labelledby="tab-ask">
+          <p class="panel-copy">Ask in plain English and get retrieval-grounded coaching guidance.</p>
+          <button id="advancedToggle" class="advanced-toggle" type="button" aria-expanded="false" aria-controls="askAdvanced">
+            Advanced
+            <span id="advancedChevron" class="chevron" aria-hidden="true">⌄</span>
+          </button>
+          <div id="askAdvanced" class="advanced hidden">
             <label>
-              Query
-              <input id="askQuery" required type="text" placeholder="bench frequency for intermediate lifters" />
+              Domain filter
+              <input id="askDomain" type="text" placeholder="strongerbyscience.com" />
             </label>
-            <div class="row">
-              <label>
-                Domain (optional)
-                <input id="askDomain" type="text" placeholder="strongerbyscience.com" />
-              </label>
-              <label>
-                Max evidence
-                <input id="askMaxEvidence" type="number" min="1" max="25" value="8" />
-              </label>
-            </div>
-            <button class="btn" type="submit">Generate Answer</button>
-          </form>
-          <div id="askGateMessage" class="inline-message"></div>
-          <pre id="askOutput" class="output"></pre>
-        </article>
+            <label>
+              Max evidence
+              <input id="askMaxEvidence" type="number" min="1" max="25" value="8" />
+            </label>
+          </div>
+          <div id="askGateMessage" class="inline-message" aria-live="polite"></div>
+          <div id="askResults" class="results" aria-live="polite"></div>
+        </section>
 
-        <article class="panel">
-          <h2>Program Search</h2>
-          <form id="programForm" class="stack">
+        <section id="panel-program" class="panel hidden" role="tabpanel" aria-labelledby="tab-program">
+          <p class="panel-copy">Search indexed programs by intent, confidence, and source domain.</p>
+          <div class="panel-controls two-up">
             <label>
-              Query
-              <input id="programQuery" type="text" placeholder="bench, hypertrophy, novice" />
+              Domain
+              <input id="programDomain" type="text" placeholder="barbellmedicine.com" />
             </label>
-            <div class="row">
-              <label>
-                Domain
-                <input id="programDomain" type="text" placeholder="barbellmedicine.com" />
-              </label>
-              <label>
-                Limit
-                <input id="programLimit" type="number" min="1" max="100" value="10" />
-              </label>
-            </div>
-            <button class="btn" type="submit">Search Programs</button>
-          </form>
-          <div id="programResults" class="results"></div>
-        </article>
-      </section>
+            <label>
+              Limit
+              <input id="programLimit" type="number" min="1" max="100" value="10" />
+            </label>
+          </div>
+          <div id="programResults" class="results" aria-live="polite"></div>
+        </section>
 
-      <section class="grid">
-        <article class="panel">
-          <h2>Source Search</h2>
-          <form id="sourceSearchForm" class="stack">
+        <section id="panel-source" class="panel hidden" role="tabpanel" aria-labelledby="tab-source">
+          <p class="panel-copy">Search and inspect source pages to verify recommendation provenance.</p>
+          <div class="panel-controls two-up">
             <label>
-              Query
-              <input id="sourceQuery" required type="text" placeholder="deadlift setup" />
+              Domain
+              <input id="sourceDomain" type="text" placeholder="strongerbyscience.com" />
             </label>
-            <div class="row">
-              <label>
-                Domain
-                <input id="sourceDomain" type="text" placeholder="strongerbyscience.com" />
-              </label>
-              <label>
-                Limit
-                <input id="sourceLimit" type="number" min="1" max="100" value="10" />
-              </label>
-            </div>
-            <button class="btn" type="submit">Search Sources</button>
-          </form>
+            <label>
+              Limit
+              <input id="sourceLimit" type="number" min="1" max="100" value="10" />
+            </label>
+          </div>
           <div id="sourceResults" class="results"></div>
-        </article>
 
-        <article class="panel">
-          <h2>Source Explorer</h2>
-          <form id="sourceListForm" class="stack">
-            <div class="row">
+          <div class="subsection">
+            <h2 class="subsection-title">Browse Source List</h2>
+            <form id="sourceListForm" class="panel-controls three-up">
               <label>
                 Domain
                 <input id="listDomain" type="text" placeholder="optional domain" />
@@ -143,14 +122,57 @@
                 Limit
                 <input id="listLimit" type="number" min="1" max="200" value="20" />
               </label>
-            </div>
-            <button class="btn" type="submit">Load Sources</button>
-          </form>
-          <div id="sourceListResults" class="results"></div>
-          <pre id="sourceDetailOutput" class="output"></pre>
-        </article>
+              <div class="controls-action">
+                <button id="sourceListBtn" class="btn-secondary" type="submit">Load Sources</button>
+              </div>
+            </form>
+            <div id="sourceListResults" class="results"></div>
+            <div id="sourceDetailOutput" class="detail"></div>
+          </div>
+        </section>
       </section>
+
+      <footer class="footer">
+        <a href="#" class="footer-link">About</a>
+        <button id="openStatusBtn" type="button" class="footer-link footer-btn">Source Status</button>
+        <a href="#" class="footer-link">Privacy</a>
+        <a href="#" class="footer-link">Terms</a>
+      </footer>
     </main>
+
+    <div id="authModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+      <div class="modal-backdrop" data-close-modal="auth"></div>
+      <div class="modal-card">
+        <button class="modal-close" type="button" aria-label="Close" data-close-modal="auth">×</button>
+        <h2 id="authModalTitle">Sign in to use Ask Atlas</h2>
+        <p class="modal-copy">Free tier includes 5 lifetime asks.</p>
+        <form id="authForm" class="auth-form">
+          <label>
+            Email
+            <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required />
+          </label>
+          <label>
+            Password
+            <input id="authPassword" type="password" autocomplete="current-password" required />
+          </label>
+          <div class="auth-actions">
+            <button id="signInBtn" class="btn-primary" type="submit">Sign In</button>
+            <button id="signUpBtn" class="btn-secondary" type="button">Sign Up</button>
+          </div>
+          <div id="authMessage" class="inline-message" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="statusModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="statusModalTitle">
+      <div class="modal-backdrop" data-close-modal="status"></div>
+      <div class="modal-card">
+        <button class="modal-close" type="button" aria-label="Close" data-close-modal="status">×</button>
+        <h2 id="statusModalTitle">Source Status</h2>
+        <p class="modal-copy">Corpus and indexing transparency summary.</p>
+        <div id="statusBody" class="status-body"></div>
+      </div>
+    </div>
 
     <script src="/assets/app.js"></script>
   </body>

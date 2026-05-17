@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from datetime import datetime, UTC
+import re
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -259,13 +260,15 @@ def run_retrieval_debug(
             continue
         seen_pairs.add(pair)
         source = session.get(Source, item.source_id)
+        document = session.get(Document, item.document_id)
+        snippet = _extract_snippet(document.raw_text if document else None, request.query)
         evidence.append(
             EvidenceCard(
                 source_id=item.source_id,
                 document_id=item.document_id,
                 canonical_url=item.canonical_url or "",
                 title=item.name,
-                snippet=None,
+                snippet=snippet,
                 parse_confidence=item.confidence,
                 last_crawled_at=source.last_crawled_at.isoformat() if source and source.last_crawled_at else None,
             )
@@ -285,13 +288,15 @@ def run_retrieval_debug(
         for src in source_results:
             source_row = session.get(Source, src.id)
             doc_id = int(source_row.latest_document_id) if source_row and source_row.latest_document_id else 0
+            document = session.get(Document, doc_id) if doc_id else None
+            snippet = _extract_snippet(document.raw_text if document else None, request.query)
             evidence.append(
                 EvidenceCard(
                     source_id=src.id,
                     document_id=doc_id,
                     canonical_url=src.canonical_url,
                     title=None,
-                    snippet=None,
+                    snippet=snippet,
                     parse_confidence=None,
                     last_crawled_at=src.last_crawled_at,
                 )
@@ -358,18 +363,23 @@ def run_answer(
     domain_counts = Counter(_domain_from_url(item.canonical_url) for item in evidence if item.canonical_url)
     top_domains = [name for name, _count in domain_counts.most_common(3)]
     named_programs = [item.title for item in evidence if item.title][:5]
+    snippets = [item.snippet for item in evidence if item.snippet][:3]
     avg_conf = _avg([item.parse_confidence for item in evidence if item.parse_confidence is not None])
 
     lines: list[str] = []
-    lines.append(f"Query: {request.query}.")
+    lines.append(f"For '{request.query}', here are the strongest grounded takeaways from the indexed coaching corpus.")
     lines.append(f"Found {len(evidence)} grounded evidence items.")
     if named_programs:
-        lines.append("Top matched programs: " + ", ".join(named_programs) + ".")
+        lines.append("Most relevant programs: " + ", ".join(named_programs) + ".")
+    if snippets:
+        lines.append("Key practical cues from source text:")
+        for snippet in snippets:
+            lines.append(f"- {snippet}")
     if top_domains:
-        lines.append("Most supporting domains: " + ", ".join(top_domains) + ".")
+        lines.append("Strongest supporting domains: " + ", ".join(top_domains) + ".")
     if avg_conf is not None:
         lines.append(f"Average parse confidence across evidence: {avg_conf:.2f}.")
-    lines.append("This answer is retrieval-grounded and should be validated against cited source cards.")
+    lines.append("Use evidence cards below for transparent source-level verification.")
 
     return AskAtlasResponse(
         answer=" ".join(lines),
@@ -449,3 +459,30 @@ def _avg(values: list[float]) -> float | None:
     if not values:
         return None
     return sum(values) / len(values)
+
+
+def _extract_snippet(raw_text: str | None, query: str, max_chars: int = 220) -> str | None:
+    if not raw_text:
+        return None
+    compact = " ".join(raw_text.split())
+    if not compact:
+        return None
+    query_terms = [term for term in re.findall(r"[a-z0-9]+", query.lower()) if len(term) > 2]
+    if not query_terms:
+        snippet = compact[:max_chars]
+        return snippet + ("..." if len(compact) > max_chars else "")
+
+    lower = compact.lower()
+    idx = min((lower.find(term) for term in query_terms if lower.find(term) >= 0), default=-1)
+    if idx < 0:
+        snippet = compact[:max_chars]
+        return snippet + ("..." if len(compact) > max_chars else "")
+
+    start = max(0, idx - 70)
+    end = min(len(compact), start + max_chars)
+    snippet = compact[start:end].strip()
+    if start > 0:
+        snippet = "..." + snippet
+    if end < len(compact):
+        snippet = snippet + "..."
+    return snippet

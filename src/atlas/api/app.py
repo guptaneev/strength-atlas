@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Generator
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from atlas.api.auth import AuthUser, get_current_user, login_with_password, signup_with_password
+from atlas.api.auth import AuthUser, auth_readiness, get_current_user, login_with_password, signup_with_password
 from atlas.api.errors import AuthError, QuotaExceededError, RateLimitExceededError
 from atlas.api.quota import consume_ask_quota, get_quota_snapshot
 from atlas.api.rate_limit import InMemoryRateLimiter, RateLimitRule
@@ -42,6 +44,7 @@ from atlas.db.engine import SessionLocal
 from atlas.search.programs import ProgramSearchFilters
 
 settings = get_settings()
+logger = logging.getLogger("atlas.api")
 docs_enabled = bool(settings.api_docs_enabled) and settings.app_env.lower() != "production"
 app = FastAPI(
     title="Strength Atlas API",
@@ -75,12 +78,27 @@ def get_db() -> Generator[Session, None, None]:
 
 
 @app.exception_handler(AuthError)
-def auth_error_handler(_request: Request, exc: AuthError) -> JSONResponse:
+def auth_error_handler(request: Request, exc: AuthError) -> JSONResponse:
+    logger.warning(
+        "auth_error path=%s method=%s detail=%s request_id=%s",
+        request.url.path,
+        request.method,
+        str(exc),
+        request.headers.get("x-request-id", ""),
+    )
     return JSONResponse({"status": "auth_error", "detail": str(exc)}, status_code=401)
 
 
 @app.exception_handler(QuotaExceededError)
-def quota_error_handler(_request: Request, exc: QuotaExceededError) -> JSONResponse:
+def quota_error_handler(request: Request, exc: QuotaExceededError) -> JSONResponse:
+    logger.info(
+        "quota_exceeded path=%s method=%s used=%s limit=%s request_id=%s",
+        request.url.path,
+        request.method,
+        exc.used,
+        exc.limit,
+        request.headers.get("x-request-id", ""),
+    )
     return JSONResponse(
         QuotaStatusResponse(
             status="quota_exceeded",
@@ -95,7 +113,15 @@ def quota_error_handler(_request: Request, exc: QuotaExceededError) -> JSONRespo
 
 
 @app.exception_handler(RateLimitExceededError)
-def rate_limit_error_handler(_request: Request, exc: RateLimitExceededError) -> JSONResponse:
+def rate_limit_error_handler(request: Request, exc: RateLimitExceededError) -> JSONResponse:
+    logger.warning(
+        "rate_limited path=%s method=%s key=%s retry_after_seconds=%s request_id=%s",
+        request.url.path,
+        request.method,
+        exc.key,
+        exc.retry_after_seconds,
+        request.headers.get("x-request-id", ""),
+    )
     return JSONResponse(
         {
             "status": "rate_limited",
@@ -115,10 +141,20 @@ def timeout_error_handler(_request: Request, _exc: asyncio.TimeoutError) -> JSON
 @app.on_event("startup")
 def startup_checks() -> None:
     if settings.app_env.lower() == "production":
-        if not settings.database_url:
-            raise RuntimeError("ATLAS_DATABASE_URL is required in production")
-        if not settings.supabase_url:
-            raise RuntimeError("ATLAS_SUPABASE_URL is required in production")
+        required_vars = {
+            "ATLAS_DATABASE_URL": settings.database_url,
+            "ATLAS_SUPABASE_URL": settings.supabase_url,
+            "ATLAS_SUPABASE_PUBLISHABLE_KEY": settings.supabase_publishable_key,
+            "ATLAS_CORS_ALLOWED_ORIGINS": settings.cors_allowed_origins,
+            "ATLAS_TRUSTED_HOSTS": settings.trusted_hosts,
+        }
+        missing = [key for key, value in required_vars.items() if not value]
+        if missing:
+            raise RuntimeError(f"Missing required production config: {', '.join(sorted(missing))}")
+        if settings.cors_allowed_origins.strip() == "*":
+            raise RuntimeError("ATLAS_CORS_ALLOWED_ORIGINS cannot be wildcard in production")
+        if settings.ask_lifetime_limit < 1:
+            raise RuntimeError("ATLAS_ASK_LIFETIME_LIMIT must be >= 1")
 
 
 def _rate_limit_ask(request: Request, user: AuthUser) -> None:
@@ -155,6 +191,29 @@ def _consume_quota(session: Session, user: AuthUser) -> QuotaStatusResponse:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready() -> JSONResponse:
+    diagnostics: dict[str, str] = {"status": "ok"}
+
+    try:
+        with SessionLocal() as session:
+            session.execute(text("SELECT 1"))
+    except Exception as exc:  # noqa: BLE001
+        diagnostics["database"] = f"unhealthy:{exc.__class__.__name__}"
+        diagnostics["status"] = "degraded"
+
+    auth_ok, auth_detail = auth_readiness()
+    if not auth_ok:
+        diagnostics["auth"] = auth_detail
+        diagnostics["status"] = "degraded"
+    else:
+        diagnostics["auth"] = "ok"
+
+    if diagnostics["status"] != "ok":
+        return JSONResponse(diagnostics, status_code=503)
+    return JSONResponse(diagnostics, status_code=200)
 
 
 @app.post("/auth/login", response_model=AuthSessionResponse)
