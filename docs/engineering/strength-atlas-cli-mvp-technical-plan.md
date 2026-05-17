@@ -2,10 +2,10 @@
 purpose: Active implementation roadmap for the Strength Atlas CLI MVP
 status: implemented-with-fullstack-mvp-extension
 scope: CLI + API + web MVP
-owner: TBD
+owner: Strength Atlas Maintainers
 ---
 
-# Strength Atlas CLI MVP Technical Plan
+# Strength Atlas Full-Stack MVP Technical Plan
 
 ## Summary
 
