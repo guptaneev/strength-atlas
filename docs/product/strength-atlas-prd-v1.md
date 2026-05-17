@@ -1,8 +1,8 @@
 ---
 purpose: Canonical product and system-design context for Strength Atlas V1
 version: V1
-status: draft
-owner: TBD
+status: active
+owner: Strength Atlas Maintainers
 ---
 
 # Strength Atlas PRD + Engineering Design (V1)
