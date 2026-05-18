@@ -12,6 +12,7 @@ from atlas.api.schemas import (
     SourceSearchItem,
 )
 from atlas.ask.contracts import AskAtlasResponse, EvidenceCard
+from atlas.api.errors import AuthError
 
 
 def _fake_user():
@@ -30,6 +31,14 @@ def test_web_app_endpoint() -> None:
     response = client.get("/app")
     assert response.status_code == 200
     assert "text/html" in response.headers.get("content-type", "")
+
+
+def test_static_info_pages() -> None:
+    client = TestClient(app)
+    for path in ("/about", "/privacy", "/terms"):
+        response = client.get(path)
+        assert response.status_code == 200
+        assert "text/html" in response.headers.get("content-type", "")
 
 
 def test_security_headers_present() -> None:
@@ -59,6 +68,12 @@ def test_search_sources_endpoint(monkeypatch) -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload[0]["canonical_url"] == "https://example.com/source"
+
+
+def test_search_sources_rejects_invalid_domain() -> None:
+    client = TestClient(app)
+    response = client.get("/search/sources", params={"query": "bench", "domain": "http://bad"})
+    assert response.status_code == 422
 
 
 def test_sources_list_endpoint(monkeypatch) -> None:
@@ -318,6 +333,17 @@ def test_ask_answer_endpoint(monkeypatch) -> None:
     assert payload["confidence"] == 0.75
 
 
+def test_auth_error_handler_sanitizes_provider_failures(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "atlas.api.app.get_current_user",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AuthError("supabase_auth_request_failed:timeout")),
+    )
+    client = TestClient(app)
+    response = client.get("/me/quota", headers={"Authorization": "Bearer token"})
+    assert response.status_code == 401
+    assert response.json()["detail"] == "auth_provider_unavailable"
+
+
 def test_ask_requires_authentication() -> None:
     client = TestClient(app)
     response = client.post(
@@ -353,7 +379,7 @@ def test_auth_login_endpoint(monkeypatch) -> None:
         },
     )
     client = TestClient(app)
-    response = client.post("/auth/login", json={"email": "a@example.com", "password": "pw"})
+    response = client.post("/auth/login", json={"email": "a@example.com", "password": "password123"})
     assert response.status_code == 200
     payload = AuthSessionResponse.model_validate(response.json())
     assert payload.access_token == "abc"
@@ -371,7 +397,7 @@ def test_auth_signup_endpoint_with_session(monkeypatch) -> None:
         },
     )
     client = TestClient(app)
-    response = client.post("/auth/signup", json={"email": "a@example.com", "password": "pw"})
+    response = client.post("/auth/signup", json={"email": "a@example.com", "password": "password123"})
     assert response.status_code == 200
     payload = AuthSignupResponse.model_validate(response.json())
     assert payload.access_token == "abc"
@@ -387,7 +413,7 @@ def test_auth_signup_endpoint_email_confirmation_required(monkeypatch) -> None:
         },
     )
     client = TestClient(app)
-    response = client.post("/auth/signup", json={"email": "b@example.com", "password": "pw"})
+    response = client.post("/auth/signup", json={"email": "b@example.com", "password": "password123"})
     assert response.status_code == 200
     payload = AuthSignupResponse.model_validate(response.json())
     assert payload.access_token is None

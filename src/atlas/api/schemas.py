@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+import re
+
+from pydantic import BaseModel, Field, field_validator
 
 from atlas.ask.contracts import AskAtlasResponse
+
+_EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 class ProgramSearchItem(BaseModel):
@@ -81,8 +85,16 @@ class DashboardSummary(BaseModel):
 
 
 class AuthLoginRequest(BaseModel):
-    email: str
-    password: str
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=8, max_length=128)
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if not _EMAIL_PATTERN.fullmatch(normalized):
+            raise ValueError("invalid_email")
+        return normalized
 
 
 class AuthSessionResponse(BaseModel):

@@ -1,6 +1,8 @@
 const AUTH_TOKEN_KEY = "atlas_auth_token";
 const AUTH_TOKEN_TYPE = "atlas_auth_token_type";
 const ASK_ADVANCED_OPEN_KEY = "atlas_ask_advanced_open";
+const MAX_QUERY_CHARS = 400;
+const DOMAIN_PATTERN = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
 
 const state = {
   activeTab: "ask",
@@ -101,11 +103,22 @@ function authHeaders(extra = {}) {
 
 async function readJson(response) {
   const text = await response.text();
-  const payload = text ? JSON.parse(text) : {};
+  let payload = {};
+  if (text) {
+    try {
+      payload = JSON.parse(text);
+    } catch (_err) {
+      payload = {};
+    }
+  }
   if (!response.ok) {
-    const message = payload.detail || payload.status || `request_failed_${response.status}`;
-    const err = new Error(typeof message === "string" ? message : JSON.stringify(message));
+    const code =
+      (typeof payload.detail === "string" && payload.detail) ||
+      (typeof payload.status === "string" && payload.status) ||
+      `request_failed_${response.status}`;
+    const err = new Error(userMessageFromErrorCode(code, response.status));
     err.status = response.status;
+    err.code = code;
     err.payload = payload;
     throw err;
   }
@@ -155,11 +168,54 @@ function formatDate(value) {
 }
 
 function domainFromUrl(url) {
+  const safeUrl = toSafeExternalUrl(url);
+  if (!safeUrl) return "source";
   try {
-    return new URL(url).hostname;
+    return new URL(safeUrl).hostname;
   } catch (_err) {
     return "source";
   }
+}
+
+function toSafeExternalUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  try {
+    const parsed = new URL(raw);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return parsed.toString();
+    }
+    return "";
+  } catch (_err) {
+    return "";
+  }
+}
+
+function userMessageFromErrorCode(code, status) {
+  if (code === "invalid_email_or_password") return "Invalid email or password.";
+  if (code === "auth_provider_unavailable") return "Authentication service is temporarily unavailable.";
+  if (code === "missing_authorization_header") return "Sign in is required.";
+  if (code === "token_verification_failed") return "Session expired. Sign in again.";
+  if (code === "quota_exceeded") return "Free ask quota reached.";
+  if (code === "too_many_requests") return "Rate limit reached. Try again shortly.";
+  if (code === "request_body_too_large") return "Request too large.";
+  if (status >= 500) return "Server error. Try again in a moment.";
+  if (status === 404) return "Requested resource was not found.";
+  return "Request failed. Please try again.";
+}
+
+function isValidDomain(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!normalized) return true;
+  return DOMAIN_PATTERN.test(normalized);
+}
+
+function parseBoundedInt(rawValue, { defaultValue, min, max }) {
+  const parsed = Number(rawValue);
+  if (!Number.isFinite(parsed)) return defaultValue;
+  if (parsed < min) return min;
+  if (parsed > max) return max;
+  return Math.trunc(parsed);
 }
 
 function setLoadingButton(button, busy, busyText, idleText) {
@@ -388,7 +444,8 @@ async function loadTrustAndStatus() {
   renderStatusBody();
 }
 
-async function loadQuota() {
+async function loadQuota(options = {}) {
+  const { surfaceAuthError = false } = options;
   const token = getAuthToken();
   if (!token) {
     refs.quotaBadge.classList.remove("exhausted");
@@ -397,7 +454,7 @@ async function loadQuota() {
     state.askContactUrl = "";
     updateAuthUI();
     updateQuickInputForTab();
-    return;
+    return { ok: true, authError: null };
   }
 
   try {
@@ -425,13 +482,18 @@ async function loadQuota() {
       state.askCanAsk = true;
       updateAuthUI();
       updateQuickInputForTab();
-      return;
+      if (surfaceAuthError) {
+        return { ok: false, authError: err.payload?.detail || err.message || "auth_error" };
+      }
+      return { ok: false, authError: null };
     }
     refs.quotaBadge.textContent = "Ask quota: unavailable";
     state.askCanAsk = true;
+    return { ok: false, authError: err.payload?.detail || err.message || "quota_unavailable" };
   }
 
   updateAuthUI();
+  return { ok: true, authError: null };
 }
 
 function renderAskResponse(payload) {
@@ -476,12 +538,15 @@ function renderAskResponse(payload) {
       }
 
       if (item.canonical_url) {
-        const link = document.createElement("a");
-        link.href = item.canonical_url;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        link.textContent = "Open source";
-        wrapper.appendChild(link);
+        const safeUrl = toSafeExternalUrl(item.canonical_url);
+        if (safeUrl) {
+          const link = document.createElement("a");
+          link.href = safeUrl;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "Open source";
+          wrapper.appendChild(link);
+        }
       }
       card.appendChild(wrapper);
     });
@@ -515,12 +580,15 @@ function renderProgramResults(rows) {
     card.appendChild(meta);
 
     if (row.canonical_url) {
-      const link = document.createElement("a");
-      link.href = row.canonical_url;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = "Open source";
-      card.appendChild(link);
+      const safeUrl = toSafeExternalUrl(row.canonical_url);
+      if (safeUrl) {
+        const link = document.createElement("a");
+        link.href = safeUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "Open source";
+        card.appendChild(link);
+      }
     }
 
     refs.programResults.appendChild(card);
@@ -613,12 +681,15 @@ function renderSourceDetail(data) {
   card.appendChild(createText("result-text", `Last crawled: ${formatDate(data.last_crawled_at)}`));
 
   if (data.canonical_url) {
-    const link = document.createElement("a");
-    link.href = data.canonical_url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = "Open source";
-    card.appendChild(link);
+    const safeUrl = toSafeExternalUrl(data.canonical_url);
+    if (safeUrl) {
+      const link = document.createElement("a");
+      link.href = safeUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Open source";
+      card.appendChild(link);
+    }
   }
 
   if (Array.isArray(data.programs) && data.programs.length) {
@@ -642,6 +713,15 @@ function renderSourceDetail(data) {
 }
 
 async function runAskQuery(query) {
+  if (query.length > MAX_QUERY_CHARS) {
+    setInlineMessage(refs.askGateMessage, `Query must be ${MAX_QUERY_CHARS} characters or less.`, "error");
+    return;
+  }
+  if (!isValidDomain(refs.askDomain.value)) {
+    setInlineMessage(refs.askGateMessage, "Domain filter must be a valid domain.", "error");
+    return;
+  }
+
   const token = getAuthToken();
   if (!token) {
     state.pendingAskQuery = query;
@@ -664,10 +744,15 @@ async function runAskQuery(query) {
     max_sources: 8,
     max_programs: 20,
     include_evidence: true,
-    max_evidence: Number(refs.askMaxEvidence.value || 8),
+    max_evidence: parseBoundedInt(refs.askMaxEvidence.value || 8, {
+      defaultValue: 8,
+      min: 1,
+      max: 25,
+    }),
     filters: {},
   };
-  const domain = refs.askDomain.value.trim();
+  refs.askMaxEvidence.value = String(payload.max_evidence);
+  const domain = refs.askDomain.value.trim().toLowerCase();
   if (domain) payload.filters.domain = domain;
 
   renderSkeleton(refs.askResults, 2);
@@ -709,10 +794,21 @@ async function runAskQuery(query) {
 }
 
 async function runProgramQuery(query) {
+  if (query.length > MAX_QUERY_CHARS) {
+    renderError(refs.programResults, `Query must be ${MAX_QUERY_CHARS} characters or less.`);
+    return;
+  }
+  if (!isValidDomain(refs.programDomain.value)) {
+    renderError(refs.programResults, "Domain filter must be a valid domain.");
+    return;
+  }
+
   const params = new URLSearchParams();
   params.set("query", query);
-  params.set("limit", refs.programLimit.value || "10");
-  const domain = refs.programDomain.value.trim();
+  const programLimit = parseBoundedInt(refs.programLimit.value || 10, { defaultValue: 10, min: 1, max: 100 });
+  refs.programLimit.value = String(programLimit);
+  params.set("limit", String(programLimit));
+  const domain = refs.programDomain.value.trim().toLowerCase();
   if (domain) params.set("domain", domain);
 
   renderSkeleton(refs.programResults, 3);
@@ -730,10 +826,21 @@ async function runProgramQuery(query) {
 }
 
 async function runSourceQuery(query) {
+  if (query.length > MAX_QUERY_CHARS) {
+    renderError(refs.sourceResults, `Query must be ${MAX_QUERY_CHARS} characters or less.`);
+    return;
+  }
+  if (!isValidDomain(refs.sourceDomain.value)) {
+    renderError(refs.sourceResults, "Domain filter must be a valid domain.");
+    return;
+  }
+
   const params = new URLSearchParams();
   params.set("query", query);
-  params.set("limit", refs.sourceLimit.value || "10");
-  const domain = refs.sourceDomain.value.trim();
+  const sourceLimit = parseBoundedInt(refs.sourceLimit.value || 10, { defaultValue: 10, min: 1, max: 100 });
+  refs.sourceLimit.value = String(sourceLimit);
+  params.set("limit", String(sourceLimit));
+  const domain = refs.sourceDomain.value.trim().toLowerCase();
   if (domain) params.set("domain", domain);
 
   renderSkeleton(refs.sourceResults, 3);
@@ -752,10 +859,16 @@ async function runSourceQuery(query) {
 
 async function loadSourceList(event) {
   event.preventDefault();
+  if (!isValidDomain(refs.listDomain.value)) {
+    renderError(refs.sourceListResults, "Domain filter must be a valid domain.");
+    return;
+  }
 
   const params = new URLSearchParams();
-  params.set("limit", refs.listLimit.value || "20");
-  const domain = refs.listDomain.value.trim();
+  const listLimit = parseBoundedInt(refs.listLimit.value || 20, { defaultValue: 20, min: 1, max: 200 });
+  refs.listLimit.value = String(listLimit);
+  params.set("limit", String(listLimit));
+  const domain = refs.listDomain.value.trim().toLowerCase();
   const status = refs.listStatus.value.trim();
   if (domain) params.set("domain", domain);
   if (status) params.set("status", status);
@@ -790,6 +903,10 @@ async function handleQuickSubmit(event) {
     setGlobalBanner("Enter a query to continue.", "error");
     return;
   }
+  if (query.length > MAX_QUERY_CHARS) {
+    setGlobalBanner(`Query must be ${MAX_QUERY_CHARS} characters or less.`, "error");
+    return;
+  }
 
   setGlobalBanner("", "");
 
@@ -809,6 +926,11 @@ async function runSignIn(event) {
 
   const email = refs.authEmail.value.trim();
   const password = refs.authPassword.value;
+  if (!refs.authEmail.checkValidity() || !refs.authPassword.checkValidity()) {
+    refs.authForm.reportValidity();
+    setInlineMessage(refs.authMessage, "Enter a valid email and password.", "error");
+    return;
+  }
   if (!email || !password) {
     setInlineMessage(refs.authMessage, "Provide email and password.", "error");
     return;
@@ -826,10 +948,16 @@ async function runSignIn(event) {
       }),
     );
 
+    if (!payload.access_token) {
+      throw new Error("missing_access_token");
+    }
     setAuthToken(payload.access_token, payload.token_type || "bearer");
     state.currentUserEmail = email;
+    const quotaResult = await loadQuota({ surfaceAuthError: true });
+    if (!quotaResult.ok) {
+      throw new Error("Unable to validate account quota after sign-in.");
+    }
     setInlineMessage(refs.authMessage, "Signed in successfully.", "success");
-    await loadQuota();
     closeModal("auth");
 
     if (state.pendingAskQuery) {
@@ -848,6 +976,11 @@ async function runSignIn(event) {
 async function runSignUp() {
   const email = refs.authEmail.value.trim();
   const password = refs.authPassword.value;
+  if (!refs.authEmail.checkValidity() || !refs.authPassword.checkValidity()) {
+    refs.authForm.reportValidity();
+    setInlineMessage(refs.authMessage, "Enter a valid email and password.", "error");
+    return;
+  }
   if (!email || !password) {
     setInlineMessage(refs.authMessage, "Provide email and password.", "error");
     return;

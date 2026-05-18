@@ -4,8 +4,9 @@ import asyncio
 import logging
 from collections.abc import Generator
 from pathlib import Path
+from typing import Literal
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, HTTPException, Path as ApiPath, Query, Request
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
@@ -58,10 +59,14 @@ configure_security(app)
 WEB_ROOT = Path(__file__).resolve().parent.parent / "web"
 STATIC_ROOT = WEB_ROOT / "static"
 INDEX_HTML = WEB_ROOT / "templates" / "index.html"
+ABOUT_HTML = WEB_ROOT / "templates" / "about.html"
+PRIVACY_HTML = WEB_ROOT / "templates" / "privacy.html"
+TERMS_HTML = WEB_ROOT / "templates" / "terms.html"
 if STATIC_ROOT.exists():
     app.mount("/assets", StaticFiles(directory=str(STATIC_ROOT)), name="assets")
 
 ASK_LIMITER = InMemoryRateLimiter()
+DOMAIN_QUERY_PATTERN = r"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$"
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -79,14 +84,16 @@ def get_db() -> Generator[Session, None, None]:
 
 @app.exception_handler(AuthError)
 def auth_error_handler(request: Request, exc: AuthError) -> JSONResponse:
+    detail = _public_auth_error_detail(exc)
     logger.warning(
-        "auth_error path=%s method=%s detail=%s request_id=%s",
+        "auth_error path=%s method=%s detail=%s public_detail=%s request_id=%s",
         request.url.path,
         request.method,
         str(exc),
+        detail,
         request.headers.get("x-request-id", ""),
     )
-    return JSONResponse({"status": "auth_error", "detail": str(exc)}, status_code=401)
+    return JSONResponse({"status": "auth_error", "detail": detail}, status_code=401)
 
 
 @app.exception_handler(QuotaExceededError)
@@ -173,6 +180,33 @@ def _rate_limit_ask(request: Request, user: AuthUser) -> None:
             max_requests=settings.ask_user_rate_limit_max_requests,
         ),
     )
+
+
+def _public_auth_error_detail(exc: AuthError) -> str:
+    raw = str(exc)
+    if raw in {
+        "missing_authorization_header",
+        "invalid_authorization_header",
+        "token_verification_failed",
+        "token_role_not_authenticated",
+        "missing_token_subject",
+        "unknown_signing_key",
+    }:
+        return raw
+    if raw.startswith("supabase_auth_rejected:"):
+        return "invalid_email_or_password"
+    if raw.startswith("supabase_auth_request_failed:"):
+        return "auth_provider_unavailable"
+    if raw.startswith("jwks_fetch_failed:"):
+        return "auth_provider_unavailable"
+    return "auth_failed"
+
+
+def _normalize_domain(domain: str | None) -> str | None:
+    if domain is None:
+        return None
+    normalized = domain.strip().lower()
+    return normalized or None
 
 
 def _consume_quota(session: Session, user: AuthUser) -> QuotaStatusResponse:
@@ -271,31 +305,52 @@ def web_app() -> FileResponse:
     return FileResponse(str(INDEX_HTML))
 
 
+@app.get("/about", include_in_schema=False)
+def about_page() -> FileResponse:
+    if not ABOUT_HTML.exists():
+        raise HTTPException(status_code=404, detail="about_page_not_found")
+    return FileResponse(str(ABOUT_HTML))
+
+
+@app.get("/privacy", include_in_schema=False)
+def privacy_page() -> FileResponse:
+    if not PRIVACY_HTML.exists():
+        raise HTTPException(status_code=404, detail="privacy_page_not_found")
+    return FileResponse(str(PRIVACY_HTML))
+
+
+@app.get("/terms", include_in_schema=False)
+def terms_page() -> FileResponse:
+    if not TERMS_HTML.exists():
+        raise HTTPException(status_code=404, detail="terms_page_not_found")
+    return FileResponse(str(TERMS_HTML))
+
+
 @app.get("/search/sources", response_model=list[SourceSearchItem])
 def search_sources_endpoint(
-    query: str = Query(..., min_length=1),
-    domain: str | None = Query(None),
+    query: str = Query(..., min_length=1, max_length=400),
+    domain: str | None = Query(None, max_length=253, pattern=DOMAIN_QUERY_PATTERN),
     limit: int = Query(25, ge=1, le=100),
     session: Session = Depends(get_db),
 ) -> list[SourceSearchItem]:
     return run_source_search(
         session,
         query=query,
-        domain=domain,
+        domain=_normalize_domain(domain),
         limit=limit,
     )
 
 
 @app.get("/sources", response_model=list[SourceListItem])
 def list_sources_endpoint(
-    domain: str | None = Query(None),
-    status: str | None = Query(None),
+    domain: str | None = Query(None, max_length=253, pattern=DOMAIN_QUERY_PATTERN),
+    status: Literal["pending", "succeeded", "failed"] | None = Query(None),
     limit: int = Query(50, ge=1, le=200),
     session: Session = Depends(get_db),
 ) -> list[SourceListItem]:
     return run_source_list(
         session,
-        domain=domain,
+        domain=_normalize_domain(domain),
         status=status,
         limit=limit,
     )
@@ -303,7 +358,7 @@ def list_sources_endpoint(
 
 @app.get("/sources/{source_id}", response_model=SourceDetailResponse)
 def source_detail_endpoint(
-    source_id: int,
+    source_id: int = ApiPath(..., ge=1),
     session: Session = Depends(get_db),
 ) -> SourceDetailResponse:
     result = run_source_detail(session, source_id=source_id)
@@ -319,13 +374,13 @@ def dashboard_summary_endpoint(session: Session = Depends(get_db)) -> DashboardS
 
 @app.get("/search/programs", response_model=list[ProgramSearchItem])
 def search_programs_endpoint(
-    query: str = Query("", min_length=0),
+    query: str = Query("", min_length=0, max_length=400),
     days_per_week: int | None = Query(None),
     specialization: str | None = Query(None),
     experience_level: str | None = Query(None),
     progression_type: str | None = Query(None),
     split_type: str | None = Query(None),
-    domain: str | None = Query(None),
+    domain: str | None = Query(None, max_length=253, pattern=DOMAIN_QUERY_PATTERN),
     limit: int = Query(25, ge=1, le=100),
     session: Session = Depends(get_db),
 ) -> list[ProgramSearchItem]:
@@ -338,7 +393,7 @@ def search_programs_endpoint(
             experience_level=experience_level,
             progression_type=progression_type,
             split_type=split_type,
-            domain=domain,
+            domain=_normalize_domain(domain),
         ),
         limit=limit,
     )

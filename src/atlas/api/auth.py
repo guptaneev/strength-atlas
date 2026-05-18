@@ -65,10 +65,18 @@ def verify_supabase_jwt(token: str) -> dict[str, Any]:
             issuer=issuer,
             options={"require": ["sub", "exp", "aud", "iss"]},
         )
-    except InvalidTokenError as exc:
-        raise AuthError("token_verification_failed") from exc
-    except Exception as exc:  # noqa: BLE001
-        raise AuthError("token_verification_failed") from exc
+    except InvalidTokenError:
+        claims = _verify_token_via_supabase_userinfo(token)
+        if claims is None:
+            raise AuthError("token_verification_failed")
+    except AuthError:
+        claims = _verify_token_via_supabase_userinfo(token)
+        if claims is None:
+            raise
+    except Exception:
+        claims = _verify_token_via_supabase_userinfo(token)
+        if claims is None:
+            raise AuthError("token_verification_failed")
     if claims.get("role") != "authenticated":
         raise AuthError("token_role_not_authenticated")
     return claims
@@ -213,3 +221,35 @@ def _load_public_key_from_jwk(jwt_module, jwk: dict[str, Any], alg: str):
     if algorithm_impl is None:
         raise AuthError(f"unsupported_signing_algorithm:{alg}")
     return algorithm_impl.from_jwk(json.dumps(jwk))
+
+
+def _verify_token_via_supabase_userinfo(token: str) -> dict[str, Any] | None:
+    settings = get_settings()
+    if not settings.supabase_url or not settings.supabase_publishable_key:
+        return None
+
+    url = f"{settings.supabase_url.rstrip('/')}/auth/v1/user"
+    headers = {
+        "apikey": settings.supabase_publishable_key,
+        "Authorization": f"Bearer {token}",
+    }
+    try:
+        response = httpx.get(url, headers=headers, timeout=float(settings.supabase_auth_timeout_seconds))
+    except Exception:
+        return None
+    if response.status_code >= 400:
+        return None
+
+    payload = response.json()
+    sub = str(payload.get("id") or "").strip()
+    if not sub:
+        return None
+
+    return {
+        "sub": sub,
+        "email": payload.get("email"),
+        "role": str(payload.get("role") or "authenticated"),
+        "aud": settings.supabase_jwt_audience,
+        "iss": settings.supabase_jwt_issuer or _default_issuer(settings),
+        "exp": int(time.time()) + 60,
+    }

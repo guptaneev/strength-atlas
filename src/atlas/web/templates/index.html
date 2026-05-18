@@ -36,6 +36,8 @@
               class="query-input"
               type="text"
               placeholder="How often should I bench as an intermediate?"
+              minlength="1"
+              maxlength="400"
               required
             />
             <button id="quickSubmit" class="btn-primary" type="submit">Ask</button>
@@ -62,7 +64,13 @@
           <div id="askAdvanced" class="advanced hidden">
             <label>
               Domain filter
-              <input id="askDomain" type="text" placeholder="strongerbyscience.com" />
+              <input
+                id="askDomain"
+                type="text"
+                placeholder="strongerbyscience.com"
+                maxlength="253"
+                pattern="^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,63}$"
+              />
             </label>
             <label>
               Max evidence
@@ -78,7 +86,13 @@
           <div class="panel-controls two-up">
             <label>
               Domain
-              <input id="programDomain" type="text" placeholder="barbellmedicine.com" />
+              <input
+                id="programDomain"
+                type="text"
+                placeholder="barbellmedicine.com"
+                maxlength="253"
+                pattern="^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,63}$"
+              />
             </label>
             <label>
               Limit
@@ -93,7 +107,13 @@
           <div class="panel-controls two-up">
             <label>
               Domain
-              <input id="sourceDomain" type="text" placeholder="strongerbyscience.com" />
+              <input
+                id="sourceDomain"
+                type="text"
+                placeholder="strongerbyscience.com"
+                maxlength="253"
+                pattern="^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,63}$"
+              />
             </label>
             <label>
               Limit
@@ -107,7 +127,13 @@
             <form id="sourceListForm" class="panel-controls three-up">
               <label>
                 Domain
-                <input id="listDomain" type="text" placeholder="optional domain" />
+                <input
+                  id="listDomain"
+                  type="text"
+                  placeholder="optional domain"
+                  maxlength="253"
+                  pattern="^(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,63}$"
+                />
               </label>
               <label>
                 Status
@@ -133,10 +159,10 @@
       </section>
 
       <footer class="footer">
-        <a href="#" class="footer-link">About</a>
+        <a href="/about" class="footer-link">About</a>
         <button id="openStatusBtn" type="button" class="footer-link footer-btn">Source Status</button>
-        <a href="#" class="footer-link">Privacy</a>
-        <a href="#" class="footer-link">Terms</a>
+        <a href="/privacy" class="footer-link">Privacy</a>
+        <a href="/terms" class="footer-link">Terms</a>
       </footer>
     </main>
 
@@ -149,11 +175,11 @@
         <form id="authForm" class="auth-form">
           <label>
             Email
-            <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required />
+            <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required />
           </label>
           <label>
             Password
-            <input id="authPassword" type="password" autocomplete="current-password" required />
+            <input id="authPassword" type="password" autocomplete="current-password" minlength="8" maxlength="128" required />
           </label>
           <div class="auth-actions">
             <button id="signInBtn" class="btn-primary" type="submit">Sign In</button>

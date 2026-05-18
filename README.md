@@ -1,73 +1,48 @@
-# Strength Atlas Full-Stack MVP
+# Strength Atlas
 
-Strength Atlas is a production-oriented MVP for ingesting strength-training content, normalizing it into a queryable corpus, and serving search + grounded Ask responses through a web app and API.
+Strength Atlas is a production-oriented training-intelligence platform that ingests strength-coaching content, normalizes it into a searchable corpus, and serves retrieval-grounded answers through API and web UI.
 
-This repository includes:
-- operator CLI for ingestion/crawl/ops automation
-- FastAPI backend for auth, quota-gated Ask, and search/source APIs
-- modern static web UI served at `/app`
-- Supabase-backed Postgres, Storage, and Auth integration
+## What This Repo Contains
 
-## Current Status
+- `atlas` CLI for domain/source ingestion, crawl orchestration, and ops automation
+- FastAPI backend for auth, quota-gated Ask endpoints, and search/source APIs
+- Static web app served from `/app`
+- Supabase-backed Postgres, Storage, and JWT auth integration
 
-As of **May 17, 2026**:
-- Full-stack MVP is implemented on `master`.
-- API + web UI are integrated and launchable.
-- Security baseline and deploy artifacts are present (`Dockerfile`, `render.yaml`, CI workflow, `SECURITY.md`).
-- Test suite is green locally (`120 passed`).
-
-## Architecture At A Glance
+## Architecture
 
 - Runtime: Python 3.12
-- Backend/API: FastAPI + Uvicorn
+- API: FastAPI + Uvicorn
 - CLI: Typer
-- ORM/migrations: SQLAlchemy 2 + Alembic + Psycopg
-- Data platform: Supabase Postgres + Storage + Auth (JWT/JWKS)
-- Ingestion engine: Browser Use SDK
-- Frontend: server-hosted HTML/CSS/JS at `src/atlas/web`
+- Data: SQLAlchemy + Alembic + Psycopg
+- Auth/Storage: Supabase
+- Crawling/Extraction: Browser Use SDK
 
-High-level flow:
-1. Operator discovers/extracts content with `atlas` CLI.
-2. Normalized artifacts are persisted in Postgres + Supabase Storage.
-3. End users sign up/sign in via Supabase auth-backed API endpoints.
-4. Users query `/ask/*` and `/search/*` through web UI or API.
-5. Ask requests are JWT-authenticated, rate limited, and quota enforced (default 5 lifetime).
+Core flow:
+1. Operators discover/extract sources using `atlas` commands.
+2. Sources/documents/program records are persisted in Postgres and Storage.
+3. Users authenticate through Supabase-backed auth endpoints.
+4. Users query `/ask/*` and `/search/*` from the app or API.
 
-## Quickstart (Local)
+## Local Setup
 
-1. Create and activate virtualenv:
+1. Create and activate a virtual environment.
 ```bash
 python -m venv .venv
 . .venv/bin/activate
 ```
 
-2. Install:
+2. Install dependencies.
 ```bash
 pip install -e .
 ```
 
-3. Configure env:
+3. Create environment file.
 ```bash
 cp .env.example .env
-# fill ATLAS_* values
 ```
 
-4. Run DB migrations:
-```bash
-alembic -c alembic.ini upgrade head
-```
-
-5. Start API/web:
-```bash
-atlas-api
-# or: uvicorn atlas.api.app:app --host 0.0.0.0 --port 8000
-```
-
-6. Open app:
-- [http://127.0.0.1:8000/app](http://127.0.0.1:8000/app)
-
-## Required Environment Variables
-
+4. Fill required values in `.env`.
 - `ATLAS_DATABASE_URL`
 - `ATLAS_SUPABASE_URL`
 - `ATLAS_SUPABASE_PUBLISHABLE_KEY`
@@ -75,124 +50,117 @@ atlas-api
 - `ATLAS_SUPABASE_STORAGE_BUCKET`
 - `ATLAS_BROWSER_USE_API_KEY`
 
-Important optional controls:
-- `ATLAS_APP_ENV` (`development` or `production`)
-- `ATLAS_CORS_ALLOWED_ORIGINS`
-- `ATLAS_TRUSTED_HOSTS`
-- `ATLAS_ENFORCE_HTTPS_REDIRECT`
-- `ATLAS_API_DOCS_ENABLED`
-- `ATLAS_ASK_LIFETIME_LIMIT` (default `5`)
+5. Run migrations.
+```bash
+alembic -c alembic.ini upgrade head
+```
+
+6. Start API + web app.
+```bash
+atlas-api
+```
+
+7. Open the app.
+- `http://127.0.0.1:8000/app`
+
+## Production Environment Configuration
+
+Use this process for deployment targets (Render, containers, Kubernetes, etc.).
+
+1. Create secrets in your platform secret manager.
+- `ATLAS_DATABASE_URL`
+- `ATLAS_SUPABASE_SERVICE_KEY`
+- `ATLAS_BROWSER_USE_API_KEY`
+
+2. Set non-secret config vars.
+- `ATLAS_APP_ENV=production`
+- `ATLAS_SUPABASE_URL=https://<project-ref>.supabase.co`
+- `ATLAS_SUPABASE_PUBLISHABLE_KEY=<publishable-key>`
+- `ATLAS_SUPABASE_STORAGE_BUCKET=<bucket>`
+- `ATLAS_CORS_ALLOWED_ORIGINS=https://<your-web-origin>`
+- `ATLAS_TRUSTED_HOSTS=<your-api-hostname>`
+- `ATLAS_ENFORCE_HTTPS_REDIRECT=true`
+- `ATLAS_API_DOCS_ENABLED=false`
+
+3. Configure abuse and request controls.
+- `ATLAS_REQUEST_MAX_BODY_BYTES`
+- `ATLAS_ASK_REQUEST_TIMEOUT_SECONDS`
 - `ATLAS_ASK_IP_RATE_LIMIT_WINDOW_SECONDS`
 - `ATLAS_ASK_IP_RATE_LIMIT_MAX_REQUESTS`
 - `ATLAS_ASK_USER_RATE_LIMIT_WINDOW_SECONDS`
 - `ATLAS_ASK_USER_RATE_LIMIT_MAX_REQUESTS`
-- `ATLAS_ASK_REQUEST_TIMEOUT_SECONDS`
-- `ATLAS_REQUEST_MAX_BODY_BYTES`
-- `ATLAS_ASK_CONTACT_CTA_URL`
+- `ATLAS_ASK_LIFETIME_LIMIT`
 
-## CLI Commands
-
-Domain management:
+4. Deploy and run migrations before serving traffic.
 ```bash
-atlas domain add example.com
-atlas domain list
-atlas domain pause example.com
-atlas domain resume example.com
+alembic -c alembic.ini upgrade head
 ```
 
-Ingestion:
-```bash
-atlas ingest discover --domain example.com --seed-url https://example.com
-atlas ingest extract --url https://example.com/program
-atlas ingest refresh --source-id 123
-atlas ingest diagnose --source-id 123
-atlas ingest reextract-empty --domain example.com --limit 10
-```
+5. Verify readiness after deploy.
+- `GET /health` should return `200`
+- `GET /ready` should return `200`
 
-Ops automation:
-```bash
-atlas ops dry-run --json
-atlas ops run --json
-atlas ops metrics --limit 20 --json
-atlas ops backlog --json
-atlas ops domain-quality --domain-policy-file docs/engineering/domain-crawl-policies.example.json --json
-```
+## Security Baseline
 
-Search:
-```bash
-atlas search sources --query "bench"
-atlas search programs --query "bench" --days-per-week 4
-atlas search eval --fixture docs/engineering/search-eval-fixture.json --min-pass-rate 0.8
-```
+This repo enforces a baseline aligned to common OWASP Top 10 controls:
 
-## API Surface
+- Input validation: bounded lengths and structured validators on auth/query/filter inputs
+- Injection resistance: SQLAlchemy query construction (no string-concatenated SQL)
+- Auth hardening: Bearer token verification with JWKS and controlled fallback
+- Broken access control prevention: Ask and quota endpoints require auth
+- Abuse controls: IP/user rate limiting and lifetime ask quota
+- Security headers: CSP, HSTS (prod), frame deny, nosniff, permissions policy
+- Request-size guardrails: maximum request body enforcement
+- Safe UI rendering: DOM text insertion via `textContent` and safe external URL filtering
 
-Public read/search:
-- `GET /health`
-- `GET /ready`
-- `GET /dashboard/summary`
-- `GET /search/sources`
-- `GET /search/programs`
-- `GET /sources`
-- `GET /sources/{source_id}`
+See `SECURITY.md` for disclosure and policy guidance.
 
-Auth:
-- `POST /auth/signup`
-- `POST /auth/login`
+## Common Commands
 
-Authenticated Ask + quota:
-- `GET /me/quota`
-- `POST /ask/retrieve`
-- `POST /ask/retrieve/debug`
-- `POST /ask/answer`
-
-Ask endpoints require `Authorization: Bearer <access_token>` and enforce lifetime quota + rate limits.
-
-## Web UI MVP Features
-
-- Sign up/sign in
-- Quota indicator (5 lifetime asks by default)
-- Ask workflow with grounded answer presentation
-- Program/source search and source detail
-- Dashboard summary
-- Post-limit contact CTA behavior
-
-## Testing
-
-Run full test suite:
+Run tests:
 ```bash
 pytest
 ```
 
-## Deployment
+Start API directly:
+```bash
+uvicorn atlas.api.app:app --host 0.0.0.0 --port 8000
+```
 
-Production deployment target:
-- Render (web service/API) + Supabase (Postgres/Storage/Auth)
+Run key CLI workflows:
+```bash
+atlas ingest discover --domain example.com --seed-url https://example.com
+atlas ops dry-run --json
+atlas search programs --query "bench"
+```
 
-Repo deployment assets:
-- `/Users/neevgupta/browser-use-project/Dockerfile`
-- `/Users/neevgupta/browser-use-project/render.yaml`
-- `/Users/neevgupta/browser-use-project/.github/workflows/ci.yml`
-- `/Users/neevgupta/browser-use-project/docs/operations/mvp-release-checklist.md`
-- `/Users/neevgupta/browser-use-project/docs/operations/master-publish-checklist.md`
+## Troubleshooting
 
-Production requirements:
-- set explicit CORS and trusted hosts (no wildcard CORS)
-- disable API docs in prod (`ATLAS_API_DOCS_ENABLED=false`)
-- enforce HTTPS redirect (`ATLAS_ENFORCE_HTTPS_REDIRECT=true`)
-- rotate any leaked keys immediately
+`/ready` returns degraded:
+- Check DB connectivity and credentials in `ATLAS_DATABASE_URL`
+- Verify Supabase URL and publishable key
+- Confirm JWKS endpoint is reachable
 
-## Security
+Authentication failing:
+- Confirm publishable key and project URL match the same Supabase project
+- Confirm user exists and email/password are correct
+- Check system clock skew in hosting environment
 
-- See `/Users/neevgupta/browser-use-project/SECURITY.md` for disclosure and hardening policy.
-- Never commit `.env` or real credentials.
-- Use least-privilege keys in hosted environments.
+CORS or host errors:
+- Ensure `ATLAS_CORS_ALLOWED_ORIGINS` exactly matches your frontend origin
+- Ensure `ATLAS_TRUSTED_HOSTS` includes your API hostname
 
-## Operations Runbook
+Rate limit or quota responses:
+- Tune `ATLAS_ASK_*` limits for your traffic profile
+- Use `/me/quota` to inspect user quota state
 
-- `/Users/neevgupta/browser-use-project/docs/operations/ops-runbook.md`
-- `/Users/neevgupta/browser-use-project/docs/operations/mvp-release-checklist.md`
-- `/Users/neevgupta/browser-use-project/docs/operations/master-publish-checklist.md`
+## Deployment Assets
+
+- `Dockerfile`
+- `render.yaml`
+- `.github/workflows/ci.yml`
+- `docs/operations/mvp-release-checklist.md`
+- `docs/operations/master-publish-checklist.md`
 
 ## License
 
