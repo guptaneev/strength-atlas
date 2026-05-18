@@ -71,8 +71,10 @@ def test_search_sources_endpoint(monkeypatch) -> None:
 
 
 def test_search_sources_rejects_invalid_domain() -> None:
+    app.dependency_overrides[get_db] = lambda: object()
     client = TestClient(app)
     response = client.get("/search/sources", params={"query": "bench", "domain": "http://bad"})
+    app.dependency_overrides.clear()
     assert response.status_code == 422
 
 
@@ -333,13 +335,14 @@ def test_ask_answer_endpoint(monkeypatch) -> None:
     assert payload["confidence"] == 0.75
 
 
-def test_auth_error_handler_sanitizes_provider_failures(monkeypatch) -> None:
-    monkeypatch.setattr(
-        "atlas.api.app.get_current_user",
-        lambda *_args, **_kwargs: (_ for _ in ()).throw(AuthError("supabase_auth_request_failed:timeout")),
+def test_auth_error_handler_sanitizes_provider_failures() -> None:
+    app.dependency_overrides[get_current_user] = (
+        lambda: (_ for _ in ()).throw(AuthError("supabase_auth_request_failed:timeout"))
     )
+    app.dependency_overrides[get_db] = lambda: object()
     client = TestClient(app)
     response = client.get("/me/quota", headers={"Authorization": "Bearer token"})
+    app.dependency_overrides.clear()
     assert response.status_code == 401
     assert response.json()["detail"] == "auth_provider_unavailable"
 

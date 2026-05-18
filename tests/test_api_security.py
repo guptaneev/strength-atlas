@@ -52,6 +52,32 @@ def test_security_adds_hsts_in_production(monkeypatch) -> None:
     assert response.headers["strict-transport-security"].startswith("max-age=31536000")
 
 
+def test_vercel_url_is_allowed_host(monkeypatch) -> None:
+    monkeypatch.setenv("VERCEL_URL", "strength-atlas-git-main.vercel.app")
+    monkeypatch.setattr(
+        "atlas.api.security.get_settings",
+        lambda: SimpleNamespace(
+            app_env="production",
+            cors_allowed_origins="https://strength-atlas-git-main.vercel.app",
+            trusted_hosts="localhost,127.0.0.1",
+            enforce_https_redirect=False,
+            request_max_body_bytes=1024,
+            ask_request_timeout_seconds=5,
+            csv_items=lambda value: [item.strip() for item in value.split(",") if item.strip()],
+        ),
+    )
+    app = FastAPI()
+    configure_security(app)
+
+    @app.get("/health")
+    async def health():
+        return {"status": "ok"}
+
+    client = TestClient(app)
+    response = client.get("/health", headers={"host": "strength-atlas-git-main.vercel.app"})
+    assert response.status_code == 200
+
+
 def test_request_size_limit_checks_body(monkeypatch) -> None:
     monkeypatch.setattr(
         "atlas.api.security.get_settings",
