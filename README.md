@@ -1,6 +1,17 @@
 # Strength Atlas
 
-Strength Atlas is a production-oriented training-intelligence platform that ingests strength-coaching content, normalizes it into a searchable corpus, and serves retrieval-grounded answers through API and web UI.
+**Ask a training question, get an answer with the source behind it.**
+
+Strength training advice online is unattributed by default. Strength Atlas crawls
+coaching programs, normalizes their claims into a structured corpus, and serves
+retrieval-grounded answers where every claim links back to where it came from.
+
+🔗 **[Live demo](https://strength-atlas-ai.vercel.app/app)**
+
+- 175+ programs, 476 claims, 83 sources · ~99% crawl success
+- Sub-200ms query latency on indexed data
+- 120+ tests at ~95% coverage across API, auth, search, and ingestion
+- Hardened: JWKS auth, IP/user rate limiting, lifetime quotas, CSP/HSTS
 
 ## What This Repo Contains
 
