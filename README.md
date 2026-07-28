@@ -172,7 +172,3 @@ Rate limit or quota responses:
 - `.github/workflows/ci.yml`
 - `docs/operations/mvp-release-checklist.md`
 - `docs/operations/master-publish-checklist.md`
-
-## License
-
-UNLICENSED (private/internal usage by default).
