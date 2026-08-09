@@ -76,7 +76,15 @@ atlas-api
 
 ## Production Environment Configuration
 
-Use this process for deployment targets (Render, containers, Kubernetes, etc.).
+Use this process for deployment targets (Vercel, Render, containers, Kubernetes, etc.).
+
+### Vercel Large Functions
+
+If the Python function package exceeds the standard Vercel limit, add
+`VERCEL_SUPPORT_LARGE_FUNCTIONS=1` in the Vercel project’s Environment Variables
+settings, enable Fluid Compute, and redeploy. This is a Vercel project setting,
+not a value that can be activated reliably from source control. Large Functions
+are currently incompatible with Secure Compute and Static IPs.
 
 1. Create secrets in your platform secret manager.
 - `ATLAS_DATABASE_URL`
