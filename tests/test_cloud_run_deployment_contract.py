@@ -12,6 +12,11 @@ def test_cloud_run_deploy_keeps_cost_and_state_bounded() -> None:
     assert '--concurrency 1' in script
     assert '--cpu-throttling' in script
     assert '--no-cpu-boost' in script
+    assert script.count('--max 1') == 2
+    assert script.count('--min 0') == 2
+    assert script.count('--concurrency 1') == 2
+    assert script.count('--cpu-throttling') == 2
+    assert script.count('--no-cpu-boost') == 2
     assert script.index('gcloud run jobs execute') < script.index('gcloud run deploy "$service_name"')
 
 

@@ -133,6 +133,14 @@ production_host="${production_origin#https://}"
 gcloud run services update "$service_name" \
   --region "$region" \
   --project "$project_id" \
+  --cpu 1 \
+  --memory 1Gi \
+  --min 0 \
+  --max 1 \
+  --concurrency 1 \
+  --timeout 60s \
+  --cpu-throttling \
+  --no-cpu-boost \
   --update-env-vars "ATLAS_CORS_ALLOWED_ORIGINS=${production_origin},ATLAS_TRUSTED_HOSTS=${production_host}" \
   --quiet
 
