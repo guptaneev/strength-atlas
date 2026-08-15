@@ -178,5 +178,4 @@ Rate limit or quota responses:
 - `Dockerfile`
 - `render.yaml`
 - `.github/workflows/ci.yml`
-- `docs/operations/mvp-release-checklist.md`
-- `docs/operations/master-publish-checklist.md`
+- `docs/operations/ops-runbook.md`

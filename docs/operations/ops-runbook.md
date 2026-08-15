@@ -64,3 +64,19 @@
    - `ATLAS_BROWSER_USE_API_KEY`
 2. Rotate keys immediately if leaked.
 3. Keep `.env` local-only and excluded from git.
+
+## Release checklist
+
+- [ ] Full test suite and CI pass.
+- [ ] Database migrations are at head and apply cleanly.
+- [ ] Secret scan is green; tracked files contain no real credentials.
+- [ ] Production API docs are disabled and HTTPS redirect is enabled.
+- [ ] CORS origins and trusted hosts contain only production values.
+- [ ] `/health` and `/ready` return 200 after deployment.
+- [ ] Authentication, Ask quota, source search, program search, and reranking smoke tests pass.
+- [ ] Logging covers 5xx, authentication, quota, and rate-limit failures.
+- [ ] README and durable docs match the deployed command surface.
+
+Rollback by deploying the previous successful image, checking `/health`,
+`/search/sources`, and `/app`, then restoring the database snapshot only if a
+migration or data change requires it.

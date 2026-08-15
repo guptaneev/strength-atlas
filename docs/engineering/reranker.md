@@ -1,0 +1,78 @@
+# Strength Atlas reranker
+
+This is the single durable reference for the learned ranking system.
+
+## What it ranks
+
+One cross-encoder handles two typed candidate collections:
+
+- `program`: structured program recommendations rendered with program metadata
+  and source context.
+- `source_evidence`: source-backed informational evidence rendered with title,
+  type, author, canonical URL, and extracted text.
+
+The lexical/structured retrievers generate candidates. The cross-encoder reads
+the query and each candidate together, scores up to 50 candidates within the
+appropriate collection, and returns the requested top results. Program and
+evidence metrics remain separate in serious evaluation even though one model
+can score both representations.
+
+## Model artifact
+
+- Name: `strength-atlas-cross-encoder-authoritative-v1`
+- Base checkpoint: `cross-encoder/ms-marco-MiniLM-L6-v2`
+- Local path: `var/atlas/models/strength-atlas-cross-encoder-authoritative-v1`
+- Weights SHA-256: `cfaabc87dd4da2567d1d4ad8ac61398c9d45a0653d671362a24d52c57a200da7`
+- Input length: 256 tokens
+- Training: two epochs, batch size 16, AdamW, learning rate `2e-5`, seed 42
+- Training pairs: 823, including four extra copies of each human-authoritative pair
+- Validation pairs: 167 across seven held-out queries
+- Test pairs: 139 across seven held-out queries
+
+Held-out bootstrap benchmark:
+
+| Metric | Existing retrieval order | Fine-tuned reranker | Change |
+|---|---:|---:|---:|
+| nDCG@10 | 0.5619 | 0.8455 | +0.2836 |
+| MRR | 0.9167 | 0.9167 | +0.0000 |
+
+The model gives extra training weight to the 25 product-owner judgments for
+the beginner four-day powerlifting query. Those judgments are authoritative for
+that query. All remaining bootstrap grades are teacher-distilled supporting
+data, not claimed as human relevance truth. The artifact's `training-report.json`
+records this distinction, exact splits, pair counts, parameters, and results.
+
+## Reproduce the pipeline
+
+Candidate pooling, review export, teacher bootstrap, training, splits, baseline
+metrics, and error-analysis commands live under `atlas ml`. The checked-in
+configuration is `configs/reranker-v1.yaml`.
+
+Generate program or evidence pools:
+
+```text
+atlas ml build-pools --dataset <queries.json> --output <draft.json> --retrieval-depth 20 --random-negatives 5 --seed 42
+atlas ml export-review --dataset <draft.json> --output <review.json>
+```
+
+Create bootstrap labels and train:
+
+```text
+atlas ml bootstrap-label --dataset <draft.json> --review <review.json> --output <bootstrap.json>
+atlas ml train --program-dataset <program-bootstrap.json> --program-review <program-review.json> --evidence-dataset <evidence-bootstrap.json> --evidence-review <evidence-review.json> --human-judgments docs/engineering/ml/human-judgments-v1.json --output-dir var/atlas/models/strength-atlas-cross-encoder-authoritative-v1
+```
+
+For a human benchmark, replace the bootstrap files with completely judged
+datasets using the same 0–3 scale. Freeze them before splitting or evaluation.
+
+## Serving
+
+Set `ATLAS_RERANKER_MODEL_PATH` to a saved model directory. The API then
+retrieves up to `ATLAS_RERANKER_CANDIDATE_DEPTH` candidates, reranks programs
+and source evidence with the same model, preserves identifiers and provenance,
+and truncates to the requested result count. If the setting is absent, the
+existing retrieval order remains unchanged.
+
+The stable Python boundary is `FineTunedCrossEncoder` plus typed
+`RerankCandidate` objects. Replacing the model does not require changing the
+search or Ask Atlas contracts.

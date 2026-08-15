@@ -39,6 +39,10 @@ class Settings(BaseSettings):
 
     # Retrieval debugging
     retrieval_debug_trace_path: str = "var/atlas/retrieval-debug.jsonl"
+    reranker_model_path: Optional[str] = None
+    reranker_candidate_depth: int = 50
+    reranker_max_length: int = 256
+    reranker_batch_size: int = 16
 
     # API runtime
     app_env: str = "development"

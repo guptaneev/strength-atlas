@@ -2,7 +2,7 @@
 
 This document is a readable map of the Strength Atlas repository as it exists today. It explains the product, the pipeline, the technologies, the important data objects, and the boundary between what is implemented now and what belongs to the future ML plan.
 
-For the detailed requirements and implementation contracts, see the [V1 PRD](../product/strength-atlas-prd-v1.md) and [MVP technical plan](../engineering/strength-atlas-cli-mvp-technical-plan.md). For the future machine-learning work, see the [ML Development Plan](../roadmap/strength-atlas-ml-development-plan.md) and [ML Learning Plan](../roadmap/strength-atlas-ml-learning-plan.md).
+For detailed requirements and implementation contracts, see the [V1 PRD](../product/strength-atlas-prd-v1.md), [MVP technical plan](../engineering/strength-atlas-cli-mvp-technical-plan.md), and current [reranker reference](../engineering/reranker.md).
 
 ## What Strength Atlas is
 
@@ -117,7 +117,7 @@ The current search implementation uses:
 - URL page-quality heuristics that favor program/template/how-to pages and downweight category, tag, author, and broad “best” pages;
 - parse confidence and recency as tie-breakers.
 
-The current repository does not yet implement embedding generation, vector storage, cosine-similarity retrieval, or a cross-encoder reranker. Those are future work described by the ML roadmap. The existing semantic-layer document describes an intended non-disruptive embedding hook, not a completed model-serving path.
+The repository now implements a fine-tuned cross-encoder reranker and a configurable serving boundary for both program and source-evidence candidates. Embedding generation, vector storage, and cosine-similarity retrieval are still not implemented.
 
 ### 6. Retrieval and evidence selection
 
@@ -341,7 +341,7 @@ docs/
 
 - Embedding generation and vector search
 - Cosine-similarity retrieval baseline
-- Learned cross-encoder reranking
+- Human-judged reranker benchmarking beyond the current bootstrap benchmark
 - Transformer fine-tuning or LoRA/PEFT
 - A labeled query-document ranking dataset
 - Statistical comparison of learned ranking against a vector baseline
@@ -360,7 +360,7 @@ Use this order when getting familiar with the code:
 3. Trace `atlas ingest extract` through extraction, normalization, and the database models.
 4. Inspect one `CrawlJob`, `Source`, `Document`, and `Program` relationship.
 5. Run the existing tests and search evaluation.
-6. Read the future [ML Learning Plan](../roadmap/strength-atlas-ml-learning-plan.md) only after you understand the current baseline.
+6. Read the current [reranker reference](../engineering/reranker.md) for training, evaluation, and serving details.
 
 The most important distinction is this:
 

@@ -28,6 +28,7 @@ from atlas.config.settings import get_settings
 from atlas.db.models import Claim, CrawlJob, Document, Domain, Program, Source
 from atlas.search.programs import ProgramSearchFilters, search_programs
 from atlas.search.sources import search_sources
+from atlas.ml.inference import load_reranker, rerank_program_items, rerank_source_items
 
 
 def run_source_search(
@@ -228,11 +229,23 @@ def run_retrieval_debug(
     session: Session,
     request: RetrievalRequest,
 ) -> RetrievalDebugResponse:
+    settings = get_settings()
+    reranker = None
+    reranker_model_path = getattr(settings, "reranker_model_path", None)
+    if reranker_model_path:
+        reranker = load_reranker(
+            reranker_model_path,
+            getattr(settings, "reranker_max_length", 256),
+            getattr(settings, "reranker_batch_size", 16),
+        )
+    candidate_depth = getattr(settings, "reranker_candidate_depth", 50)
+    source_depth = max(request.max_sources, candidate_depth) if reranker else request.max_sources
+    program_depth = max(request.max_programs, candidate_depth) if reranker else request.max_programs
     source_results = run_source_search(
         session,
         query=request.query,
         domain=request.filters.domain,
-        limit=request.max_sources,
+        limit=source_depth,
     )
     program_results = run_program_search(
         session,
@@ -245,8 +258,11 @@ def run_retrieval_debug(
             split_type=request.filters.split_type,
             domain=request.filters.domain,
         ),
-        limit=request.max_programs,
+        limit=program_depth,
     )
+    if reranker is not None:
+        source_results = rerank_source_items(session, request.query, source_results, reranker)[: request.max_sources]
+        program_results = rerank_program_items(session, request.query, program_results, reranker)[: request.max_programs]
 
     evidence: list[EvidenceCard] = []
     evidence_debug: list[RetrievalEvidenceSelection] = []

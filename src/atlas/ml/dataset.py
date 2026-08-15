@@ -1,9 +1,4 @@
-"""Versioned, human-reviewable relevance-dataset contracts.
-
-The dataset deliberately stores program identifiers and canonical URLs.  The
-identifier makes experiment runs repeatable against one database snapshot; the
-URL keeps a judgement auditable when IDs differ between environments.
-"""
+"""Versioned, human-reviewable relevance-dataset contracts."""
 
 from __future__ import annotations
 
@@ -19,6 +14,7 @@ RELEVANCE_SCALE = {
     "3": "Excellent match; directly satisfies the query intent.",
 }
 VALID_STATUSES = {"draft", "frozen"}
+VALID_CANDIDATE_COLLECTIONS = {"program", "source_evidence"}
 
 
 @dataclass(frozen=True)
@@ -30,14 +26,17 @@ class CandidateJudgment:
     baseline_score: float | None
     relevance: int | None
     reason: str | None
+    source_id: int | None = None
 
     @property
     def key(self) -> str:
         if self.program_id is not None:
             return f"program:{self.program_id}"
+        if self.source_id is not None:
+            return f"source:{self.source_id}"
         if self.canonical_url:
             return f"url:{self.canonical_url}"
-        raise ValueError("Candidate requires program_id or canonical_url")
+        raise ValueError("Candidate requires program_id, source_id, or canonical_url")
 
 
 @dataclass(frozen=True)
@@ -46,6 +45,7 @@ class RelevanceQuery:
     query: str
     intent: dict[str, Any]
     candidates: list[CandidateJudgment]
+    candidate_collection: str = "program"
 
 
 @dataclass(frozen=True)
@@ -62,6 +62,8 @@ class RelevanceDataset:
         for query in self.queries:
             if not query.query_id or not query.query:
                 raise ValueError("Each query requires query_id and query")
+            if query.candidate_collection not in VALID_CANDIDATE_COLLECTIONS:
+                raise ValueError(f"Unknown candidate collection: {query.candidate_collection}")
             if query.query_id in query_ids:
                 raise ValueError(f"Duplicate query_id: {query.query_id}")
             query_ids.add(query.query_id)
@@ -74,7 +76,7 @@ class RelevanceDataset:
                     raise ValueError("Relevance grades must be integers from 0 through 3")
                 if require_complete_judgments and candidate.relevance is None:
                     raise ValueError(f"Unjudged candidate in query {query.query_id}: {candidate.key}")
-        if self.status == "frozen":
+        if self.status == "frozen" and not require_complete_judgments:
             self.validate(require_complete_judgments=True)
 
 
@@ -100,6 +102,7 @@ def load_dataset(path: str | Path, *, require_complete_judgments: bool = False) 
                     baseline_score=_as_float(candidate.get("baseline_score")),
                     relevance=_as_int(relevance),
                     reason=_as_str(candidate.get("reason")),
+                    source_id=_as_int(candidate.get("source_id")),
                 )
             )
         intent = item.get("intent")
@@ -109,6 +112,7 @@ def load_dataset(path: str | Path, *, require_complete_judgments: bool = False) 
                 query=str(item.get("query") or ""),
                 intent=intent if isinstance(intent, dict) else {},
                 candidates=candidates,
+                candidate_collection=str(item.get("candidate_collection") or "program"),
             )
         )
     dataset = RelevanceDataset(
@@ -133,6 +137,7 @@ def save_dataset(dataset: RelevanceDataset, path: str | Path) -> None:
                 "query_id": query.query_id,
                 "query": query.query,
                 "intent": query.intent,
+                "candidate_collection": query.candidate_collection,
                 "candidates": [
                     {
                         "program_id": c.program_id,
@@ -142,6 +147,7 @@ def save_dataset(dataset: RelevanceDataset, path: str | Path) -> None:
                         "baseline_score": c.baseline_score,
                         "relevance": c.relevance,
                         "reason": c.reason,
+                        "source_id": c.source_id,
                     }
                     for c in query.candidates
                 ],

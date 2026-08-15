@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "status": "draft",
+  "document_representation": "evidence_with_provenance_v1",
+  "queries": [
+    {"query_id": "info_bench_frequency", "query": "bench press training frequency", "intent": {"topic": "bench press", "question": "frequency"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_deadlift_accessories", "query": "deadlift accessory exercises", "intent": {"topic": "deadlift", "question": "accessories"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_squat_technique", "query": "improve squat technique", "intent": {"topic": "squat", "question": "technique"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_beginner_progression", "query": "novice strength progression", "intent": {"topic": "strength", "audience": "novice", "question": "progression"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_intermediate_progression", "query": "intermediate strength progression", "intent": {"topic": "strength", "audience": "intermediate", "question": "progression"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_training_volume", "query": "strength training volume recommendations", "intent": {"topic": "strength", "question": "volume"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_hypertrophy_volume", "query": "hypertrophy training volume", "intent": {"topic": "hypertrophy", "question": "volume"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_powerlifting_peaking", "query": "powerlifting meet peaking", "intent": {"topic": "powerlifting", "question": "peaking"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_taper_before_meet", "query": "taper before powerlifting meet", "intent": {"topic": "powerlifting", "question": "taper"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_rpe_autoregulation", "query": "RPE autoregulation strength training", "intent": {"topic": "strength", "question": "autoregulation"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_deload", "query": "when to deload strength training", "intent": {"topic": "strength", "question": "deload"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_bench_plateau", "query": "overcome bench press plateau", "intent": {"topic": "bench press", "question": "plateau"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_deadlift_plateau", "query": "overcome deadlift plateau", "intent": {"topic": "deadlift", "question": "plateau"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_squat_frequency", "query": "squat training frequency", "intent": {"topic": "squat", "question": "frequency"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_bench_accessories", "query": "bench press accessory exercises", "intent": {"topic": "bench press", "question": "accessories"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_powerbuilding", "query": "combine strength and hypertrophy training", "intent": {"topic": "powerbuilding", "question": "programming"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_minimum_volume", "query": "minimum effective training volume", "intent": {"topic": "strength", "question": "minimum volume"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_high_frequency", "query": "high frequency strength training", "intent": {"topic": "strength", "question": "frequency"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_full_body", "query": "full body strength training", "intent": {"topic": "strength", "question": "split"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_upper_lower", "query": "upper lower strength split", "intent": {"topic": "strength", "question": "split"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_training_two_days", "query": "strength training two days per week", "intent": {"topic": "strength", "question": "low frequency"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_training_three_days", "query": "strength training three days per week", "intent": {"topic": "strength", "question": "frequency"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_women_strength", "query": "strength training for women", "intent": {"topic": "strength", "audience": "women"}, "candidate_collection": "source_evidence", "candidates": []},
+    {"query_id": "info_coaching_cues", "query": "powerlifting technique coaching cues", "intent": {"topic": "powerlifting", "question": "technique"}, "candidate_collection": "source_evidence", "candidates": []}
+  ]
+}

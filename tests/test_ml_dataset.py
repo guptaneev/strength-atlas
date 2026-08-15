@@ -38,6 +38,21 @@ def test_frozen_dataset_cannot_have_unjudged_candidates() -> None:
         dataset.validate()
 
 
+def test_frozen_dataset_with_complete_judgments_validates_without_recursion() -> None:
+    _dataset(status="frozen").validate()
+
+
+def test_source_evidence_candidate_round_trip(tmp_path) -> None:
+    dataset = RelevanceDataset(1, "draft", "evidence_with_provenance_v1", [
+        RelevanceQuery("q", "bench frequency", {}, [CandidateJudgment(None, "https://example.com", "baseline", 1, None, 2, "useful", 9)], "source_evidence")
+    ])
+    path = tmp_path / "source.json"
+    save_dataset(dataset, path)
+    loaded = load_dataset(path)
+    assert loaded.queries[0].candidate_collection == "source_evidence"
+    assert loaded.queries[0].candidates[0].key == "source:9"
+
+
 def test_loads_legacy_url_and_round_trips_to_canonical_url(tmp_path) -> None:
     path = tmp_path / "data.json"
     path.write_text(json.dumps({"status": "draft", "queries": [{"query_id": "q", "query": "bench", "candidates": [{"url": "https://example.com", "relevance": 1}]}]}), encoding="utf-8")
@@ -53,7 +68,7 @@ def test_reranker_contract_orders_larger_scores_first() -> None:
             return [0.1, 0.9]
 
     ranked = rerank_candidates(_Reranker(), "bench", [RerankCandidate(1, "a"), RerankCandidate(2, "b")])
-    assert [candidate.program_id for candidate in ranked] == [2, 1]
+    assert [candidate.candidate_id for candidate in ranked] == [2, 1]
 
 
 def test_error_analysis_template_and_summary() -> None:
