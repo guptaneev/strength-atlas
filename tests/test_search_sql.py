@@ -1,6 +1,10 @@
 from sqlalchemy.dialects import postgresql
 
-from atlas.search.programs import ProgramSearchFilters, build_program_search_statement
+from atlas.search.programs import (
+    ProgramSearchFilters,
+    build_program_candidate_fallback_statement,
+    build_program_search_statement,
+)
 from atlas.search.sources import build_source_search_statement
 
 
@@ -40,3 +44,16 @@ def test_source_search_dedupes_via_grouped_source_subquery() -> None:
     assert "join (" in sql
     assert "source_id" in sql
     assert "canonical_url ilike" in sql
+
+
+def test_program_candidate_fallback_uses_expanded_lexical_candidates_and_intent_boosts() -> None:
+    stmt = build_program_candidate_fallback_statement(
+        query="beginner powerlifting program four days per week",
+        filters=ProgramSearchFilters(),
+        limit=50,
+    )
+    sql = _sql(stmt)
+    assert "plainto_tsquery" in sql
+    assert " || " in sql
+    assert "programs.days_per_week" in sql
+    assert "programs.experience_level" in sql

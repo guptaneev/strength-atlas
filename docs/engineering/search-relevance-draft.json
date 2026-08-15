@@ -1,0 +1,49 @@
+{
+  "status": "draft",
+  "purpose": "First-pass graded relevance example for Stage 2 retrieval evaluation.",
+  "labeling_note": "These labels are provisional and require human review before being used as a benchmark.",
+  "relevance_scale": {
+    "0": "Irrelevant to the query intent.",
+    "1": "Marginally relevant; shares a topic but does not satisfy the main constraints.",
+    "2": "Useful match; satisfies part of the intent but misses an important constraint.",
+    "3": "Excellent match; directly addresses a four-day bench-focused program request."
+  },
+  "queries": [
+    {
+      "query_id": "four_day_bench_program_v1",
+      "query": "four-day bench program",
+      "intent": {
+        "lift_focus": "bench press",
+        "days_per_week": 4,
+        "result_type": "training program"
+      },
+      "candidates": [
+        {
+          "url": "https://www.strongerbyscience.com/program-bundle",
+          "relevance": 2,
+          "reason": "Likely useful because it offers training programs, but the query-specific four-day bench structure is not guaranteed from the candidate title alone."
+        },
+        {
+          "url": "https://www.barbellmedicine.com/product-category/training-templates",
+          "relevance": 2,
+          "reason": "A training-template catalog is relevant to finding a program, but it is broader than a confirmed four-day bench program."
+        },
+        {
+          "url": "https://www.strongerbyscience.com/how-to-bench",
+          "relevance": 1,
+          "reason": "Directly concerns the bench press but is a technique guide rather than a four-day training program."
+        },
+        {
+          "url": "https://www.strongerbyscience.com/complete-strength-training-guide",
+          "relevance": 1,
+          "reason": "General strength-training guidance may provide context but does not directly satisfy the program and four-day constraints."
+        },
+        {
+          "url": "https://www.strongerbyscience.com/how-to-squat",
+          "relevance": 0,
+          "reason": "Focused on the squat rather than a bench-focused program."
+        }
+      ]
+    }
+  ]
+}

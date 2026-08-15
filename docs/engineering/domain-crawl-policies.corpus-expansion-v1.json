@@ -1,0 +1,80 @@
+{
+  "barbellmedicine.com": {
+    "seed_urls": [
+      "https://www.barbellmedicine.com/product-category/training-templates",
+      "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+      "https://www.barbellmedicine.com/blog/bodybuilding-programs"
+    ],
+    "per_domain_limit": 8,
+    "stale_after_days": 21,
+    "admission_min_succeeded_sources": 3,
+    "admission_max_recent_failure_rate": 0.4,
+    "admission_min_avg_parse_confidence": 0.65,
+    "admission_max_zero_program_rate": 0.5,
+    "admission_recent_crawl_window": 20
+  },
+  "strongerbyscience.com": {
+    "seed_urls": [
+      "https://www.strongerbyscience.com/programming/",
+      "https://www.strongerbyscience.com/training/",
+      "https://www.strongerbyscience.com/program-bundle/"
+    ],
+    "per_domain_limit": 6,
+    "stale_after_days": 14,
+    "admission_min_succeeded_sources": 5,
+    "admission_max_recent_failure_rate": 0.35,
+    "admission_min_avg_parse_confidence": 0.7,
+    "admission_max_zero_program_rate": 0.4,
+    "admission_recent_crawl_window": 20
+  },
+  "powerliftingtowin.com": {
+    "seed_urls": [
+      "https://www.powerliftingtowin.com/powerlifting-programs/",
+      "https://www.powerliftingtowin.com/powerlifting-novice-program/",
+      "https://www.powerliftingtowin.com/powerlifting-training-organization/"
+    ],
+    "per_domain_limit": 6,
+    "stale_after_days": 90,
+    "admission_min_succeeded_sources": 3,
+    "admission_max_recent_failure_rate": 0.35,
+    "admission_min_avg_parse_confidence": 0.7,
+    "admission_max_zero_program_rate": 0.5,
+    "admission_recent_crawl_window": 12
+  },
+  "californiastrength.com": {
+    "seed_urls": [
+      "https://www.californiastrength.com/programs",
+      "https://www.californiastrength.com/olympic-weight-lifting",
+      "https://www.californiastrength.com/programs-1"
+    ],
+    "per_domain_limit": 4,
+    "stale_after_days": 90
+  },
+  "startingstrength.com": {
+    "seed_urls": [
+      "https://startingstrength.com/article/programs",
+      "https://startingstrength.com/article/programming",
+      "https://startingstrength.com/article/the_texas_method"
+    ],
+    "per_domain_limit": 6,
+    "stale_after_days": 90,
+    "admission_min_succeeded_sources": 3,
+    "admission_max_recent_failure_rate": 0.35,
+    "admission_min_avg_parse_confidence": 0.7,
+    "admission_max_zero_program_rate": 0.5,
+    "admission_recent_crawl_window": 12
+  },
+  "rpstrength.com": {
+    "seed_urls": [
+      "https://rpstrength.com/blogs/articles/training-volume-landmarks-muscle-growth",
+      "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips"
+    ],
+    "per_domain_limit": 6,
+    "stale_after_days": 90,
+    "admission_min_succeeded_sources": 3,
+    "admission_max_recent_failure_rate": 0.35,
+    "admission_min_avg_parse_confidence": 0.7,
+    "admission_max_zero_program_rate": 0.5,
+    "admission_recent_crawl_window": 12
+  }
+}

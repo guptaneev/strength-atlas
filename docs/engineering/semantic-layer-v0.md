@@ -4,8 +4,15 @@ This V0 plan introduces semantic-ingestion hook contracts only. It does not add 
 
 Current state:
 
-- Search remains Postgres full-text + structured filters.
+- Search uses exact Postgres full-text + structured filters first, then an
+  intent-expanded lexical candidate fallback when exact retrieval cannot fill
+  the requested result count. The fallback uses inspectable aliases and soft
+  boosts for inferred days per week, experience level, and split type.
 - Browser Use remains acquisition/extraction only.
+
+The fallback is **not** vector or embedding search. It is the current
+high-recall candidate leg that a future vector retriever will union with before
+the cross-encoder reranks candidates.
 
 V0 hook contract:
 

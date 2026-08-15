@@ -1,0 +1,12 @@
+# Phase 7 handoff configuration. Keep this under version control with dataset/split IDs.
+model_checkpoint: cross-encoder/ms-marco-MiniLM-L-6-v2
+document_representation: program_with_metadata_v1
+candidate_depth: 50
+output_top_k: 10
+max_length: 256
+batch_size: 16
+learning_rate: 2.0e-5
+epochs: 4
+seed: 42
+optimizer: adamw
+scheduler: linear_warmup
