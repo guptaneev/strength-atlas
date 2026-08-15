@@ -1,5 +1,8 @@
 # Operations Runbook (MVP)
 
+For release configuration, model artifacts, deployment, smoke tests, and
+rollback, use the [production deployment guide](production-deployment.md).
+
 ## Daily ingest reliability workflow
 
 1. Review backlog and stale succeeded sources:
@@ -34,7 +37,7 @@
 
 1. Check deployment revision and recent config changes.
 2. Verify DB and Supabase auth connectivity.
-3. Roll back to previous stable Render revision if unresolved within 15 minutes.
+3. Route traffic to the previous stable Cloud Run revision if unresolved within 15 minutes.
 
 ### Auth failure spike
 

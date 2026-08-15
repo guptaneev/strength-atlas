@@ -16,6 +16,15 @@ class ProgramSearchItem(BaseModel):
     document_id: int
     source_id: int | None = None
     canonical_url: str | None = None
+    coach_name: str | None = None
+    days_per_week: int | None = None
+    specialization: str | None = None
+    experience_level: str | None = None
+    progression_type: str | None = None
+    split_type: str | None = None
+    summary: str | None = None
+    source_title: str | None = None
+    source_domain: str | None = None
 
 
 class SourceSearchItem(BaseModel):
@@ -23,11 +32,15 @@ class SourceSearchItem(BaseModel):
     canonical_url: str
     status: str | None = None
     last_crawled_at: str | None = None
+    title: str | None = None
+    domain: str | None = None
+    excerpt: str | None = None
+    published_at: str | None = None
+    confidence: float | None = None
 
 
 class SourceListItem(SourceSearchItem):
-    domain: str | None = None
-    title: str | None = None
+    pass
 
 
 class SourceDetailDocument(BaseModel):
@@ -123,6 +136,12 @@ class QuotaStatusResponse(BaseModel):
     contact_url: str | None = None
 
 
+class RetrievalStatusResponse(BaseModel):
+    mode: str
+    model_version: str | None = None
+    model_loaded: bool = False
+
+
 class RetrievalSourceCandidate(SourceSearchItem):
     rank: int
 
@@ -144,6 +163,9 @@ class RetrievalDebugSummary(BaseModel):
     source_candidates: int
     program_candidates: int
     evidence_selected: int
+    retrieval_mode: str = "baseline"
+    reranker_model_version: str | None = None
+    reranker_fallback_reason: str | None = None
 
 
 class RetrievalDebugResponse(BaseModel):

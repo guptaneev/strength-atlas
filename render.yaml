@@ -1,12 +1,16 @@
+# Legacy Render alternative only. Cloud Run is the canonical deployment target.
+# Auto-deploy stays disabled to prevent two production services from diverging.
 services:
   - type: web
     name: strength-atlas-api
-    env: docker
+    runtime: docker
     plan: starter
     region: oregon
     numInstances: 1
-    autoDeploy: true
+    autoDeploy: false
     healthCheckPath: /health
+    preDeployCommand: alembic -c alembic.ini upgrade head
+    maxShutdownDelaySeconds: 30
     envVars:
       - key: ATLAS_APP_ENV
         value: production
@@ -30,3 +34,9 @@ services:
         sync: false
       - key: ATLAS_BROWSER_USE_API_KEY
         sync: false
+      - key: ATLAS_RERANKER_MODEL_PATH
+        value: /var/atlas/models/strength-atlas-cross-encoder-authoritative-v1
+      - key: ATLAS_RERANKER_MODEL_VERSION
+        value: strength-atlas-cross-encoder-authoritative-v1
+      - key: ATLAS_RERANKER_WEIGHTS_SHA256
+        value: cfaabc87dd4da2567d1d4ad8ac61398c9d45a0653d671362a24d52c57a200da7

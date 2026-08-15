@@ -1,0 +1,11 @@
+{
+  "model_version": "strength-atlas-cross-encoder-authoritative-v1",
+  "base_checkpoint": "cross-encoder/ms-marco-MiniLM-L6-v2",
+  "artifact_filename": "strength-atlas-cross-encoder-authoritative-v1.tar.gz",
+  "artifact_format": "tar.gz",
+  "archive_size_bytes": 83554994,
+  "archive_sha256": "18e9a27e5eb67e72b43c88ec81d25c25f5e3c9252e183c9d0232ca3e8ace2657",
+  "weights_sha256": "cfaabc87dd4da2567d1d4ad8ac61398c9d45a0653d671362a24d52c57a200da7",
+  "max_length": 256,
+  "human_authoritative_scope": "beginner four-day powerlifting query only"
+}

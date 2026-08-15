@@ -54,6 +54,9 @@ class EvidenceCard(BaseModel):
     snippet: str | None = None
     parse_confidence: float | None = None
     last_crawled_at: str | None = None
+    domain: str | None = None
+    source_title: str | None = None
+    published_at: str | None = None
 
 
 class AskAtlasResponse(BaseModel):

@@ -45,7 +45,7 @@ python -m venv .venv
 
 2. Install dependencies.
 ```bash
-pip install -e .
+pip install -e ".[dev]"
 ```
 
 3. Create environment file.
@@ -74,50 +74,16 @@ atlas-api
 7. Open the app.
 - `http://127.0.0.1:8000/app`
 
-## Production Environment Configuration
+## Production Deployment
 
-Use this process for deployment targets (Vercel, Render, containers, Kubernetes, etc.).
+The canonical production stack is a cost-bounded Google Cloud Run Docker
+service plus Supabase Postgres, Auth, and Storage. The learned reranker is
+distributed as a versioned, checksummed release artifact and is never
+committed to ordinary Git. Render remains a disabled legacy alternative.
 
-### Vercel Large Functions
-
-If the Python function package exceeds the standard Vercel limit, add
-`VERCEL_SUPPORT_LARGE_FUNCTIONS=1` in the Vercel project’s Environment Variables
-settings, enable Fluid Compute, and redeploy. This is a Vercel project setting,
-not a value that can be activated reliably from source control. Large Functions
-are currently incompatible with Secure Compute and Static IPs.
-
-1. Create secrets in your platform secret manager.
-- `ATLAS_DATABASE_URL`
-- `ATLAS_SUPABASE_SERVICE_KEY`
-- `ATLAS_BROWSER_USE_API_KEY`
-
-2. Set non-secret config vars.
-- `ATLAS_APP_ENV=production`
-- `ATLAS_SUPABASE_URL=https://<project-ref>.supabase.co`
-- `ATLAS_SUPABASE_PUBLISHABLE_KEY=<publishable-key>`
-- `ATLAS_SUPABASE_STORAGE_BUCKET=<bucket>`
-- `ATLAS_CORS_ALLOWED_ORIGINS=https://<your-web-origin>`
-- `ATLAS_TRUSTED_HOSTS=<your-api-hostname>`
-- `ATLAS_ENFORCE_HTTPS_REDIRECT=true`
-- `ATLAS_API_DOCS_ENABLED=false`
-
-3. Configure abuse and request controls.
-- `ATLAS_REQUEST_MAX_BODY_BYTES`
-- `ATLAS_ASK_REQUEST_TIMEOUT_SECONDS`
-- `ATLAS_ASK_IP_RATE_LIMIT_WINDOW_SECONDS`
-- `ATLAS_ASK_IP_RATE_LIMIT_MAX_REQUESTS`
-- `ATLAS_ASK_USER_RATE_LIMIT_WINDOW_SECONDS`
-- `ATLAS_ASK_USER_RATE_LIMIT_MAX_REQUESTS`
-- `ATLAS_ASK_LIFETIME_LIMIT`
-
-4. Deploy and run migrations before serving traffic.
-```bash
-alembic -c alembic.ini upgrade head
-```
-
-5. Verify readiness after deploy.
-- `GET /health` should return `200`
-- `GET /ready` should return `200`
+Follow the single [production deployment guide](docs/operations/production-deployment.md)
+for environment variables, migrations, model activation, smoke tests,
+monitoring, acceptance criteria, and application/database/model rollback.
 
 ## Security Baseline
 
@@ -176,6 +142,8 @@ Rate limit or quota responses:
 ## Deployment Assets
 
 - `Dockerfile`
-- `render.yaml`
+- `configs/cloud-run.env.example.yaml`
+- `scripts/deploy_cloud_run.sh`
+- `render.yaml` (disabled legacy alternative)
 - `.github/workflows/ci.yml`
 - `docs/operations/ops-runbook.md`

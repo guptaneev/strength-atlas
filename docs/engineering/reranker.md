@@ -23,11 +23,12 @@ can score both representations.
 - Base checkpoint: `cross-encoder/ms-marco-MiniLM-L6-v2`
 - Local path: `var/atlas/models/strength-atlas-cross-encoder-authoritative-v1`
 - Weights SHA-256: `cfaabc87dd4da2567d1d4ad8ac61398c9d45a0653d671362a24d52c57a200da7`
+- Release manifest: [`configs/reranker-v1-release.json`](../../configs/reranker-v1-release.json)
 - Input length: 256 tokens
 - Training: two epochs, batch size 16, AdamW, learning rate `2e-5`, seed 42
 - Training pairs: 823, including four extra copies of each human-authoritative pair
 - Validation pairs: 167 across seven held-out queries
-- Test pairs: 139 across seven held-out queries
+- Test pairs: 114 across six held-out queries
 
 Held-out bootstrap benchmark:
 
@@ -72,6 +73,15 @@ retrieves up to `ATLAS_RERANKER_CANDIDATE_DEPTH` candidates, reranks programs
 and source evidence with the same model, preserves identifiers and provenance,
 and truncates to the requested result count. If the setting is absent, the
 existing retrieval order remains unchanged.
+
+Model loading and scoring run on a cached, bounded worker pool. Load errors,
+bad artifacts, checksum mismatches, incompatible models, inference errors,
+timeouts, and worker saturation return the unchanged baseline order. The
+candidate depth, requested top-k, batch size, input length, worker count,
+timeout, and failure cooldown are independently configurable and bounded.
+
+The release artifact workflow, activation checks, and rollback procedure are in
+[the production deployment guide](../operations/production-deployment.md).
 
 The stable Python boundary is `FineTunedCrossEncoder` plus typed
 `RerankCandidate` objects. Replacing the model does not require changing the

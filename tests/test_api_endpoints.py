@@ -78,6 +78,20 @@ def test_search_sources_rejects_invalid_domain() -> None:
     assert response.status_code == 422
 
 
+def test_unhandled_database_error_is_sanitized(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "atlas.api.app.run_source_search",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("postgres password=secret host=internal")),
+    )
+    app.dependency_overrides[get_db] = lambda: object()
+    client = TestClient(app, raise_server_exceptions=False)
+    response = client.get("/search/sources", params={"query": "bench"})
+    app.dependency_overrides.clear()
+    assert response.status_code == 500
+    assert response.json() == {"status": "error", "detail": "internal_server_error"}
+    assert "secret" not in response.text
+
+
 def test_sources_list_endpoint(monkeypatch) -> None:
     monkeypatch.setattr(
         "atlas.api.app.run_source_list",

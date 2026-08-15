@@ -104,6 +104,64 @@ def test_request_size_limit_checks_body(monkeypatch) -> None:
     assert response.json()["detail"] == "request_body_too_large"
 
 
+def test_cors_preflight_allows_only_configured_origin(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "atlas.api.security.get_settings",
+        lambda: SimpleNamespace(
+            app_env="production",
+            cors_allowed_origins="https://atlas.example.com",
+            trusted_hosts="atlas.example.com",
+            enforce_https_redirect=False,
+            request_max_body_bytes=1024,
+            ask_request_timeout_seconds=5,
+            csv_items=lambda value: [item.strip() for item in value.split(",") if item.strip()],
+        ),
+    )
+    app = FastAPI()
+    configure_security(app)
+    client = TestClient(app)
+    allowed = client.options(
+        "/ask/answer",
+        headers={
+            "host": "atlas.example.com",
+            "origin": "https://atlas.example.com",
+            "access-control-request-method": "POST",
+        },
+    )
+    denied = client.options(
+        "/ask/answer",
+        headers={
+            "host": "atlas.example.com",
+            "origin": "https://evil.example.com",
+            "access-control-request-method": "POST",
+        },
+    )
+    assert allowed.status_code == 200
+    assert allowed.headers["access-control-allow-origin"] == "https://atlas.example.com"
+    assert denied.status_code == 400
+
+
+def test_https_redirect_is_enforced(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "atlas.api.security.get_settings",
+        lambda: SimpleNamespace(
+            app_env="production",
+            cors_allowed_origins="https://atlas.example.com",
+            trusted_hosts="atlas.example.com",
+            enforce_https_redirect=True,
+            request_max_body_bytes=1024,
+            ask_request_timeout_seconds=5,
+            csv_items=lambda value: [item.strip() for item in value.split(",") if item.strip()],
+        ),
+    )
+    app = FastAPI()
+    configure_security(app)
+    client = TestClient(app, follow_redirects=False)
+    response = client.get("http://atlas.example.com/health")
+    assert response.status_code in {307, 308}
+    assert response.headers["location"].startswith("https://")
+
+
 def test_ask_timeout_middleware(monkeypatch) -> None:
     monkeypatch.setattr(
         "atlas.api.security.get_settings",

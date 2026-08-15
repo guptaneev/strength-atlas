@@ -26,8 +26,9 @@
 
     <main class="main-shell">
       <section class="hero" aria-labelledby="hero-title">
-        <h1 id="hero-title">Ask Better. Lift Smarter.</h1>
-        <p class="subtitle">Grounded training guidance from indexed coaching sources.</p>
+        <p class="eyebrow">Independent training research</p>
+        <h1 id="hero-title">Training decisions, backed by sources.</h1>
+        <p class="subtitle">Find a program that fits your week, or ask a question and inspect the evidence behind the answer.</p>
         <form id="quickQueryForm" class="query-form" aria-label="Primary query form">
           <label class="sr-only" for="quickQuery">Query</label>
           <div class="query-input-wrap">
@@ -35,12 +36,12 @@
               id="quickQuery"
               class="query-input"
               type="text"
-              placeholder="How often should I bench as an intermediate?"
+              placeholder="Find a four-day intermediate powerlifting program"
               minlength="1"
               maxlength="400"
               required
             />
-            <button id="quickSubmit" class="btn-primary" type="submit">Ask</button>
+            <button id="quickSubmit" class="btn-primary" type="submit">Find programs</button>
           </div>
         </form>
         <div id="trustChips" class="trust-chips" aria-live="polite"></div>
@@ -49,21 +50,23 @@
 
       <section class="workspace" aria-label="Atlas workspace">
         <nav class="tabs" role="tablist" aria-label="Atlas tools">
-          <button id="tab-ask" class="tab" role="tab" aria-selected="true" aria-controls="panel-ask" data-tab="ask" tabindex="0" type="button">Ask Atlas</button>
-          <button id="tab-program" class="tab" role="tab" aria-selected="false" aria-controls="panel-program" data-tab="program" tabindex="-1" type="button">Program Explorer</button>
-          <button id="tab-source" class="tab" role="tab" aria-selected="false" aria-controls="panel-source" data-tab="source" tabindex="-1" type="button">Source Explorer</button>
+          <button id="tab-program" class="tab" role="tab" aria-selected="true" aria-controls="panel-program" data-tab="program" tabindex="0" type="button">Program Discovery</button>
+          <button id="tab-ask" class="tab" role="tab" aria-selected="false" aria-controls="panel-ask" data-tab="ask" tabindex="-1" type="button">Ask Atlas</button>
+          <button id="tab-source" class="tab tab-secondary" role="tab" aria-selected="false" aria-controls="panel-source" data-tab="source" tabindex="-1" type="button">Research Library</button>
           <span id="tabUnderline" class="tab-underline" aria-hidden="true"></span>
         </nav>
 
-        <section id="panel-ask" class="panel" role="tabpanel" aria-labelledby="tab-ask">
-          <p class="panel-copy">Ask in plain English and get retrieval-grounded coaching guidance.</p>
+        <section id="panel-ask" class="panel hidden" role="tabpanel" aria-labelledby="tab-ask">
+          <p class="panel-kicker">Evidence-backed guidance</p>
+          <h2 class="panel-title">Ask a training question</h2>
+          <p class="panel-copy">Atlas answers from the indexed coaching library and shows exactly which evidence supported it.</p>
           <button id="advancedToggle" class="advanced-toggle" type="button" aria-expanded="false" aria-controls="askAdvanced">
-            Advanced
+            Refine sources
             <span id="advancedChevron" class="chevron" aria-hidden="true">⌄</span>
           </button>
           <div id="askAdvanced" class="advanced hidden">
             <label>
-              Domain filter
+              Only use this website
               <input
                 id="askDomain"
                 type="text"
@@ -73,7 +76,7 @@
               />
             </label>
             <label>
-              Max evidence
+              Sources to show
               <input id="askMaxEvidence" type="number" min="1" max="25" value="8" />
             </label>
           </div>
@@ -81,11 +84,13 @@
           <div id="askResults" class="results" aria-live="polite"></div>
         </section>
 
-        <section id="panel-program" class="panel hidden" role="tabpanel" aria-labelledby="tab-program">
-          <p class="panel-copy">Search indexed programs by intent, confidence, and source domain.</p>
+        <section id="panel-program" class="panel" role="tabpanel" aria-labelledby="tab-program">
+          <p class="panel-kicker">Program Discovery</p>
+          <h2 class="panel-title">Match your goals and schedule</h2>
+          <p class="panel-copy">Compare recommended programs by experience, weekly schedule, focus, split, coach, and original source.</p>
           <div class="panel-controls two-up">
             <label>
-              Domain
+              Only use this website
               <input
                 id="programDomain"
                 type="text"
@@ -95,7 +100,7 @@
               />
             </label>
             <label>
-              Limit
+              Programs to show
               <input id="programLimit" type="number" min="1" max="100" value="10" />
             </label>
           </div>
@@ -103,10 +108,12 @@
         </section>
 
         <section id="panel-source" class="panel hidden" role="tabpanel" aria-labelledby="tab-source">
-          <p class="panel-copy">Search and inspect source pages to verify recommendation provenance.</p>
+          <p class="panel-kicker">Research Library</p>
+          <h2 class="panel-title">Inspect the original material</h2>
+          <p class="panel-copy">Search coaching articles and program pages, then open the original source for context.</p>
           <div class="panel-controls two-up">
             <label>
-              Domain
+              Only use this website
               <input
                 id="sourceDomain"
                 type="text"
@@ -116,15 +123,15 @@
               />
             </label>
             <label>
-              Limit
+              Sources to show
               <input id="sourceLimit" type="number" min="1" max="100" value="10" />
             </label>
           </div>
           <div id="sourceResults" class="results"></div>
 
           <div class="subsection">
-            <h2 class="subsection-title">Browse Source List</h2>
-            <form id="sourceListForm" class="panel-controls three-up">
+            <h2 class="subsection-title">Browse the library</h2>
+            <form id="sourceListForm" class="panel-controls two-up">
               <label>
                 Domain
                 <input
@@ -136,16 +143,7 @@
                 />
               </label>
               <label>
-                Status
-                <select id="listStatus">
-                  <option value="">all</option>
-                  <option value="pending">pending</option>
-                  <option value="succeeded">succeeded</option>
-                  <option value="failed">failed</option>
-                </select>
-              </label>
-              <label>
-                Limit
+                Sources to show
                 <input id="listLimit" type="number" min="1" max="200" value="20" />
               </label>
               <div class="controls-action">
@@ -160,7 +158,7 @@
 
       <footer class="footer">
         <a href="/about" class="footer-link">About</a>
-        <button id="openStatusBtn" type="button" class="footer-link footer-btn">Source Status</button>
+        <button id="openStatusBtn" type="button" class="footer-link footer-btn">Library status</button>
         <a href="/privacy" class="footer-link">Privacy</a>
         <a href="/terms" class="footer-link">Terms</a>
       </footer>
@@ -194,8 +192,8 @@
       <div class="modal-backdrop" data-close-modal="status"></div>
       <div class="modal-card">
         <button class="modal-close" type="button" aria-label="Close" data-close-modal="status">×</button>
-        <h2 id="statusModalTitle">Source Status</h2>
-        <p class="modal-copy">Corpus and indexing transparency summary.</p>
+        <h2 id="statusModalTitle">Library status</h2>
+        <p class="modal-copy">A simple view of the research available in Atlas.</p>
         <div id="statusBody" class="status-body"></div>
       </div>
     </div>

@@ -1,0 +1,17 @@
+.gcloudignore
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+*.egg-info
+dist
+build
+var
+scratch_work
+tests
+.DS_Store
