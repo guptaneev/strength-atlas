@@ -51,13 +51,14 @@ done
 
 revision="$(git rev-parse --short=12 HEAD)"
 image_uri="${region}-docker.pkg.dev/${project_id}/${repository_name}/app:${revision}"
-service_secrets="ATLAS_DATABASE_URL=atlas-database-url:latest,ATLAS_SUPABASE_SERVICE_KEY=atlas-supabase-service-key:latest,ATLAS_BROWSER_USE_API_KEY=atlas-browser-use-api-key:latest,ATLAS_RERANKER_MODEL_AUTH_TOKEN=atlas-supabase-service-key:latest,ATLAS_RERANKER_MODEL_API_KEY=atlas-supabase-service-key:latest"
+service_secrets="ATLAS_DATABASE_URL=atlas-database-url:latest,ATLAS_SUPABASE_SERVICE_KEY=atlas-supabase-service-key:latest,ATLAS_BROWSER_USE_API_KEY=atlas-browser-use-api-key:latest"
 
 gcloud services enable \
   artifactregistry.googleapis.com \
   cloudbuild.googleapis.com \
   run.googleapis.com \
   secretmanager.googleapis.com \
+  storage.googleapis.com \
   --project "$project_id"
 
 if ! gcloud artifacts repositories describe "$repository_name" \

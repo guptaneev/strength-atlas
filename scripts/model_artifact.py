@@ -13,11 +13,15 @@ import shutil
 import tarfile
 import tempfile
 from urllib.request import Request, urlopen
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import quote, urlsplit, urlunsplit
 
 LOGGER = logging.getLogger("atlas.model_artifact")
 REQUIRED_FILES = ("config.json", "model.safetensors", "tokenizer_config.json")
 DEFAULT_MAX_ARCHIVE_BYTES = 512 * 1024 * 1024
+GCP_METADATA_TOKEN_URL = (
+    "http://metadata.google.internal/computeMetadata/v1/instance/"
+    "service-accounts/default/token"
+)
 
 
 def sha256_file(path: Path) -> str:
@@ -129,13 +133,19 @@ def package_model(source: Path, output: Path, version: str) -> dict[str, str]:
 def _download(url: str, output: Path) -> None:
     max_bytes = int(os.getenv("ATLAS_RERANKER_MAX_ARCHIVE_BYTES", str(DEFAULT_MAX_ARCHIVE_BYTES)))
     headers = {"User-Agent": "strength-atlas-model-fetch/1"}
-    auth_token = os.getenv("ATLAS_RERANKER_MODEL_AUTH_TOKEN", "").strip()
-    api_key = os.getenv("ATLAS_RERANKER_MODEL_API_KEY", "").strip()
-    if auth_token:
-        headers["Authorization"] = f"Bearer {auth_token}"
-    if api_key:
-        headers["apikey"] = api_key
-    request = Request(url, headers=headers)
+    parsed = urlsplit(url)
+    request_url = url
+    if parsed.scheme == "gs":
+        request_url = _gcs_download_url(parsed)
+        headers["Authorization"] = f"Bearer {_gcp_access_token()}"
+    else:
+        auth_token = os.getenv("ATLAS_RERANKER_MODEL_AUTH_TOKEN", "").strip()
+        api_key = os.getenv("ATLAS_RERANKER_MODEL_API_KEY", "").strip()
+        if auth_token:
+            headers["Authorization"] = f"Bearer {auth_token}"
+        if api_key:
+            headers["apikey"] = api_key
+    request = Request(request_url, headers=headers)
     total = 0
     with urlopen(request, timeout=60) as response, output.open("wb") as handle:  # noqa: S310
         while True:
@@ -146,6 +156,27 @@ def _download(url: str, output: Path) -> None:
             if total > max_bytes:
                 raise ValueError("model archive exceeds configured size limit")
             handle.write(chunk)
+
+
+def _gcs_download_url(parsed) -> str:
+    bucket = parsed.netloc
+    object_name = parsed.path.lstrip("/")
+    if not bucket or not object_name or parsed.query or parsed.fragment:
+        raise ValueError("GCS model URL must be gs://BUCKET/OBJECT")
+    return (
+        "https://storage.googleapis.com/storage/v1/b/"
+        f"{quote(bucket, safe='')}/o/{quote(object_name, safe='')}?alt=media"
+    )
+
+
+def _gcp_access_token() -> str:
+    request = Request(GCP_METADATA_TOKEN_URL, headers={"Metadata-Flavor": "Google"})
+    with urlopen(request, timeout=10) as response:  # noqa: S310
+        payload = json.load(response)
+    token = payload.get("access_token")
+    if not isinstance(token, str) or not token:
+        raise ValueError("Cloud Run metadata server did not return an access token")
+    return token
 
 
 def _safe_extract(archive_path: Path, destination: Path) -> None:

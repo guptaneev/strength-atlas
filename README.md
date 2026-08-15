@@ -77,9 +77,10 @@ atlas-api
 ## Production Deployment
 
 The canonical production stack is a cost-bounded Google Cloud Run Docker
-service plus Supabase Postgres, Auth, and Storage. The learned reranker is
-distributed as a versioned, checksummed release artifact and is never
-committed to ordinary Git. Render remains a disabled legacy alternative.
+service plus Supabase Postgres, Auth, and raw crawl Storage. The learned
+reranker is distributed through private Google Cloud Storage as a versioned,
+checksummed release artifact and is never committed to ordinary Git. Render
+remains a disabled legacy alternative.
 
 Follow the single [production deployment guide](docs/operations/production-deployment.md)
 for environment variables, migrations, model activation, smoke tests,

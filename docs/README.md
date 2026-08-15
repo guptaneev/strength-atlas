@@ -11,4 +11,4 @@ This repository keeps only durable product, architecture, engineering, and opera
 - [Learned Reranker](engineering/reranker.md) - current model, datasets, evaluation, reproduction, and serving contract.
 - [Strength Atlas Current-State Summary](architecture/strength-atlas-current-state.md) - readable overview of the current pipeline, technologies, data model, interfaces, and future boundaries.
 - [Operations Runbook](operations/ops-runbook.md) - operations, release gates, incidents, security, and rollback.
-- [Production Deployment](operations/production-deployment.md) - canonical Cloud Run + Supabase deployment, cost controls, model activation, smoke tests, and rollback.
+- [Production Deployment](operations/production-deployment.md) - canonical Cloud Run + Supabase + private GCS deployment, cost controls, model activation, smoke tests, and rollback.

@@ -1,6 +1,6 @@
 # Production deployment: Cloud Run + Supabase
 
-This is the canonical release guide for Strength Atlas. Google Cloud Run runs one Docker service that serves the API and frontend. Supabase continues to provide Postgres, Auth, and private model storage. The existing Vercel deployment is a baseline preview; `render.yaml` is retained only as a disabled legacy alternative.
+This is the canonical release guide for Strength Atlas. Google Cloud Run runs one Docker service that serves the API and frontend. Supabase continues to provide Postgres, Auth, and raw crawl storage; a private regional Google Cloud Storage bucket holds the learned model. The existing Vercel deployment is a baseline preview; `render.yaml` is retained only as a disabled legacy alternative.
 
 The Cloud Run service uses request-based billing with 1 vCPU, 1 GiB RAM, zero minimum instances, one maximum instance, and concurrency one. This fits the measured model peak of approximately 608 MiB, scales to zero when unused, bounds the maximum spend rate, and keeps the process-local rate limiter coherent. The tradeoff is a cold start after inactivity. See the official [Cloud Run pricing](https://cloud.google.com/run/pricing), [memory configuration](https://cloud.google.com/run/docs/configuring/services/memory-limits), and [service configuration](https://cloud.google.com/run/docs/configuring) documentation.
 
@@ -52,7 +52,7 @@ Copy the tracked non-secret template into the ignored `var/` directory:
 cp configs/cloud-run.env.example.yaml var/atlas/cloud-run.env.yaml
 ```
 
-Replace `REPLACE_PROJECT_REF` and `REPLACE_PUBLISHABLE_KEY`. Do not put the database password, Supabase service key, Browser Use key, or model-storage credential in this file. The deployment script maps Secret Manager values into the container at runtime.
+Replace `REPLACE_PROJECT_REF` and `REPLACE_PUBLISHABLE_KEY`. Do not put the database password, Supabase service key, or Browser Use key in this file. The deployment script maps Secret Manager values into the container at runtime. Cloud Run downloads the model with its own runtime identity, so no static model-storage credential is needed.
 
 The script initially deploys a private revision with an invalid bootstrap hostname. It reads Google's generated HTTPS URL, updates CORS and trusted-host configuration to that exact hostname, and only then grants public access. This avoids a wildcard-host bootstrap window.
 
@@ -74,19 +74,28 @@ The emitted values must match [the tracked release manifest](../../configs/reran
 - archive SHA-256: `18e9a27e5eb67e72b43c88ec81d25c25f5e3c9252e183c9d0232ca3e8ace2657`
 - weights SHA-256: `cfaabc87dd4da2567d1d4ad8ac61398c9d45a0653d671362a24d52c57a200da7`
 
-In Supabase Storage, create a private bucket named `atlas-models` and upload the archive with this exact immutable object name:
+Create a private regional Google Cloud Storage bucket, prevent public access, and upload the archive with this exact immutable object name:
 
-```text
-strength-atlas-cross-encoder-authoritative-v1.tar.gz
+```bash
+gcloud storage buckets create gs://<project-id>-models \
+  --project <project-id> \
+  --location us-central1 \
+  --uniform-bucket-level-access \
+  --public-access-prevention
+
+gcloud storage cp dist/strength-atlas-cross-encoder-authoritative-v1.tar.gz \
+  gs://<project-id>-models/strength-atlas-cross-encoder-authoritative-v1.tar.gz
 ```
 
-The authenticated object URL has this form:
+Grant only the runtime identity read access:
 
-```text
-https://<project-ref>.supabase.co/storage/v1/object/authenticated/atlas-models/strength-atlas-cross-encoder-authoritative-v1.tar.gz
+```bash
+gcloud storage buckets add-iam-policy-binding gs://<project-id>-models \
+  --member="serviceAccount:strength-atlas-runtime@<project-id>.iam.gserviceaccount.com" \
+  --role="roles/storage.objectViewer"
 ```
 
-The deploy script exposes the existing Supabase service-key secret as the download authorization token and API key. Never place that key in the URL or tracked environment file.
+Keep the bucket in `us-central1`: Google Cloud's Always Free storage allowance includes 5 GB-month in `us-central1`, and this release artifact is approximately 80 MB. Cloud Run obtains a short-lived access token for its runtime identity from the metadata server; no service-account key is created or stored.
 
 At startup, the container caps download size, validates the archive checksum, rejects links and path traversal, extracts atomically, validates the weights checksum, and falls back to baseline retrieval if activation fails.
 
@@ -111,7 +120,7 @@ scripts/deploy_cloud_run.sh <project-id>
 
 The script performs these steps in order:
 
-1. Enables Cloud Run, Cloud Build, Artifact Registry, and Secret Manager APIs.
+1. Enables Cloud Run, Cloud Build, Artifact Registry, Secret Manager, and Cloud Storage APIs.
 2. Creates the regional Docker repository if it does not exist.
 3. Builds the checked-in Dockerfile and tags the image with the Git commit.
 4. Deploys and waits for the `strength-atlas-migrate` Cloud Run Job to run `alembic upgrade head`.
@@ -138,7 +147,7 @@ Run these against the printed service URL:
 After the private archive is available, add these values to `var/atlas/cloud-run.env.yaml`:
 
 ```yaml
-ATLAS_RERANKER_MODEL_URL: "https://<project-ref>.supabase.co/storage/v1/object/authenticated/atlas-models/strength-atlas-cross-encoder-authoritative-v1.tar.gz"
+ATLAS_RERANKER_MODEL_URL: "gs://<project-id>-models/strength-atlas-cross-encoder-authoritative-v1.tar.gz"
 ATLAS_RERANKER_ARCHIVE_SHA256: "18e9a27e5eb67e72b43c88ec81d25c25f5e3c9252e183c9d0232ca3e8ace2657"
 ```
 
@@ -163,7 +172,7 @@ Then verify:
 - Configure Artifact Registry cleanup to retain only the releases needed for rollback. Source deployments and stored images have pricing separate from Cloud Run.
 - Alert on sustained 5xx/504 rates, readiness failures, database/Auth failures, quota anomalies, and reranker fallback above 5% for ten minutes.
 - Track p50/p95/p99 latency for program search and Ask plus the counts of `baseline`, `reranked`, and `baseline_fallback`.
-- Supabase Storage downloads happen again after scale-to-zero replacement; monitor Storage egress as well as Cloud Run usage.
+- Model downloads happen again after scale-to-zero replacement; monitor Cloud Storage operations and transfer alongside Cloud Run usage.
 
 Never log query tokens, credentials, database messages, model paths, or response bodies.
 
