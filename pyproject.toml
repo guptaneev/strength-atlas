@@ -39,3 +39,6 @@ atlas-api = "atlas.api.__main__:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/atlas"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
