@@ -6,7 +6,7 @@ Strength training advice online is unattributed by default. Strength Atlas crawl
 coaching programs, normalizes their claims into a structured corpus, and serves
 retrieval-grounded answers where every claim links back to where it came from.
 
-<a href="https://strength-atlas-ai.vercel.app/app" target="_blank">Live link</a>
+[Live app](https://strength-atlas-5bejgqq6uq-uc.a.run.app/app)
 
 - 175+ programs, 476 claims, 83 sources · ~99% crawl success
 - Sub-200ms query latency on indexed data

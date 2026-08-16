@@ -1,6 +1,6 @@
 # Production deployment: Cloud Run + Supabase
 
-This is the canonical release guide for Strength Atlas. Google Cloud Run runs one Docker service that serves the API and frontend. Supabase continues to provide Postgres, Auth, and raw crawl storage; a private regional Google Cloud Storage bucket holds the learned model. The existing Vercel deployment is a baseline preview; `render.yaml` is retained only as a disabled legacy alternative.
+This is the canonical release guide for Strength Atlas. Google Cloud Run runs one Docker service that serves the API and frontend. Supabase continues to provide Postgres, Auth, and raw crawl storage; a private regional Google Cloud Storage bucket holds the learned model. `render.yaml` is retained only as a disabled legacy alternative.
 
 The Cloud Run service uses request-based billing with 1 vCPU, 1 GiB RAM, zero minimum instances, one maximum instance, and concurrency one. This fits the measured model peak of approximately 608 MiB, scales to zero when unused, bounds the maximum spend rate, and keeps the process-local rate limiter coherent. The tradeoff is a cold start after inactivity. See the official [Cloud Run pricing](https://cloud.google.com/run/pricing), [memory configuration](https://cloud.google.com/run/docs/configuring/services/memory-limits), and [service configuration](https://cloud.google.com/run/docs/configuring) documentation.
 

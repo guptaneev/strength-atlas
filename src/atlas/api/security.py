@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -75,9 +74,6 @@ def configure_security(app: FastAPI) -> None:
     settings = get_settings()
     origins = settings.csv_items(settings.cors_allowed_origins)
     hosts = settings.csv_items(settings.trusted_hosts)
-    vercel_url = os.getenv("VERCEL_URL", "").strip().lower()
-    if vercel_url and vercel_url not in hosts:
-        hosts.append(vercel_url)
     is_prod = settings.app_env.lower() == "production"
     if is_prod and "*" in origins:
         raise RuntimeError("Wildcard CORS origin is not allowed in production")
