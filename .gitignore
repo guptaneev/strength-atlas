@@ -9,5 +9,6 @@ __pycache__/
 dist/
 build/
 var/
+wandb/
 scratch_work/
 .DS_Store
