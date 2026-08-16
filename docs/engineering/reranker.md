@@ -66,6 +66,26 @@ atlas ml train --program-dataset <program-bootstrap.json> --program-review <prog
 For a human benchmark, replace the bootstrap files with completely judged
 datasets using the same 0–3 scale. Freeze them before splitting or evaluation.
 
+## Experiment tracking
+
+Every new training run can record its configuration, query and pair counts,
+per-epoch mean loss, held-out validation and test metrics, and the generated
+`training-report.json` as a Weights & Biases artifact. The corpus, review
+sheets, human judgments, and model weights are deliberately not uploaded.
+
+Install the opt-in dependency and authenticate only on the training machine:
+
+```text
+pip install -e ".[experiment]"
+wandb login
+atlas ml train ... --wandb-project strength-atlas --wandb-mode online --wandb-run-name cross-encoder-v2
+```
+
+Use `--wandb-mode offline` to create a local, later-syncable run without making
+a network request. Tracking defaults to `disabled`; the production serving
+image has no W&B dependency. `WANDB_PROJECT`, `WANDB_ENTITY`, and `WANDB_MODE`
+are supported as environment variables for automated training jobs.
+
 ## Serving
 
 Production uses the private release archive to populate
@@ -82,6 +102,15 @@ uses an eight-second reranker timeout, so a slow cold load can return a safe
 baseline response before later requests use the loaded model. The candidate
 depth, requested top-k, batch size, input length, worker count, timeout, and
 failure cooldown are independently configurable and bounded.
+
+The service logs a `reranker_completed` event with model version, candidate
+count, and model-attempt latency in milliseconds. This timing starts when work
+is submitted to the reranker worker and includes lazy model loading, so the
+first request after a cold start is intentionally comparable with later warm
+requests. `GET /retrieval/status` exposes the latest completed attempt's
+latency and candidate count, and retrieval debug summaries expose separate
+source and program reranker timings. Fallbacks are represented explicitly and
+must not be interpreted as successful reranker latency measurements.
 
 The release artifact workflow, activation checks, and rollback procedure are in
 [the production deployment guide](../operations/production-deployment.md).

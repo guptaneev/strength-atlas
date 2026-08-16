@@ -29,6 +29,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+experiment = [
+  "wandb>=0.19.0,<1.0.0",
+]
 dev = [
   "pytest>=8.1.1",
 ]

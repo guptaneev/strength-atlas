@@ -53,6 +53,10 @@ For a complete local environment, set the database, Supabase, storage, and
 Browser Use values in `.env`. The Ask surface requires Supabase Auth; public
 program and source search do not.
 
+For an auditable reranker training run, install the separate experiment-tracking
+extra with `pip install -e ".[experiment]"`. It is not part of the serving
+image and remains disabled unless explicitly requested.
+
 ## Common commands
 
 ```bash

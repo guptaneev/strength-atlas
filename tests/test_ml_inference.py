@@ -93,6 +93,10 @@ def test_runtime_loads_model_once_and_preserves_complete_items(tmp_path, monkeyp
     assert second.mode == "reranked"
     assert len(loads) == 1
     assert all(thread_id != threading.get_ident() for thread_id in scoring_threads)
+    assert first.latency_ms is not None
+    assert first.latency_ms >= 0
+    assert runtime.last_latency_ms == second.latency_ms
+    assert runtime.last_candidate_count == 2
 
 
 def test_runtime_timeout_falls_back_to_baseline(tmp_path, monkeypatch) -> None:

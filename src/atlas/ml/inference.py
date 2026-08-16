@@ -36,6 +36,7 @@ class RerankOutcome(Generic[T]):
     mode: str
     model_version: str | None = None
     fallback_reason: str | None = None
+    latency_ms: float | None = None
 
 
 class RerankerRuntime:
@@ -66,33 +67,50 @@ class RerankerRuntime:
         self._model_lock = threading.Lock()
         self._last_failure_at = 0.0
         self._last_failure_reason: str | None = None
+        self._telemetry_lock = threading.Lock()
+        self._last_latency_ms: float | None = None
+        self._last_candidate_count = 0
+
+    @property
+    def last_latency_ms(self) -> float | None:
+        """Duration of the most recent model attempt, including a cold load."""
+        with self._telemetry_lock:
+            return self._last_latency_ms
+
+    @property
+    def last_candidate_count(self) -> int:
+        with self._telemetry_lock:
+            return self._last_candidate_count
 
     @property
     def is_loaded(self) -> bool:
         return self._model is not None
 
-    def rerank(self, query: str, candidates: Sequence[RerankCandidate]) -> tuple[list[RerankCandidate], str | None]:
+    def rerank(self, query: str, candidates: Sequence[RerankCandidate]) -> tuple[list[RerankCandidate], str | None, float | None]:
         if not candidates:
-            return [], None
+            return [], None, None
         if self._cooldown_active():
-            return list(candidates), self._last_failure_reason or "cooldown"
+            return list(candidates), self._last_failure_reason or "cooldown", None
         if not self._capacity.acquire(blocking=False):
             logger.warning("reranker_fallback reason=busy model_version=%s", self.model_version)
-            return list(candidates), "busy"
+            return list(candidates), "busy", None
 
+        started_at = time.perf_counter()
         future = self._executor.submit(self._load_and_rerank, query, tuple(candidates))
         future.add_done_callback(lambda _future: self._capacity.release())
         try:
             ranked = future.result(timeout=self.timeout_seconds)
         except FutureTimeoutError:
+            latency_ms = self._record_latency(started_at, len(candidates))
             self._record_failure("timeout")
             logger.warning(
                 "reranker_fallback reason=timeout timeout_seconds=%s model_version=%s",
                 self.timeout_seconds,
                 self.model_version,
             )
-            return list(candidates), "timeout"
+            return list(candidates), "timeout", latency_ms
         except Exception as exc:  # noqa: BLE001
+            latency_ms = self._record_latency(started_at, len(candidates))
             reason = _safe_failure_reason(exc)
             self._record_failure(reason)
             logger.warning(
@@ -101,11 +119,25 @@ class RerankerRuntime:
                 exc.__class__.__name__,
                 self.model_version,
             )
-            return list(candidates), reason
+            return list(candidates), reason, latency_ms
 
+        latency_ms = self._record_latency(started_at, len(candidates))
         self._last_failure_at = 0.0
         self._last_failure_reason = None
-        return ranked, None
+        logger.info(
+            "reranker_completed model_version=%s candidate_count=%s latency_ms=%.1f",
+            self.model_version,
+            len(candidates),
+            latency_ms,
+        )
+        return ranked, None, latency_ms
+
+    def _record_latency(self, started_at: float, candidate_count: int) -> float:
+        latency_ms = (time.perf_counter() - started_at) * 1000
+        with self._telemetry_lock:
+            self._last_latency_ms = latency_ms
+            self._last_candidate_count = candidate_count
+        return latency_ms
 
     def _load_and_rerank(self, query: str, candidates: Sequence[RerankCandidate]) -> list[RerankCandidate]:
         model = self._get_model()
@@ -170,18 +202,27 @@ def rerank_items_safely(
         return RerankOutcome(items=baseline, mode="baseline")
 
     by_id = {candidate.candidate_id: item for candidate, item in zip(candidates, items, strict=True)}
-    ranked, fallback_reason = runtime.rerank(query, candidates)
+    result = runtime.rerank(query, candidates)
+    # Lightweight test and integration runtimes that predate latency telemetry
+    # still implement the original two-value protocol.
+    if len(result) == 2:
+        ranked, fallback_reason = result
+        latency_ms = None
+    else:
+        ranked, fallback_reason, latency_ms = result
     if fallback_reason:
         return RerankOutcome(
             items=baseline,
             mode="baseline_fallback",
             model_version=runtime.model_version,
             fallback_reason=fallback_reason,
+            latency_ms=latency_ms,
         )
     return RerankOutcome(
         items=[by_id[candidate.candidate_id] for candidate in ranked],
         mode="reranked",
         model_version=runtime.model_version,
+        latency_ms=latency_ms,
     )
 
 

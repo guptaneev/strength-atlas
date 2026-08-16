@@ -27,6 +27,48 @@ class TrainingPair:
     baseline_rank: int | None
 
 
+@dataclass(frozen=True)
+class ExperimentTrackingConfig:
+    """Optional Weights & Biases settings for a single training run."""
+
+    project: str | None = None
+    entity: str | None = None
+    run_name: str | None = None
+    mode: str = "disabled"
+
+
+def _start_wandb_run(config: ExperimentTrackingConfig, run_config: dict[str, Any]):
+    """Start an opt-in W&B run without making model serving depend on W&B."""
+    if config.mode == "disabled":
+        return None
+    if config.mode not in {"online", "offline"}:
+        raise ValueError("wandb_mode must be one of: disabled, offline, online")
+    if not config.project:
+        raise ValueError("wandb_project is required when W&B tracking is enabled")
+    try:
+        import wandb
+    except ImportError as exc:
+        raise RuntimeError('Install the experiment extra with: pip install -e ".[experiment]"') from exc
+    return wandb.init(
+        project=config.project,
+        entity=config.entity,
+        name=config.run_name,
+        mode=config.mode,
+        job_type="reranker-training",
+        tags=["reranker", "cross-encoder"],
+        config=run_config,
+    )
+
+
+def _log_wandb_report_artifact(run: Any, report_path: Path) -> None:
+    """Upload only the reproducibility report, never the corpus or model weights."""
+    import wandb
+
+    artifact = wandb.Artifact("reranker-training-report", type="reranker-evaluation")
+    artifact.add_file(str(report_path), name="training-report.json")
+    run.log_artifact(artifact)
+
+
 class _PairDataset(Dataset):
     def __init__(self, pairs: list[TrainingPair]) -> None:
         self.pairs = pairs
@@ -77,6 +119,7 @@ def train_cross_encoder(
     epochs: int = 2,
     seed: int = 42,
     authoritative_keys: set[tuple[str, str]] | None = None,
+    experiment_tracking: ExperimentTrackingConfig | None = None,
 ) -> dict[str, Any]:
     """Fine-tune one regression cross-encoder across all candidate collections."""
     random.seed(seed)
@@ -107,64 +150,98 @@ def train_cross_encoder(
         if (pair.query_id, pair.candidate_key) in authoritative_keys
     )
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=1)
-    model.train()
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
-    losses: list[float] = []
+    tracking = experiment_tracking or ExperimentTrackingConfig()
+    run = _start_wandb_run(
+        tracking,
+        {
+            "base_checkpoint": model_name,
+            "max_length": max_length,
+            "batch_size": batch_size,
+            "learning_rate": learning_rate,
+            "epochs": epochs,
+            "seed": seed,
+            "authoritative_human_judgments": len(authoritative_keys),
+            "query_counts": {name: len(ids) for name, ids in split_ids.items()},
+            "pair_counts": {name: len(values) for name, values in split_pairs.items()},
+        },
+    )
 
-    def collate(batch: list[TrainingPair]):
-        encoded = tokenizer(
-            [item.query for item in batch],
-            [item.candidate_text for item in batch],
-            padding=True,
-            truncation=True,
-            max_length=max_length,
-            return_tensors="pt",
-        )
-        labels = torch.tensor([item.relevance / 3.0 for item in batch], dtype=torch.float32)
-        return encoded, labels
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=1)
+        model.train()
+        optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+        losses: list[float] = []
 
-    generator = torch.Generator().manual_seed(seed)
-    loader = DataLoader(_PairDataset(split_pairs["train"]), batch_size=batch_size, shuffle=True, collate_fn=collate, generator=generator)
-    for _epoch in range(epochs):
-        for encoded, labels in loader:
-            optimizer.zero_grad(set_to_none=True)
-            scores = model(**encoded).logits.squeeze(-1)
-            loss = torch.nn.functional.mse_loss(scores, labels)
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
-            losses.append(float(loss.detach()))
+        def collate(batch: list[TrainingPair]):
+            encoded = tokenizer(
+                [item.query for item in batch],
+                [item.candidate_text for item in batch],
+                padding=True,
+                truncation=True,
+                max_length=max_length,
+                return_tensors="pt",
+            )
+            labels = torch.tensor([item.relevance / 3.0 for item in batch], dtype=torch.float32)
+            return encoded, labels
 
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    model.save_pretrained(output_path)
-    tokenizer.save_pretrained(output_path)
+        generator = torch.Generator().manual_seed(seed)
+        loader = DataLoader(_PairDataset(split_pairs["train"]), batch_size=batch_size, shuffle=True, collate_fn=collate, generator=generator)
+        for epoch in range(epochs):
+            epoch_losses: list[float] = []
+            for encoded, labels in loader:
+                optimizer.zero_grad(set_to_none=True)
+                scores = model(**encoded).logits.squeeze(-1)
+                loss = torch.nn.functional.mse_loss(scores, labels)
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                optimizer.step()
+                loss_value = float(loss.detach())
+                losses.append(loss_value)
+                epoch_losses.append(loss_value)
+            if run is not None:
+                run.log({"train/epoch": epoch + 1, "train/loss": fmean(epoch_losses) if epoch_losses else None})
 
-    model.eval()
-    metrics = {
-        split: _evaluate_pairs(model, tokenizer, split_pairs[split], max_length=max_length, batch_size=batch_size)
-        for split in ("validation", "test")
-    }
-    report = {
-        "model": "strength-atlas-cross-encoder-v1",
-        "base_checkpoint": model_name,
-        "supervision": "teacher_distilled_v1",
-        "authoritative_human_judgments": len(authoritative_keys),
-        "warning": "Bootstrap labels are model-distilled; only recorded human overrides are authoritative.",
-        "seed": seed,
-        "max_length": max_length,
-        "batch_size": batch_size,
-        "learning_rate": learning_rate,
-        "epochs": epochs,
-        "query_splits": {name: sorted(ids) for name, ids in split_ids.items()},
-        "pair_counts": {name: len(values) for name, values in split_pairs.items()},
-        "mean_training_loss": fmean(losses) if losses else None,
-        "metrics": metrics,
-    }
-    (output_path / "training-report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    return report
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        model.save_pretrained(output_path)
+        tokenizer.save_pretrained(output_path)
+
+        model.eval()
+        metrics = {
+            split: _evaluate_pairs(model, tokenizer, split_pairs[split], max_length=max_length, batch_size=batch_size)
+            for split in ("validation", "test")
+        }
+        report = {
+            "model": "strength-atlas-cross-encoder-v1",
+            "base_checkpoint": model_name,
+            "supervision": "teacher_distilled_v1",
+            "authoritative_human_judgments": len(authoritative_keys),
+            "warning": "Bootstrap labels are model-distilled; only recorded human overrides are authoritative.",
+            "seed": seed,
+            "max_length": max_length,
+            "batch_size": batch_size,
+            "learning_rate": learning_rate,
+            "epochs": epochs,
+            "query_splits": {name: sorted(ids) for name, ids in split_ids.items()},
+            "pair_counts": {name: len(values) for name, values in split_pairs.items()},
+            "mean_training_loss": fmean(losses) if losses else None,
+            "metrics": metrics,
+        }
+        report_path = output_path / "training-report.json"
+        report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        if run is not None:
+            metric_summary = {
+                f"{split}/{metric_name}": metric_value
+                for split, split_metrics in metrics.items()
+                for metric_name, metric_value in split_metrics.items()
+            }
+            run.log({"train/mean_loss": report["mean_training_loss"], **metric_summary})
+            _log_wandb_report_artifact(run, report_path)
+        return report
+    finally:
+        if run is not None:
+            run.finish()
 
 
 class TransformerScorer:

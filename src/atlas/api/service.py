@@ -263,6 +263,8 @@ def run_retrieval_status() -> RetrievalStatusResponse:
         mode="reranked" if runtime.is_loaded else "configured",
         model_version=runtime.model_version,
         model_loaded=runtime.is_loaded,
+        last_reranker_latency_ms=runtime.last_latency_ms,
+        last_reranker_candidate_count=runtime.last_candidate_count or None,
     )
 
 
@@ -306,6 +308,8 @@ def run_retrieval_debug(
     retrieval_mode = "baseline"
     model_version = None
     fallback_reason = None
+    source_latency_ms = None
+    program_latency_ms = None
     if reranker is not None:
         source_outcome = rerank_items_safely(
             query=request.query,
@@ -325,6 +329,8 @@ def run_retrieval_debug(
         retrieval_mode = modes.pop() if len(modes) == 1 else "mixed_fallback"
         model_version = reranker.model_version
         fallback_reason = source_outcome.fallback_reason or program_outcome.fallback_reason
+        source_latency_ms = source_outcome.latency_ms
+        program_latency_ms = program_outcome.latency_ms
     logger.info(
         "ask_retrieval retrieval_mode=%s source_count=%s program_count=%s model_version=%s fallback_reason=%s",
         retrieval_mode,
@@ -425,6 +431,8 @@ def run_retrieval_debug(
             retrieval_mode=retrieval_mode,
             reranker_model_version=model_version,
             reranker_fallback_reason=fallback_reason,
+            reranker_source_latency_ms=source_latency_ms,
+            reranker_program_latency_ms=program_latency_ms,
         )
         _persist_retrieval_debug_trace(debug_response)
         return debug_response
@@ -448,6 +456,8 @@ def run_retrieval_debug(
         retrieval_mode=retrieval_mode,
         reranker_model_version=model_version,
         reranker_fallback_reason=fallback_reason,
+        reranker_source_latency_ms=source_latency_ms,
+        reranker_program_latency_ms=program_latency_ms,
     )
     _persist_retrieval_debug_trace(debug_response)
     return debug_response
@@ -504,6 +514,8 @@ def _build_debug_response(
     retrieval_mode: str = "baseline",
     reranker_model_version: str | None = None,
     reranker_fallback_reason: str | None = None,
+    reranker_source_latency_ms: float | None = None,
+    reranker_program_latency_ms: float | None = None,
 ) -> RetrievalDebugResponse:
     source_candidates = [
         RetrievalSourceCandidate(
@@ -540,6 +552,8 @@ def _build_debug_response(
             retrieval_mode=retrieval_mode,
             reranker_model_version=reranker_model_version,
             reranker_fallback_reason=reranker_fallback_reason,
+            reranker_source_latency_ms=reranker_source_latency_ms,
+            reranker_program_latency_ms=reranker_program_latency_ms,
         ),
         ask_response=ask_response,
     )

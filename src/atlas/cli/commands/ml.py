@@ -15,7 +15,7 @@ from atlas.ml.error_analysis import make_error_analysis_template, summarize_erro
 from atlas.ml.pools import build_candidate_pools
 from atlas.ml.review import build_labeling_review
 from atlas.ml.splits import split_queries
-from atlas.ml.training import bootstrap_label_dataset, train_cross_encoder
+from atlas.ml.training import ExperimentTrackingConfig, bootstrap_label_dataset, train_cross_encoder
 from atlas.ml.human_judgments import apply_human_judgments, load_human_judgments
 
 app = typer.Typer(help="Prepare and evaluate the reranker experiment dataset.")
@@ -77,6 +77,10 @@ def train_cmd(
     output_dir: str = typer.Option(..., "--output-dir"),
     config: str = typer.Option("configs/reranker-v1.yaml", "--config"),
     human_judgments: str | None = typer.Option(None, "--human-judgments", help="Optional authoritative program-grade overrides."),
+    wandb_project: str | None = typer.Option(None, "--wandb-project", envvar="WANDB_PROJECT", help="W&B project; required when tracking is enabled."),
+    wandb_entity: str | None = typer.Option(None, "--wandb-entity", envvar="WANDB_ENTITY"),
+    wandb_run_name: str | None = typer.Option(None, "--wandb-run-name"),
+    wandb_mode: str = typer.Option("disabled", "--wandb-mode", envvar="WANDB_MODE", help="disabled, offline, or online."),
 ) -> None:
     values = yaml.safe_load(Path(config).read_text(encoding="utf-8"))
     inputs = [
@@ -97,6 +101,12 @@ def train_cmd(
         epochs=int(values["epochs"]),
         seed=int(values["seed"]),
         authoritative_keys=authoritative,
+        experiment_tracking=ExperimentTrackingConfig(
+            project=wandb_project,
+            entity=wandb_entity,
+            run_name=wandb_run_name,
+            mode=wandb_mode,
+        ),
     )
     test = report["metrics"]["test"]
     typer.echo(f"Saved model to {output_dir}; test nDCG@10 {test['baseline_ndcg_at_10']:.4f} -> {test['reranker_ndcg_at_10']:.4f}.")

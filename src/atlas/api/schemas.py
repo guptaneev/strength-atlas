@@ -140,6 +140,8 @@ class RetrievalStatusResponse(BaseModel):
     mode: str
     model_version: str | None = None
     model_loaded: bool = False
+    last_reranker_latency_ms: float | None = None
+    last_reranker_candidate_count: int | None = None
 
 
 class RetrievalSourceCandidate(SourceSearchItem):
@@ -166,6 +168,8 @@ class RetrievalDebugSummary(BaseModel):
     retrieval_mode: str = "baseline"
     reranker_model_version: str | None = None
     reranker_fallback_reason: str | None = None
+    reranker_source_latency_ms: float | None = None
+    reranker_program_latency_ms: float | None = None
 
 
 class RetrievalDebugResponse(BaseModel):
