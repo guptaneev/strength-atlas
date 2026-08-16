@@ -12,7 +12,6 @@ RUN groupadd --system atlas \
     && chown -R atlas:atlas /app /var/atlas
 
 COPY --chown=atlas:atlas pyproject.toml README.md alembic.ini /app/
-COPY --chown=atlas:atlas docs/engineering/strength-atlas-cli-mvp-technical-plan.md /app/docs/engineering/strength-atlas-cli-mvp-technical-plan.md
 COPY --chown=atlas:atlas src /app/src
 COPY --chown=atlas:atlas migrations /app/migrations
 COPY --chown=atlas:atlas scripts /app/scripts

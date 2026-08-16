@@ -68,17 +68,20 @@ datasets using the same 0–3 scale. Freeze them before splitting or evaluation.
 
 ## Serving
 
-Set `ATLAS_RERANKER_MODEL_PATH` to a saved model directory. The API then
-retrieves up to `ATLAS_RERANKER_CANDIDATE_DEPTH` candidates, reranks programs
-and source evidence with the same model, preserves identifiers and provenance,
-and truncates to the requested result count. If the setting is absent, the
+Production uses the private release archive to populate
+`ATLAS_RERANKER_MODEL_PATH` at startup. The API retrieves up to
+`ATLAS_RERANKER_CANDIDATE_DEPTH` candidates, reranks programs and source
+evidence with the same model, preserves identifiers and provenance, and
+truncates to the requested result count. If the model is not configured, the
 existing retrieval order remains unchanged.
 
 Model loading and scoring run on a cached, bounded worker pool. Load errors,
 bad artifacts, checksum mismatches, incompatible models, inference errors,
-timeouts, and worker saturation return the unchanged baseline order. The
-candidate depth, requested top-k, batch size, input length, worker count,
-timeout, and failure cooldown are independently configurable and bounded.
+timeouts, and worker saturation return the unchanged baseline order. Production
+uses an eight-second reranker timeout, so a slow cold load can return a safe
+baseline response before later requests use the loaded model. The candidate
+depth, requested top-k, batch size, input length, worker count, timeout, and
+failure cooldown are independently configurable and bounded.
 
 The release artifact workflow, activation checks, and rollback procedure are in
 [the production deployment guide](../operations/production-deployment.md).
