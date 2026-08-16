@@ -23,7 +23,11 @@ dependencies = [
   "alembic>=1.13.1",
   "browser-use-sdk>=0.3.0",
   "numpy>=2.1.0",
-  "torch==2.7.1",
+  # PyTorch 2.7.1 is the pinned production CPU runtime for Python 3.12.
+  # Python 3.14 wheels begin at 2.9.0, so local development needs this
+  # compatible range until the production image upgrades Python as well.
+  "torch==2.7.1; python_version < '3.14'",
+  "torch>=2.9.0,<2.14.0; python_version >= '3.14'",
   "transformers>=4.51.0,<5.0.0",
   "PyYAML>=6.0.2",
 ]
