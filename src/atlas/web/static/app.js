@@ -355,13 +355,7 @@ function updateQuickInputForTab() {
 }
 
 function moveTabUnderline() {
-  const activeTab = refs.tabs.find((tab) => tab.dataset.tab === state.activeTab);
-  if (!activeTab) return;
-
-  const navRect = activeTab.parentElement.getBoundingClientRect();
-  const tabRect = activeTab.getBoundingClientRect();
-  refs.tabUnderline.style.width = `${tabRect.width}px`;
-  refs.tabUnderline.style.transform = `translateX(${tabRect.left - navRect.left}px)`;
+  // The active tab is styled in CSS, so the strict CSP needs no inline-style exception.
 }
 
 function setTab(tabName, focusTab = false) {

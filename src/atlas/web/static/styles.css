@@ -68,9 +68,9 @@ button, input, select { font: inherit; }
 .tabs::-webkit-scrollbar { display: none; }
 .tab { flex: 0 0 auto; border: 0; border-radius: 0; background: transparent; color: var(--ink-muted); cursor: pointer; padding: var(--space-2) 0; font-size: 14px; font-weight: 600; line-height: 24px; transition: color var(--duration) var(--ease); }
 .tab:hover, .tab[aria-selected="true"] { color: var(--ink); }
-.tab[aria-selected="true"] { color: var(--accent-strong); }
+.tab[aria-selected="true"] { box-shadow: inset 0 -2px var(--accent); color: var(--accent-strong); }
 .tab-secondary { margin-left: auto; }
-.tab-underline { position: absolute; bottom: -1px; height: 2px; width: 0; background: var(--accent); transition: transform var(--duration) var(--ease), width var(--duration) var(--ease); }
+.tab-underline { display: none; }
 
 .panel { max-width: 1120px; padding-top: var(--space-5); animation: panel-in var(--duration) var(--ease); }
 @keyframes panel-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }

@@ -31,3 +31,8 @@ def test_ui_has_responsive_focus_loading_empty_timeout_and_uncertainty_states() 
     assert "renderEmpty" in JS
     assert "timed out" in JS or "too long" in JS
     assert "Limited source quality" in JS
+
+
+def test_ui_avoids_invalid_native_patterns_and_csp_blocked_inline_styles() -> None:
+    assert "pattern=" not in HTML
+    assert "tabUnderline.style" not in JS
