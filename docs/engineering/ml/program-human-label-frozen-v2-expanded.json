@@ -1,0 +1,1074 @@
+{
+  "version": 2,
+  "status": "frozen",
+  "document_representation": "program_with_metadata_v1",
+  "relevance_scale": {
+    "0": "Irrelevant to the query intent.",
+    "1": "Marginally relevant; shares a topic but misses the main constraints.",
+    "2": "Useful match; satisfies part of the intent but misses an important constraint.",
+    "3": "Excellent match; directly satisfies the query intent."
+  },
+  "queries": [
+    {
+      "query_id": "human_v2_novice_woman_strength_3_day",
+      "query": "novice woman strength program three days per week",
+      "intent": {
+        "experience_level": "beginner",
+        "days_per_week": 3,
+        "goal": "strength"
+      },
+      "candidate_collection": "program",
+      "candidates": [
+        {
+          "program_id": 336,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 337,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 338,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 38,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 176,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 309,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 301,
+          "canonical_url": "https://startingstrength.com/article/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 310,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 322,
+          "canonical_url": "https://startingstrength.com/article/programming/the_texas_method",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 318,
+          "canonical_url": "https://startingstrength.com/article/programming/who_wants_to_be_a_novice_you_do",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 276,
+          "canonical_url": "https://www.powerliftingtowin.com/category/programming/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 314,
+          "canonical_url": "https://www.powerliftingtowin.com/starting-strength",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 256,
+          "canonical_url": "https://www.californiastrength.com/programs-1-2",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 75,
+          "canonical_url": "https://www.barbellmedicine.com/peaking-template-3",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 208,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/endurance/army-combat-template",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 260,
+          "canonical_url": "https://www.californiastrength.com/olympic-weight-lifting",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 265,
+          "canonical_url": "https://www.californiastrength.com/olympic-weight-lifting",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 228,
+          "canonical_url": "https://www.californiastrength.com/programs-1",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 298,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/hypertrophy-template-bundle",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 19,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 210,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/at-home-template",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 20,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        }
+      ]
+    },
+    {
+      "query_id": "human_v2_intermediate_powerlifting_peak_4_day",
+      "query": "intermediate powerlifting peaking program four days per week",
+      "intent": {
+        "experience_level": "intermediate",
+        "days_per_week": 4,
+        "goal": "powerlifting",
+        "phase": "peaking"
+      },
+      "candidate_collection": "program",
+      "candidates": [
+        {
+          "program_id": 29,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 30,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 31,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 28,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 32,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 36,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 33,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 34,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 35,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 37,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 39,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 40,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 38,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 315,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 170,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 168,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 169,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 175,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 286,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 19,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 43,
+          "canonical_url": "https://www.barbellmedicine.com/blog/how-to-incorporate-the-snatch-and-clean-into-your-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 20,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        }
+      ]
+    },
+    {
+      "query_id": "human_v2_autoregulated_hypertrophy_4_day",
+      "query": "autoregulated hypertrophy program four days per week",
+      "intent": {
+        "days_per_week": 4,
+        "goal": "hypertrophy",
+        "progression_type": "autoregulated"
+      },
+      "candidate_collection": "program",
+      "candidates": [
+        {
+          "program_id": 34,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 35,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 36,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 37,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 28,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 29,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 30,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 31,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 32,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 46,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 47,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 286,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 315,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 175,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 44,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-part-5",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 11,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/bodybuilding-template",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 43,
+          "canonical_url": "https://www.barbellmedicine.com/blog/how-to-incorporate-the-snatch-and-clean-into-your-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 61,
+          "canonical_url": "https://www.strongerbyscience.com/complete-strength-training-guide",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 292,
+          "canonical_url": "https://rpstrength.com/pages/hypertrophy-app",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 19,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 58,
+          "canonical_url": "https://www.strongerbyscience.com/",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 20,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        }
+      ]
+    },
+    {
+      "query_id": "human_v2_full_body_strength_3_day",
+      "query": "full body strength program three days per week",
+      "intent": {
+        "days_per_week": 3,
+        "goal": "strength",
+        "split_type": "full_body"
+      },
+      "candidate_collection": "program",
+      "candidates": [
+        {
+          "program_id": 29,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 30,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 31,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 28,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 32,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 40,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 34,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 35,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 36,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 37,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 39,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 33,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 38,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 309,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 46,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 47,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 315,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 337,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 338,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 19,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 336,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 20,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        }
+      ]
+    },
+    {
+      "query_id": "human_v2_deadlift_plateau_accessories",
+      "query": "deadlift plateau accessory program for intermediate lifter",
+      "intent": {
+        "experience_level": "intermediate",
+        "goal": "deadlift",
+        "constraint": "plateau"
+      },
+      "candidate_collection": "program",
+      "candidates": [
+        {
+          "program_id": 29,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 30,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 31,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 28,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 32,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 35,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 33,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 34,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 36,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 37,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 39,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 40,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 38,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 175,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 176,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 239,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 240,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 241,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 242,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 19,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 243,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 20,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        }
+      ]
+    }
+  ]
+}

@@ -86,6 +86,13 @@ a network request. Tracking defaults to `disabled`; the production serving
 image has no W&B dependency. `WANDB_PROJECT`, `WANDB_ENTITY`, and `WANDB_MODE`
 are supported as environment variables for automated training jobs.
 
+When comparing a new model against the released benchmark, preserve the
+historical holdout with
+`--fixed-evaluation-splits configs/reranker-v1-fixed-evaluation-splits.json`.
+Additional reviewed program data can be supplied through
+`--additional-program-dataset` and `--additional-program-review`; those query
+sets become training-only so they cannot leak into the fixed evaluation sets.
+
 ## Serving
 
 Production uses the private release archive to populate

@@ -1,0 +1,19 @@
+{
+  "validation": [
+    "bench_3_day",
+    "deadlift_technique_program",
+    "female_strength",
+    "info_powerlifting_peaking",
+    "info_training_volume",
+    "intermediate_bench",
+    "rehab_return"
+  ],
+  "test": [
+    "first_meet",
+    "full_body_3_day",
+    "info_bench_accessories",
+    "info_bench_frequency",
+    "info_coaching_cues",
+    "minimum_effective_dose"
+  ]
+}

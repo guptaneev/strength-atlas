@@ -1,0 +1,32 @@
+{
+  "status": "approved",
+  "dataset": "program-human-label-pool-v2.json",
+  "scale": {
+    "0": "Wrong or irrelevant.",
+    "1": "Related, but not really the requested result.",
+    "2": "Useful but misses an important constraint.",
+    "3": "Excellent match for the full request."
+  },
+  "judgments": [
+    {"query_id": "human_v2_novice_woman_strength_3_day", "program_id": 336, "relevance": 1},
+    {"query_id": "human_v2_novice_woman_strength_3_day", "program_id": 337, "relevance": 1},
+    {"query_id": "human_v2_novice_woman_strength_3_day", "program_id": 338, "relevance": 3},
+    {"query_id": "human_v2_novice_woman_strength_3_day", "program_id": 38, "relevance": 1},
+    {"query_id": "human_v2_intermediate_powerlifting_peak_4_day", "program_id": 29, "relevance": 2},
+    {"query_id": "human_v2_intermediate_powerlifting_peak_4_day", "program_id": 30, "relevance": 1},
+    {"query_id": "human_v2_intermediate_powerlifting_peak_4_day", "program_id": 31, "relevance": 2},
+    {"query_id": "human_v2_intermediate_powerlifting_peak_4_day", "program_id": 28, "relevance": 2},
+    {"query_id": "human_v2_autoregulated_hypertrophy_4_day", "program_id": 34, "relevance": 2},
+    {"query_id": "human_v2_autoregulated_hypertrophy_4_day", "program_id": 35, "relevance": 2},
+    {"query_id": "human_v2_autoregulated_hypertrophy_4_day", "program_id": 36, "relevance": 2},
+    {"query_id": "human_v2_autoregulated_hypertrophy_4_day", "program_id": 37, "relevance": 2},
+    {"query_id": "human_v2_full_body_strength_3_day", "program_id": 29, "relevance": 1},
+    {"query_id": "human_v2_full_body_strength_3_day", "program_id": 30, "relevance": 1},
+    {"query_id": "human_v2_full_body_strength_3_day", "program_id": 31, "relevance": 1},
+    {"query_id": "human_v2_full_body_strength_3_day", "program_id": 28, "relevance": 1},
+    {"query_id": "human_v2_deadlift_plateau_accessories", "program_id": 29, "relevance": 2},
+    {"query_id": "human_v2_deadlift_plateau_accessories", "program_id": 30, "relevance": 2},
+    {"query_id": "human_v2_deadlift_plateau_accessories", "program_id": 31, "relevance": 2},
+    {"query_id": "human_v2_deadlift_plateau_accessories", "program_id": 28, "relevance": 2}
+  ]
+}

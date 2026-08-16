@@ -120,6 +120,7 @@ def train_cross_encoder(
     seed: int = 42,
     authoritative_keys: set[tuple[str, str]] | None = None,
     experiment_tracking: ExperimentTrackingConfig | None = None,
+    fixed_evaluation_query_ids: dict[str, set[str]] | None = None,
 ) -> dict[str, Any]:
     """Fine-tune one regression cross-encoder across all candidate collections."""
     random.seed(seed)
@@ -127,19 +128,14 @@ def train_cross_encoder(
     pairs = _all_pairs(datasets_and_reviews)
     query_ids = sorted({pair.query_id for pair in pairs})
     random.Random(seed).shuffle(query_ids)
-    train_end = max(1, round(len(query_ids) * 0.70))
-    validation_end = max(train_end + 1, train_end + round(len(query_ids) * 0.15))
-    validation_end = min(validation_end, len(query_ids) - 1)
     authoritative_keys = authoritative_keys or set()
     authoritative_query_ids = {query_id for query_id, _candidate_key in authoritative_keys}
-    train_ids = set(query_ids[:train_end]) | authoritative_query_ids
-    remaining_ids = [query_id for query_id in query_ids if query_id not in train_ids]
-    validation_size = min(len(remaining_ids) - 1, max(1, validation_end - train_end)) if len(remaining_ids) >= 2 else 0
-    split_ids = {
-        "train": train_ids,
-        "validation": set(remaining_ids[:validation_size]),
-        "test": set(remaining_ids[validation_size:]),
-    }
+    split_ids = _split_query_ids(
+        query_ids,
+        seed=seed,
+        authoritative_query_ids=authoritative_query_ids,
+        fixed_evaluation_query_ids=fixed_evaluation_query_ids,
+    )
     split_pairs = {name: [pair for pair in pairs if pair.query_id in ids] for name, ids in split_ids.items()}
     # Human grades express the product owner's exact preference. Repeating them
     # gives those scarce labels a materially stronger training signal than
@@ -284,6 +280,47 @@ def _all_pairs(datasets_and_reviews: Iterable[tuple[RelevanceDataset, dict[str, 
             for candidate in query.candidates:
                 result.append(TrainingPair(query.query_id, query.query, candidate.key, text_map[(query.query_id, candidate.key)], candidate.relevance or 0, candidate.baseline_rank))
     return result
+
+
+def _split_query_ids(
+    query_ids: list[str],
+    *,
+    seed: int,
+    authoritative_query_ids: set[str],
+    fixed_evaluation_query_ids: dict[str, set[str]] | None,
+) -> dict[str, set[str]]:
+    """Make a train/validation/test partition without leaking reviewed data."""
+    all_ids = set(query_ids)
+    if fixed_evaluation_query_ids is not None:
+        validation_ids = set(fixed_evaluation_query_ids.get("validation", set()))
+        test_ids = set(fixed_evaluation_query_ids.get("test", set()))
+        if validation_ids & test_ids:
+            raise ValueError("Fixed validation and test query IDs must not overlap")
+        unknown = (validation_ids | test_ids) - all_ids
+        if unknown:
+            raise ValueError(f"Fixed evaluation query IDs are absent from the dataset: {sorted(unknown)}")
+        leaked = authoritative_query_ids & (validation_ids | test_ids)
+        if leaked:
+            raise ValueError(f"Authoritative training labels overlap fixed evaluation queries: {sorted(leaked)}")
+        return {
+            "train": all_ids - validation_ids - test_ids,
+            "validation": validation_ids,
+            "test": test_ids,
+        }
+
+    shuffled_ids = list(query_ids)
+    random.Random(seed).shuffle(shuffled_ids)
+    train_end = max(1, round(len(shuffled_ids) * 0.70))
+    validation_end = max(train_end + 1, train_end + round(len(shuffled_ids) * 0.15))
+    validation_end = min(validation_end, len(shuffled_ids) - 1)
+    train_ids = set(shuffled_ids[:train_end]) | authoritative_query_ids
+    remaining_ids = [query_id for query_id in shuffled_ids if query_id not in train_ids]
+    validation_size = min(len(remaining_ids) - 1, max(1, validation_end - train_end)) if len(remaining_ids) >= 2 else 0
+    return {
+        "train": train_ids,
+        "validation": set(remaining_ids[:validation_size]),
+        "test": set(remaining_ids[validation_size:]),
+    }
 
 
 def _grade_for_rank(rank: int, size: int) -> int:

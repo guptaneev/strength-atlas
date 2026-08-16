@@ -1,0 +1,274 @@
+{
+  "version": 2,
+  "status": "frozen",
+  "document_representation": "program_with_metadata_v1",
+  "relevance_scale": {
+    "0": "Irrelevant to the query intent.",
+    "1": "Marginally relevant; shares a topic but misses the main constraints.",
+    "2": "Useful match; satisfies part of the intent but misses an important constraint.",
+    "3": "Excellent match; directly satisfies the query intent."
+  },
+  "queries": [
+    {
+      "query_id": "human_v2_novice_woman_strength_3_day",
+      "query": "novice woman strength program three days per week",
+      "intent": {
+        "experience_level": "beginner",
+        "days_per_week": 3,
+        "goal": "strength"
+      },
+      "candidate_collection": "program",
+      "candidates": [
+        {
+          "program_id": 336,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 337,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 338,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 38,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        }
+      ]
+    },
+    {
+      "query_id": "human_v2_intermediate_powerlifting_peak_4_day",
+      "query": "intermediate powerlifting peaking program four days per week",
+      "intent": {
+        "experience_level": "intermediate",
+        "days_per_week": 4,
+        "goal": "powerlifting",
+        "phase": "peaking"
+      },
+      "candidate_collection": "program",
+      "candidates": [
+        {
+          "program_id": 29,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 30,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 31,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 28,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        }
+      ]
+    },
+    {
+      "query_id": "human_v2_autoregulated_hypertrophy_4_day",
+      "query": "autoregulated hypertrophy program four days per week",
+      "intent": {
+        "days_per_week": 4,
+        "goal": "hypertrophy",
+        "progression_type": "autoregulated"
+      },
+      "candidate_collection": "program",
+      "candidates": [
+        {
+          "program_id": 34,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 35,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 36,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 37,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        }
+      ]
+    },
+    {
+      "query_id": "human_v2_full_body_strength_3_day",
+      "query": "full body strength program three days per week",
+      "intent": {
+        "days_per_week": 3,
+        "goal": "strength",
+        "split_type": "full_body"
+      },
+      "candidate_collection": "program",
+      "candidates": [
+        {
+          "program_id": 29,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 30,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 31,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 28,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        }
+      ]
+    },
+    {
+      "query_id": "human_v2_deadlift_plateau_accessories",
+      "query": "deadlift plateau accessory program for intermediate lifter",
+      "intent": {
+        "experience_level": "intermediate",
+        "goal": "deadlift",
+        "constraint": "plateau"
+      },
+      "candidate_collection": "program",
+      "candidates": [
+        {
+          "program_id": 29,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 30,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 31,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        },
+        {
+          "program_id": 28,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "human_authoritative_v1",
+          "source_id": null
+        }
+      ]
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import typer
@@ -77,20 +78,45 @@ def train_cmd(
     output_dir: str = typer.Option(..., "--output-dir"),
     config: str = typer.Option("configs/reranker-v1.yaml", "--config"),
     human_judgments: str | None = typer.Option(None, "--human-judgments", help="Optional authoritative program-grade overrides."),
+    additional_program_dataset: str | None = typer.Option(None, "--additional-program-dataset", help="Frozen, fully judged program dataset to add to training."),
+    additional_program_review: str | None = typer.Option(None, "--additional-program-review", help="Review export matching --additional-program-dataset."),
+    fixed_evaluation_splits: str | None = typer.Option(None, "--fixed-evaluation-splits", help="JSON file with immutable validation and test query IDs."),
     wandb_project: str | None = typer.Option(None, "--wandb-project", envvar="WANDB_PROJECT", help="W&B project; required when tracking is enabled."),
     wandb_entity: str | None = typer.Option(None, "--wandb-entity", envvar="WANDB_ENTITY"),
     wandb_run_name: str | None = typer.Option(None, "--wandb-run-name"),
     wandb_mode: str = typer.Option("disabled", "--wandb-mode", envvar="WANDB_MODE", help="disabled, offline, or online."),
 ) -> None:
     values = yaml.safe_load(Path(config).read_text(encoding="utf-8"))
+    program_data = load_dataset(program_dataset, require_complete_judgments=True)
+    human_labels = load_human_judgments(human_judgments) if human_judgments else {}
+    if human_labels:
+        program_data = apply_human_judgments(program_data, human_labels)
     inputs = [
-        (load_dataset(program_dataset, require_complete_judgments=True), json.loads(Path(program_review).read_text(encoding="utf-8"))),
+        (program_data, json.loads(Path(program_review).read_text(encoding="utf-8"))),
         (load_dataset(evidence_dataset, require_complete_judgments=True), json.loads(Path(evidence_review).read_text(encoding="utf-8"))),
     ]
     authoritative = {
         (query_id, f"program:{program_id}")
-        for (query_id, program_id) in (load_human_judgments(human_judgments) if human_judgments else {}).keys()
+        for (query_id, program_id) in human_labels
     }
+    if bool(additional_program_dataset) != bool(additional_program_review):
+        raise typer.BadParameter("--additional-program-dataset and --additional-program-review must be supplied together.")
+    if additional_program_dataset and additional_program_review:
+        additional_data = load_dataset(additional_program_dataset, require_complete_judgments=True)
+        inputs.append((additional_data, json.loads(Path(additional_program_review).read_text(encoding="utf-8"))))
+        authoritative.update(
+            (query.query_id, f"program:{candidate.program_id}")
+            for query in additional_data.queries
+            for candidate in query.candidates
+            if candidate.program_id is not None
+        )
+    fixed_splits = None
+    if fixed_evaluation_splits:
+        split_data = json.loads(Path(fixed_evaluation_splits).read_text(encoding="utf-8"))
+        fixed_splits = {
+            name: set(split_data.get(name, []))
+            for name in ("validation", "test")
+        }
     report = train_cross_encoder(
         inputs,
         model_name=values["model_checkpoint"],
@@ -101,6 +127,7 @@ def train_cmd(
         epochs=int(values["epochs"]),
         seed=int(values["seed"]),
         authoritative_keys=authoritative,
+        fixed_evaluation_query_ids=fixed_splits,
         experiment_tracking=ExperimentTrackingConfig(
             project=wandb_project,
             entity=wandb_entity,
@@ -117,9 +144,12 @@ def apply_human_judgments_cmd(
     dataset: str = typer.Option(..., "--dataset"),
     judgments: str = typer.Option(..., "--judgments"),
     output: str = typer.Option(..., "--output"),
+    freeze: bool = typer.Option(False, "--freeze", help="Mark the result frozen after validating every candidate is judged."),
 ) -> None:
-    data = load_dataset(dataset, require_complete_judgments=True)
+    data = load_dataset(dataset)
     updated = apply_human_judgments(data, load_human_judgments(judgments))
+    if freeze:
+        updated = replace(updated, status="frozen")
     save_dataset(updated, output)
     typer.echo(f"Wrote dataset with human-authoritative overrides to {output}.")
 
