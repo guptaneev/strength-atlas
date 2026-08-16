@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections.abc import Generator
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
@@ -24,6 +25,7 @@ from atlas.api.schemas import (
     ProgramSearchItem,
     QuotaStatusResponse,
     RetrievalDebugResponse,
+    RetrievalStatusResponse,
     SourceDetailResponse,
     SourceListItem,
     SourceSearchItem,
@@ -35,6 +37,7 @@ from atlas.api.service import (
     run_program_search,
     run_retrieval,
     run_retrieval_debug,
+    run_retrieval_status,
     run_source_detail,
     run_source_list,
     run_source_search,
@@ -47,12 +50,21 @@ from atlas.search.programs import ProgramSearchFilters
 settings = get_settings()
 logger = logging.getLogger("atlas.api")
 docs_enabled = bool(settings.api_docs_enabled) and settings.app_env.lower() != "production"
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    startup_checks()
+    yield
+
+
 app = FastAPI(
     title="Strength Atlas API",
     version="0.1.0",
     docs_url="/docs" if docs_enabled else None,
     redoc_url="/redoc" if docs_enabled else None,
     openapi_url="/openapi.json" if docs_enabled else None,
+    lifespan=lifespan,
 )
 configure_security(app)
 
@@ -145,7 +157,18 @@ def timeout_error_handler(_request: Request, _exc: asyncio.TimeoutError) -> JSON
     return JSONResponse({"status": "timeout", "detail": "request_timed_out"}, status_code=504)
 
 
-@app.on_event("startup")
+@app.exception_handler(Exception)
+def internal_error_handler(request: Request, exc: Exception) -> JSONResponse:
+    logger.exception(
+        "unhandled_api_error path=%s method=%s error_type=%s request_id=%s",
+        request.url.path,
+        request.method,
+        exc.__class__.__name__,
+        request.headers.get("x-request-id", ""),
+    )
+    return JSONResponse({"status": "error", "detail": "internal_server_error"}, status_code=500)
+
+
 def startup_checks() -> None:
     if settings.app_env.lower() == "production":
         required_vars = {
@@ -160,8 +183,18 @@ def startup_checks() -> None:
             raise RuntimeError(f"Missing required production config: {', '.join(sorted(missing))}")
         if settings.cors_allowed_origins.strip() == "*":
             raise RuntimeError("ATLAS_CORS_ALLOWED_ORIGINS cannot be wildcard in production")
+        origins = settings.csv_items(settings.cors_allowed_origins)
+        if any(origin.startswith("http://") or "localhost" in origin or "127.0.0.1" in origin for origin in origins):
+            raise RuntimeError("Production CORS origins must use HTTPS and cannot be localhost")
+        hosts = settings.csv_items(settings.trusted_hosts)
+        if "*" in hosts or any(host in {"localhost", "127.0.0.1"} for host in hosts):
+            raise RuntimeError("Production trusted hosts must be explicit public hostnames")
+        if not settings.enforce_https_redirect:
+            raise RuntimeError("ATLAS_ENFORCE_HTTPS_REDIRECT must be enabled in production")
         if settings.ask_lifetime_limit < 1:
             raise RuntimeError("ATLAS_ASK_LIFETIME_LIMIT must be >= 1")
+        if settings.reranker_model_path and not settings.reranker_weights_sha256:
+            raise RuntimeError("ATLAS_RERANKER_WEIGHTS_SHA256 is required when reranking is enabled")
 
 
 def _rate_limit_ask(request: Request, user: AuthUser) -> None:
@@ -225,6 +258,11 @@ def _consume_quota(session: Session, user: AuthUser) -> QuotaStatusResponse:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/retrieval/status", response_model=RetrievalStatusResponse)
+def retrieval_status_endpoint() -> RetrievalStatusResponse:
+    return run_retrieval_status()
 
 
 @app.get("/ready")
@@ -418,6 +456,8 @@ def ask_retrieve_debug_endpoint(
     user: AuthUser = Depends(get_current_user),
     session: Session = Depends(get_db),
 ) -> RetrievalDebugResponse:
+    if settings.app_env.lower() == "production":
+        raise HTTPException(status_code=404, detail="not_found")
     _rate_limit_ask(http_request, user)
     _consume_quota(session, user)
     return run_retrieval_debug(session, request)

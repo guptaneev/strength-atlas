@@ -1,0 +1,37 @@
+{
+  "status": "draft",
+  "dataset": "program-candidate-pools-bootstrap-v1.json",
+  "scale": {
+    "0": "Wrong or irrelevant.",
+    "1": "Related, but not really the requested result.",
+    "2": "Useful but misses an important constraint.",
+    "3": "Excellent match for the full request."
+  },
+  "judgments": [
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 35, "relevance": 0},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 40, "relevance": 1},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 39, "relevance": 1},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 36, "relevance": 1},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 37, "relevance": 0},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 33, "relevance": 1},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 34, "relevance": 1},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 38, "relevance": 2},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 315, "relevance": 3},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 32, "relevance": 2},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 31, "relevance": 2},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 30, "relevance": 1},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 29, "relevance": 2},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 28, "relevance": 2},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 47, "relevance": 0},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 46, "relevance": 0},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 170, "relevance": 2},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 61, "relevance": 2},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 336, "relevance": 1},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 337, "relevance": 2},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 75, "relevance": 2},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 13, "relevance": 0},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 158, "relevance": 0},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 143, "relevance": 0},
+    {"query_id": "beginner_powerlifting_4_day", "program_id": 132, "relevance": 1}
+  ]
+}

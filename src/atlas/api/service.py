@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from datetime import datetime, UTC
+import logging
 import re
 
 from sqlalchemy import func, select
@@ -14,6 +15,7 @@ from atlas.api.schemas import (
     RetrievalDebugSummary,
     RetrievalEvidenceSelection,
     RetrievalProgramCandidate,
+    RetrievalStatusResponse,
     RetrievalSourceCandidate,
     SourceDetailCrawl,
     SourceDetailDocument,
@@ -28,6 +30,15 @@ from atlas.config.settings import get_settings
 from atlas.db.models import Claim, CrawlJob, Document, Domain, Program, Source
 from atlas.search.programs import ProgramSearchFilters, search_programs
 from atlas.search.sources import search_sources
+from atlas.ml.inference import (
+    RerankerRuntime,
+    build_program_candidates,
+    build_source_candidates,
+    get_reranker_runtime,
+    rerank_items_safely,
+)
+
+logger = logging.getLogger("atlas.retrieval")
 
 
 def run_source_search(
@@ -38,15 +49,22 @@ def run_source_search(
     limit: int,
 ) -> list[SourceSearchItem]:
     rows = search_sources(session, query=query, domain=domain, limit=limit)
-    return [
-        SourceSearchItem(
+    output: list[SourceSearchItem] = []
+    for row in rows:
+        document = session.get(Document, row.latest_document_id) if row.latest_document_id else None
+        domain_row = session.get(Domain, row.domain_id) if row.domain_id else None
+        output.append(SourceSearchItem(
             id=row.id,
             canonical_url=row.canonical_url,
             status=row.status,
             last_crawled_at=row.last_crawled_at.isoformat() if row.last_crawled_at else None,
-        )
-        for row in rows
-    ]
+            title=row.title,
+            domain=domain_row.domain if domain_row else None,
+            excerpt=_extract_snippet(document.raw_text if document else None, query),
+            published_at=document.published_at.isoformat() if document and document.published_at else None,
+            confidence=document.parse_confidence if document else None,
+        ))
+    return output
 
 
 def run_source_list(
@@ -112,8 +130,6 @@ def run_source_detail(session: Session, *, source_id: int) -> SourceDetailRespon
         document=(
             SourceDetailDocument(
                 id=document.id,
-                html_storage_path=document.html_storage_path,
-                extracted_json_storage_path=document.extracted_json_storage_path,
             )
             if document
             else None
@@ -125,10 +141,6 @@ def run_source_detail(session: Session, *, source_id: int) -> SourceDetailRespon
                 retry_count=latest_crawl.retry_count,
                 started_at=latest_crawl.started_at.isoformat() if latest_crawl.started_at else None,
                 completed_at=latest_crawl.completed_at.isoformat() if latest_crawl.completed_at else None,
-                error_message=latest_crawl.error_message,
-                browser_use_session_id=latest_crawl.browser_use_session_id,
-                browser_use_live_url=latest_crawl.browser_use_live_url,
-                browser_use_cost_usd=latest_crawl.browser_use_cost_usd,
             )
             if latest_crawl
             else None
@@ -197,12 +209,17 @@ def run_program_search(
     query: str,
     filters: ProgramSearchFilters,
     limit: int,
+    apply_reranking: bool = True,
 ) -> list[ProgramSearchItem]:
-    rows = search_programs(session, query or None, filters, limit=limit)
+    settings = get_settings()
+    runtime = _configured_reranker(settings) if apply_reranking and query.strip() else None
+    candidate_depth = max(limit, int(getattr(settings, "reranker_candidate_depth", 50))) if runtime else limit
+    rows = search_programs(session, query or None, filters, limit=candidate_depth)
     output: list[ProgramSearchItem] = []
     for row in rows:
         doc = session.get(Document, row.document_id)
         source = session.get(Source, doc.source_id) if doc else None
+        domain_row = session.get(Domain, source.domain_id) if source else None
         output.append(
             ProgramSearchItem(
                 id=row.id,
@@ -211,9 +228,42 @@ def run_program_search(
                 document_id=row.document_id,
                 source_id=doc.source_id if doc else None,
                 canonical_url=source.canonical_url if source else None,
+                coach_name=row.coach_name,
+                days_per_week=row.days_per_week,
+                specialization=row.specialization,
+                experience_level=row.experience_level,
+                progression_type=row.progression_type,
+                split_type=row.split_type,
+                summary=row.summary,
+                source_title=source.title if source else None,
+                source_domain=domain_row.domain if domain_row else None,
             )
         )
-    return output
+    outcome = rerank_items_safely(
+        query=query,
+        items=output,
+        candidates=build_program_candidates(session, output),
+        runtime=runtime,
+    )
+    logger.info(
+        "program_search retrieval_mode=%s result_count=%s model_version=%s fallback_reason=%s",
+        outcome.mode,
+        min(len(outcome.items), limit),
+        outcome.model_version or "none",
+        outcome.fallback_reason or "none",
+    )
+    return outcome.items[:limit]
+
+
+def run_retrieval_status() -> RetrievalStatusResponse:
+    runtime = _configured_reranker(get_settings())
+    if runtime is None:
+        return RetrievalStatusResponse(mode="baseline")
+    return RetrievalStatusResponse(
+        mode="reranked" if runtime.is_loaded else "configured",
+        model_version=runtime.model_version,
+        model_loaded=runtime.is_loaded,
+    )
 
 
 def run_retrieval(
@@ -228,11 +278,16 @@ def run_retrieval_debug(
     session: Session,
     request: RetrievalRequest,
 ) -> RetrievalDebugResponse:
+    settings = get_settings()
+    reranker = _configured_reranker(settings)
+    candidate_depth = getattr(settings, "reranker_candidate_depth", 50)
+    source_depth = max(request.max_sources, candidate_depth) if reranker else request.max_sources
+    program_depth = max(request.max_programs, candidate_depth) if reranker else request.max_programs
     source_results = run_source_search(
         session,
         query=request.query,
         domain=request.filters.domain,
-        limit=request.max_sources,
+        limit=source_depth,
     )
     program_results = run_program_search(
         session,
@@ -245,14 +300,46 @@ def run_retrieval_debug(
             split_type=request.filters.split_type,
             domain=request.filters.domain,
         ),
-        limit=request.max_programs,
+        limit=program_depth,
+        apply_reranking=False,
+    )
+    retrieval_mode = "baseline"
+    model_version = None
+    fallback_reason = None
+    if reranker is not None:
+        source_outcome = rerank_items_safely(
+            query=request.query,
+            items=source_results,
+            candidates=build_source_candidates(session, source_results),
+            runtime=reranker,
+        )
+        program_outcome = rerank_items_safely(
+            query=request.query,
+            items=program_results,
+            candidates=build_program_candidates(session, program_results),
+            runtime=reranker,
+        )
+        source_results = source_outcome.items[: request.max_sources]
+        program_results = program_outcome.items[: request.max_programs]
+        modes = {source_outcome.mode, program_outcome.mode}
+        retrieval_mode = modes.pop() if len(modes) == 1 else "mixed_fallback"
+        model_version = reranker.model_version
+        fallback_reason = source_outcome.fallback_reason or program_outcome.fallback_reason
+    logger.info(
+        "ask_retrieval retrieval_mode=%s source_count=%s program_count=%s model_version=%s fallback_reason=%s",
+        retrieval_mode,
+        len(source_results),
+        len(program_results),
+        model_version or "none",
+        fallback_reason or "none",
     )
 
     evidence: list[EvidenceCard] = []
     evidence_debug: list[RetrievalEvidenceSelection] = []
     seen_pairs: set[tuple[int, int]] = set()
 
-    for item in program_results:
+    program_evidence_limit = max(1, request.max_sources // 2)
+    for item in program_results[:program_evidence_limit]:
         if item.source_id is None:
             continue
         pair = (item.source_id, item.document_id)
@@ -271,6 +358,9 @@ def run_retrieval_debug(
                 snippet=snippet,
                 parse_confidence=item.confidence,
                 last_crawled_at=source.last_crawled_at.isoformat() if source and source.last_crawled_at else None,
+                domain=_domain_from_url(item.canonical_url or ""),
+                source_title=source.title if source else None,
+                published_at=document.published_at.isoformat() if document and document.published_at else None,
             )
         )
         evidence_debug.append(
@@ -284,10 +374,12 @@ def run_retrieval_debug(
             )
         )
 
-    if not evidence:
+    if len(evidence) < request.max_sources:
         for src in source_results:
             source_row = session.get(Source, src.id)
             doc_id = int(source_row.latest_document_id) if source_row and source_row.latest_document_id else 0
+            if (src.id, doc_id) in seen_pairs:
+                continue
             document = session.get(Document, doc_id) if doc_id else None
             snippet = _extract_snippet(document.raw_text if document else None, request.query)
             evidence.append(
@@ -295,10 +387,13 @@ def run_retrieval_debug(
                     source_id=src.id,
                     document_id=doc_id,
                     canonical_url=src.canonical_url,
-                    title=None,
+                    title=src.title or (source_row.title if source_row else None),
                     snippet=snippet,
-                    parse_confidence=None,
+                    parse_confidence=src.confidence,
                     last_crawled_at=src.last_crawled_at,
+                    domain=src.domain or _domain_from_url(src.canonical_url),
+                    source_title=src.title or (source_row.title if source_row else None),
+                    published_at=src.published_at,
                 )
             )
             evidence_debug.append(
@@ -306,11 +401,13 @@ def run_retrieval_debug(
                     source_id=src.id,
                     document_id=doc_id,
                     canonical_url=src.canonical_url,
-                    title=None,
-                    parse_confidence=None,
+                    title=src.title,
+                    parse_confidence=src.confidence,
                     reason="source_fallback",
                 )
             )
+            if len(evidence) >= request.max_sources:
+                break
 
     if not evidence:
         ask_response = AskAtlasResponse(
@@ -325,6 +422,9 @@ def run_retrieval_debug(
             program_results=program_results,
             evidence=evidence_debug,
             ask_response=ask_response,
+            retrieval_mode=retrieval_mode,
+            reranker_model_version=model_version,
+            reranker_fallback_reason=fallback_reason,
         )
         _persist_retrieval_debug_trace(debug_response)
         return debug_response
@@ -345,6 +445,9 @@ def run_retrieval_debug(
         program_results=program_results,
         evidence=evidence_debug[: request.max_sources],
         ask_response=ask_response,
+        retrieval_mode=retrieval_mode,
+        reranker_model_version=model_version,
+        reranker_fallback_reason=fallback_reason,
     )
     _persist_retrieval_debug_trace(debug_response)
     return debug_response
@@ -362,23 +465,25 @@ def run_answer(
     evidence = response.evidence[: request.max_evidence]
     domain_counts = Counter(_domain_from_url(item.canonical_url) for item in evidence if item.canonical_url)
     top_domains = [name for name, _count in domain_counts.most_common(3)]
-    named_programs = [item.title for item in evidence if item.title][:5]
+    named_evidence = [item.title for item in evidence if item.title][:5]
     snippets = [item.snippet for item in evidence if item.snippet][:3]
     avg_conf = _avg([item.parse_confidence for item in evidence if item.parse_confidence is not None])
 
     lines: list[str] = []
     lines.append(f"For '{request.query}', here are the strongest grounded takeaways from the indexed coaching corpus.")
     lines.append(f"Found {len(evidence)} grounded evidence items.")
-    if named_programs:
-        lines.append("Most relevant programs: " + ", ".join(named_programs) + ".")
+    if named_evidence:
+        lines.append("Most relevant programs and sources: " + ", ".join(named_evidence) + ".")
     if snippets:
         lines.append("Key practical cues from source text:")
         for snippet in snippets:
             lines.append(f"- {snippet}")
     if top_domains:
         lines.append("Strongest supporting domains: " + ", ".join(top_domains) + ".")
-    if avg_conf is not None:
-        lines.append(f"Average parse confidence across evidence: {avg_conf:.2f}.")
+    if avg_conf is not None and avg_conf < 0.65:
+        lines.append("Evidence quality is limited, so treat these findings as directional rather than conclusive.")
+    elif len(evidence) < 2:
+        lines.append("Only one supporting source was found, so this answer carries meaningful uncertainty.")
     lines.append("Use evidence cards below for transparent source-level verification.")
 
     return AskAtlasResponse(
@@ -396,6 +501,9 @@ def _build_debug_response(
     program_results: list[ProgramSearchItem],
     evidence: list[RetrievalEvidenceSelection],
     ask_response: AskAtlasResponse,
+    retrieval_mode: str = "baseline",
+    reranker_model_version: str | None = None,
+    reranker_fallback_reason: str | None = None,
 ) -> RetrievalDebugResponse:
     source_candidates = [
         RetrievalSourceCandidate(
@@ -429,6 +537,9 @@ def _build_debug_response(
             source_candidates=len(source_candidates),
             program_candidates=len(program_candidates),
             evidence_selected=len(evidence),
+            retrieval_mode=retrieval_mode,
+            reranker_model_version=reranker_model_version,
+            reranker_fallback_reason=reranker_fallback_reason,
         ),
         ask_response=ask_response,
     )
@@ -486,3 +597,19 @@ def _extract_snippet(raw_text: str | None, query: str, max_chars: int = 220) -> 
     if end < len(compact):
         snippet = snippet + "..."
     return snippet
+
+
+def _configured_reranker(settings) -> RerankerRuntime | None:
+    model_path = str(getattr(settings, "reranker_model_path", None) or "").strip()
+    if not model_path:
+        return None
+    return get_reranker_runtime(
+        model_path,
+        int(getattr(settings, "reranker_max_length", 256)),
+        int(getattr(settings, "reranker_batch_size", 16)),
+        float(getattr(settings, "reranker_timeout_seconds", 8.0)),
+        int(getattr(settings, "reranker_max_workers", 1)),
+        int(getattr(settings, "reranker_failure_cooldown_seconds", 60)),
+        str(getattr(settings, "reranker_model_version", "strength-atlas-cross-encoder-authoritative-v1")),
+        getattr(settings, "reranker_weights_sha256", None),
+    )

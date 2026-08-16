@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "status": "draft",
+  "document_representation": "program_with_metadata_v1",
+  "queries": [
+    {"query_id": "beginner_powerlifting_4_day", "query": "beginner powerlifting program four days per week", "intent": {"experience_level": "beginner", "days_per_week": 4, "goal": "strength"}, "candidates": []},
+    {"query_id": "intermediate_bench", "query": "bench-focused intermediate powerlifting program", "intent": {"experience_level": "intermediate", "lift_focus": "bench press"}, "candidates": []},
+    {"query_id": "first_meet", "query": "program for someone preparing for their first powerlifting meet", "intent": {"experience_level": "beginner", "goal": "meet preparation"}, "candidates": []},
+    {"query_id": "high_frequency_squat", "query": "high-frequency squat program", "intent": {"lift_focus": "squat", "frequency": "high"}, "candidates": []},
+    {"query_id": "limited_time_3_day", "query": "three-day strength program for someone with limited time", "intent": {"days_per_week": 3, "constraint": "limited time"}, "candidates": []},
+    {"query_id": "deadlift_focus", "query": "powerlifting program focused on improving deadlift", "intent": {"lift_focus": "deadlift", "goal": "powerlifting"}, "candidates": []},
+    {"query_id": "novice_hypertrophy", "query": "beginner hypertrophy program", "intent": {"experience_level": "beginner", "goal": "hypertrophy"}, "candidates": []},
+    {"query_id": "advanced_powerlifting", "query": "advanced powerlifting specialization program", "intent": {"experience_level": "advanced", "goal": "powerlifting"}, "candidates": []},
+    {"query_id": "rehab_return", "query": "strength training program for returning after injury rehabilitation", "intent": {"goal": "rehabilitation"}, "candidates": []},
+    {"query_id": "general_strength_4_day", "query": "four-day general strength program", "intent": {"days_per_week": 4, "goal": "strength"}, "candidates": []},
+    {"query_id": "bodybuilding_intermediate", "query": "intermediate bodybuilding program", "intent": {"experience_level": "intermediate", "goal": "bodybuilding"}, "candidates": []},
+    {"query_id": "powerbuilding", "query": "powerbuilding program that builds strength and muscle", "intent": {"goal": "powerbuilding"}, "candidates": []},
+    {"query_id": "peaking", "query": "powerlifting peaking program before competition", "intent": {"goal": "peaking"}, "candidates": []},
+    {"query_id": "low_volume", "query": "low-volume strength program", "intent": {"volume": "low", "goal": "strength"}, "candidates": []},
+    {"query_id": "high_volume_hypertrophy", "query": "high-volume hypertrophy program", "intent": {"volume": "high", "goal": "hypertrophy"}, "candidates": []},
+    {"query_id": "upper_lower_4_day", "query": "four-day upper lower strength split", "intent": {"days_per_week": 4, "split_type": "upper lower"}, "candidates": []},
+    {"query_id": "full_body_3_day", "query": "three-day full body strength program", "intent": {"days_per_week": 3, "split_type": "full body"}, "candidates": []},
+    {"query_id": "home_gym", "query": "strength program for a home gym", "intent": {"equipment": "home gym", "goal": "strength"}, "candidates": []},
+    {"query_id": "post_novice", "query": "program for a lifter past the novice stage", "intent": {"experience_level": "intermediate"}, "candidates": []},
+    {"query_id": "female_strength", "query": "strength training program for women", "intent": {"audience": "women", "goal": "strength"}, "candidates": []},
+    {"query_id": "deadlift_technique_program", "query": "program to improve deadlift technique and strength", "intent": {"lift_focus": "deadlift", "goal": "technique and strength"}, "candidates": []},
+    {"query_id": "squat_specialization", "query": "intermediate squat specialization program", "intent": {"experience_level": "intermediate", "lift_focus": "squat"}, "candidates": []},
+    {"query_id": "bench_3_day", "query": "three-day bench press specialization program", "intent": {"days_per_week": 3, "lift_focus": "bench press"}, "candidates": []},
+    {"query_id": "minimum_effective_dose", "query": "minimum effective dose strength training program", "intent": {"volume": "minimal", "goal": "strength"}, "candidates": []}
+  ]
+}

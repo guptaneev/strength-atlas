@@ -1,13 +1,28 @@
-# Docs
+# Strength Atlas documentation
 
-This repository stores durable project context in versioned documentation. Product intent, scope, and system design live under `docs/product`, while technical integration references live under `docs/engineering`.
+The documents below describe the current system. Historical deployment paths,
+SDK snapshots, and superseded implementation plans are intentionally not kept
+in the repository.
 
-- [Strength Atlas PRD + Engineering Design (V1)](product/strength-atlas-prd-v1.md) - canonical product requirements and system-design context for V1.
-- [Browser Use Cloud SDK Reference](engineering/browser-use-cloud-sdk-reference.md) - local Browser Use API and SDK reference snapshot for engineering work.
-- [Strength Atlas Full-Stack MVP Technical Plan](engineering/strength-atlas-cli-mvp-technical-plan.md) - active implementation roadmap for CLI + API + web MVP, including architecture decisions, contracts, crawl rules, and tests.
-- [Search Eval Fixture](engineering/search-eval-fixture.json) - baseline relevance checks for CLI search quality regression tracking.
-- [Domain Crawl Policies Example](engineering/domain-crawl-policies.example.json) - sample domain-specific seed and per-domain limit policy file for ops scale-up.
-- [Ask Atlas API Contracts (V0)](engineering/ask-atlas-api-contracts-v0.md) - API-first request/response and evidence contracts for future Ask Atlas services.
-- [Semantic Layer V0](engineering/semantic-layer-v0.md) - non-disruptive embedding hook plan that preserves current CLI search behavior.
-- [MVP Release Checklist](operations/mvp-release-checklist.md) - production cutover, security gates, and rollback checklist.
-- [Operations Runbook](operations/ops-runbook.md) - day-to-day ops workflow, incident responses, and security hygiene.
+## Product and architecture
+
+- [Product scope](product/strength-atlas-prd-v1.md) — users, goals, boundaries,
+  and current product behavior.
+- [Current architecture](architecture/strength-atlas-current-state.md) — runtime
+  components, data flow, interfaces, and reliability boundaries.
+
+## Engineering
+
+- [Reranker](engineering/reranker.md) — model release, evaluation, reproduction,
+  and serving behavior.
+- [Search evaluation fixture](engineering/search-eval-fixture.json) — regression
+  inputs for CLI search evaluation.
+- [Domain crawl policy example](engineering/domain-crawl-policies.example.json)
+  — allowlist and per-domain crawl controls.
+
+## Operations
+
+- [Production deployment](operations/production-deployment.md) — Cloud Run,
+  Supabase, private model storage, release steps, and rollback.
+- [Operations runbook](operations/ops-runbook.md) — routine checks, incidents,
+  and release gates.

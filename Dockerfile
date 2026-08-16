@@ -6,14 +6,22 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
+RUN groupadd --system atlas \
+    && useradd --system --gid atlas --home-dir /app atlas \
+    && mkdir -p /var/atlas/models \
+    && chown -R atlas:atlas /app /var/atlas
 
-COPY pyproject.toml README.md alembic.ini /app/
-COPY src /app/src
-COPY migrations /app/migrations
+COPY --chown=atlas:atlas pyproject.toml README.md alembic.ini /app/
+COPY --chown=atlas:atlas src /app/src
+COPY --chown=atlas:atlas migrations /app/migrations
+COPY --chown=atlas:atlas scripts /app/scripts
 
-RUN pip install --upgrade pip && pip install -e .
+RUN pip install --upgrade pip \
+    && pip install --index-url https://download.pytorch.org/whl/cpu "torch==2.7.1+cpu" \
+    && pip install .
+
+USER atlas
 
 EXPOSE 8000
 
-CMD ["uvicorn", "atlas.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "/app/scripts/start_production.py"]

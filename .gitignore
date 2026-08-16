@@ -9,3 +9,5 @@ __pycache__/
 dist/
 build/
 var/
+scratch_work/
+.DS_Store

@@ -1,0 +1,4319 @@
+{
+  "version": 1,
+  "status": "frozen",
+  "document_representation": "evidence_with_provenance_v1",
+  "relevance_scale": {
+    "0": "Irrelevant to the query intent.",
+    "1": "Marginally relevant; shares a topic but misses the main constraints.",
+    "2": "Useful match; satisfies part of the intent but misses an important constraint.",
+    "3": "Excellent match; directly satisfies the query intent."
+  },
+  "queries": [
+    {
+      "query_id": "info_bench_frequency",
+      "query": "bench press training frequency",
+      "intent": {
+        "topic": "bench press",
+        "question": "frequency"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/who_wants_to_be_a_novice_you_do",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 114
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 113
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 111
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/starting-strength",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 90
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/category/programming/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 86
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/part-3-programming-resistance-training-for-the-endurance-athlete",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 21
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/complete-strength-training-guide",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 4
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/endurance/endurance-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 42
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates/hypertrophy",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 38
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/program-samples",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 35
+        }
+      ]
+    },
+    {
+      "query_id": "info_deadlift_accessories",
+      "query": "deadlift accessory exercises",
+      "intent": {
+        "topic": "deadlift",
+        "question": "accessories"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/program-bundle",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 10
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 27
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-1-5",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 24
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/how-to-incorporate-the-snatch-and-clean-into-your-program",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 20
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/collections/templates",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 129
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/lifting-lyceum",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 15
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.californiastrength.com/programs-1-2",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 106
+        }
+      ]
+    },
+    {
+      "query_id": "info_squat_technique",
+      "query": "improve squat technique",
+      "intent": {
+        "topic": "squat",
+        "question": "technique"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 93
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 119
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/the_texas_method",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 115
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/who_wants_to_be_a_novice_you_do",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 114
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/diet",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 5
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/complete-strength-training-guide",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 4
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/program-samples",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 35
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates/endurance",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 37
+        }
+      ]
+    },
+    {
+      "query_id": "info_beginner_progression",
+      "query": "novice strength progression",
+      "intent": {
+        "topic": "strength",
+        "audience": "novice",
+        "question": "progression"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 113
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 111
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/the_texas_method",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 115
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 93
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/starting-strength",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 90
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/who_wants_to_be_a_novice_you_do",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 114
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 112
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 119
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 27
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/program-bundle",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 10
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 87
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 84
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/category/programming/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 86
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 19,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates/rehab",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 39
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/bodybuilding-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 46
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/articles",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 2
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/endurance/endurance-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 42
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        }
+      ]
+    },
+    {
+      "query_id": "info_intermediate_progression",
+      "query": "intermediate strength progression",
+      "intent": {
+        "topic": "strength",
+        "audience": "intermediate",
+        "question": "progression"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 111
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/the_texas_method",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 115
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 113
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 27
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/complete-strength-training-guide",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 4
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 112
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 93
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 125
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/category/programming/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 86
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 84
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 87
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/starting-strength",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 90
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/rehab/hip-rehab-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 51
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/category/programming",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 85
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/endurance/endurance-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 42
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/coaching/group-programming",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 34
+        }
+      ]
+    },
+    {
+      "query_id": "info_training_volume",
+      "query": "strength training volume recommendations",
+      "intent": {
+        "topic": "strength",
+        "question": "volume"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 125
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/bodybuilding-ii-template-new",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 44
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 27
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 87
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/complete-strength-training-guide",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 4
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 93
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 84
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates/rehab",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 39
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/pages/diet-coach-app",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 127
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/hypertrophy-template-bundle",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 49
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 1
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/nutrition",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 31
+        }
+      ]
+    },
+    {
+      "query_id": "info_hypertrophy_volume",
+      "query": "hypertrophy training volume",
+      "intent": {
+        "topic": "hypertrophy",
+        "question": "volume"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 125
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/bodybuilding-ii-template-new",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 44
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/complete-hypertrophy-training-guide",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 132
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 11
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/articles",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 2
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/training-volume-landmarks-muscle-growth",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 124
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-iii",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 25
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/hypertrophy-i-template",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 47
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-1-5",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 24
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 27
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 19,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 20,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.californiastrength.com/programs-1-2",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 106
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/endurance/army-combat-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 41
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/program-samples",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 35
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/nutrition",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 31
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/how-to-incorporate-the-snatch-and-clean-into-your-program",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 20
+        }
+      ]
+    },
+    {
+      "query_id": "info_powerlifting_peaking",
+      "query": "powerlifting meet peaking",
+      "intent": {
+        "topic": "powerlifting",
+        "question": "peaking"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 27
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/peaking-template-3",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 32
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 119
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 93
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/nutrition",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 31
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/fitness",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 29
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/injury-rehab",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 30
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates/strength",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 40
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/part-3-programming-resistance-training-for-the-endurance-athlete",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 21
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.californiastrength.com/olympic-weight-lifting",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 107
+        }
+      ]
+    },
+    {
+      "query_id": "info_taper_before_meet",
+      "query": "taper before powerlifting meet",
+      "intent": {
+        "topic": "powerlifting",
+        "question": "taper"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/bulgarian-manual",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 13
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/push-pull-legs-hypertrophy-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 50
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/hypertrophy-template-bundle",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 49
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/complete-hypertrophy-training-guide",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 132
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 36
+        }
+      ]
+    },
+    {
+      "query_id": "info_rpe_autoregulation",
+      "query": "RPE autoregulation strength training",
+      "intent": {
+        "topic": "strength",
+        "question": "autoregulation"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/part-3-programming-resistance-training-for-the-endurance-athlete",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 21
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.californiastrength.com/programs-1",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 105
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 119
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/rehab/low-back-pain-rehab-template-2",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 53
+        }
+      ]
+    },
+    {
+      "query_id": "info_deload",
+      "query": "when to deload strength training",
+      "intent": {
+        "topic": "strength",
+        "question": "deload"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-1-5",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 24
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 125
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-iii",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 25
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/peaking-template-3",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 32
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-part-5",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 22
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/programming",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 11
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/products/simple-training-templates",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 130
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/at-home-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 43
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 84
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/video-guides",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 133
+        }
+      ]
+    },
+    {
+      "query_id": "info_bench_plateau",
+      "query": "overcome bench press plateau",
+      "intent": {
+        "topic": "bench press",
+        "question": "plateau"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/strength-training-programming",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 26
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/newsletter",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 9
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/nutrition",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 31
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates/rehab",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 39
+        }
+      ]
+    },
+    {
+      "query_id": "info_deadlift_plateau",
+      "query": "overcome deadlift plateau",
+      "intent": {
+        "topic": "deadlift",
+        "question": "plateau"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/programming",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 11
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/injury-rehab",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 30
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/bulgarian-manual",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 13
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/rehab/hip-rehab-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 51
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 36
+        }
+      ]
+    },
+    {
+      "query_id": "info_squat_frequency",
+      "query": "squat training frequency",
+      "intent": {
+        "topic": "squat",
+        "question": "frequency"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/who_wants_to_be_a_novice_you_do",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 114
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/starting-strength",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 90
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/category/programming/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 86
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 87
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-part-i",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 23
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 11
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 84
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 93
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 113
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 111
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates/hypertrophy",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 38
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/rehab/hip-rehab-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 51
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/training-volume-landmarks-muscle-growth",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 124
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/peaking-template-3",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 32
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/lifting-lyceum",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 15
+        }
+      ]
+    },
+    {
+      "query_id": "info_bench_accessories",
+      "query": "bench press accessory exercises",
+      "intent": {
+        "topic": "bench press",
+        "question": "accessories"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 27
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/program-bundle",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 10
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/category/programming/programs",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 86
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/program-samples",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 35
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/at-home-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 43
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/bulgarian-manual",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 13
+        }
+      ]
+    },
+    {
+      "query_id": "info_powerbuilding",
+      "query": "combine strength and hypertrophy training",
+      "intent": {
+        "topic": "powerbuilding",
+        "question": "programming"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/bodybuilding-ii-template-new",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 44
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/fitness",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 29
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/complete-hypertrophy-training-guide",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 132
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-1-5",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 24
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/program-samples",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 35
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/hypertrophy-i-template",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 47
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/peaking-template-3",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 32
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/at-home-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 43
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/nutrition",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 31
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/pages/hypertrophy-app",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 126
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.californiastrength.com/olympic-weight-lifting",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 107
+        }
+      ]
+    },
+    {
+      "query_id": "info_minimum_volume",
+      "query": "minimum effective training volume",
+      "intent": {
+        "topic": "strength",
+        "question": "minimum volume"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 125
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/endurance/army-combat-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 41
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/complete-hypertrophy-training-guide",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 132
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/program-samples",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 35
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/push-pull-legs-hypertrophy-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 50
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/program-bundle",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 10
+        }
+      ]
+    },
+    {
+      "query_id": "info_high_frequency",
+      "query": "high frequency strength training",
+      "intent": {
+        "topic": "strength",
+        "question": "frequency"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/strength-training-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 26
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 125
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 11
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/bulgarian-manual",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 13
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 111
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 87
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 113
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-part-i",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 23
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 84
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 93
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-1-5",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 24
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/answering-the-critics-michael-boyles-functional-training",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 117
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/coaching",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 3
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/5_ways_to_5_x_5",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 116
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/nutrition",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 31
+        }
+      ]
+    },
+    {
+      "query_id": "info_full_body",
+      "query": "full body strength training",
+      "intent": {
+        "topic": "strength",
+        "question": "split"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 93
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 125
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 113
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/endurance/army-combat-template",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 41
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/push-pull-legs-hypertrophy-template",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 50
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/at-home-template",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 43
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 87
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 119
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/complete-hypertrophy-training-guide",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 132
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/hypertrophy-i-template",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 47
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-iii",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 19,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 25
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 20,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 84
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/coaching/group-programming",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 34
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/strength-training-programming",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 26
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/diet",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 5
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/part-3-programming-resistance-training-for-the-endurance-athlete",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 21
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/products/simple-training-templates",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 130
+        }
+      ]
+    },
+    {
+      "query_id": "info_upper_lower",
+      "query": "upper lower strength split",
+      "intent": {
+        "topic": "strength",
+        "question": "split"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 93
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/products/simple-training-templates",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 130
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/bodybuilding-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 46
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/peaking-template-3",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 32
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/5_ways_to_5_x_5",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 116
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programming",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 87
+        }
+      ]
+    },
+    {
+      "query_id": "info_training_two_days",
+      "query": "strength training two days per week",
+      "intent": {
+        "topic": "strength",
+        "question": "low frequency"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 119
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 125
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 113
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/complete-hypertrophy-training-guide",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 132
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 27
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 111
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/who_wants_to_be_a_novice_you_do",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 114
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/the_texas_method",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 115
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.californiastrength.com/programs-1-2",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 106
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/part-3-programming-resistance-training-for-the-endurance-athlete",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 21
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-part-5",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 22
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 19,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/pages/diet-coach-app",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 127
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/collections/templates",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 129
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/rehab/low-back-pain-rehab-template-2",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 53
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates/rehab",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 39
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/programming",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 11
+        }
+      ]
+    },
+    {
+      "query_id": "info_training_three_days",
+      "query": "strength training three days per week",
+      "intent": {
+        "topic": "strength",
+        "question": "frequency"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/hamstring-hypertrophy-training-tips",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 125
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 119
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-olympic-weightlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 17
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 113
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-organization",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 89
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/program-bundle",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 10
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/the_texas_method",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 115
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 27
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/candito-linear-program",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 93
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 111
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/who_wants_to_be_a_novice_you_do",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 114
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/part-3-programming-resistance-training-for-the-endurance-athlete",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 21
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-part-5",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 22
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-iii",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 25
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/programming",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 11
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-1-5",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 24
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.californiastrength.com/programs",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 104
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/bodybuilding-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 46
+        }
+      ]
+    },
+    {
+      "query_id": "info_women_strength",
+      "query": "strength training for women",
+      "intent": {
+        "topic": "strength",
+        "audience": "women"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 18
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/best-intermediate-powerlifting-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 16
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/bodybuilding-programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 19
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/fitness",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 29
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/the-double-funnel-of-programming",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 6,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 27
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/injury-rehab",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 7,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 30
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/push-pull-legs-hypertrophy-template",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 8,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 50
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 9,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 111
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/get-started/programs",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 10,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 113
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/hypertrophy/bodybuilding-ii-template-new",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 11,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 44
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 12,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 119
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/coaching/nutrition",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 13,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 31
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/the_texas_method",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 14,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 115
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-pt-iii",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 15,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 25
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-part-5",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 16,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 22
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/peaking-template-3",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 17,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 32
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 18,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/rehab/hip-rehab-template",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 51
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-part-i",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 23
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.californiastrength.com/programs-1-2",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 106
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-programs",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 0,
+          "reason": "teacher_distilled_v1",
+          "source_id": 84
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/training-templates/strength",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 40
+        }
+      ]
+    },
+    {
+      "query_id": "info_coaching_cues",
+      "query": "powerlifting technique coaching cues",
+      "intent": {
+        "topic": "powerlifting",
+        "question": "technique"
+      },
+      "candidate_collection": "source_evidence",
+      "candidates": [
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/training",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 1,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 12
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-deadlift",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 2,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 7
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-squat",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 3,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 8
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.strongerbyscience.com/how-to-bench",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 4,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 6
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://startingstrength.com/article/programming/two-years-two-days-a-week-coaching-a-female-novice-to-national-records",
+          "candidate_source": "retriever_hard_candidate",
+          "baseline_rank": 5,
+          "baseline_score": null,
+          "relevance": 2,
+          "reason": "teacher_distilled_v1",
+          "source_id": 119
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://rpstrength.com/blogs/articles/complete-hypertrophy-training-guide",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 132
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.powerliftingtowin.com/powerlifting-training-variables",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 88
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/shop/training-templates/rehab/low-back-pain-rehab-template-2",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 53
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/product-category/coaching",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 3,
+          "reason": "teacher_distilled_v1",
+          "source_id": 33
+        },
+        {
+          "program_id": null,
+          "canonical_url": "https://www.barbellmedicine.com/blog/programming-for-the-crossfit-games-athlete-part-5",
+          "candidate_source": "random_negative",
+          "baseline_rank": null,
+          "baseline_score": null,
+          "relevance": 1,
+          "reason": "teacher_distilled_v1",
+          "source_id": 22
+        }
+      ]
+    }
+  ]
+}

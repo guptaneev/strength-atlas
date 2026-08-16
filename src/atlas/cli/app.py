@@ -3,6 +3,7 @@ from typer import Typer
 from atlas.cli.commands.crawl import app as crawl_app
 from atlas.cli.commands.domain import app as domain_app
 from atlas.cli.commands.ingest import app as ingest_app
+from atlas.cli.commands.ml import app as ml_app
 from atlas.cli.commands.ops import app as ops_app
 from atlas.cli.commands.search import app as search_app
 from atlas.cli.commands.source import app as source_app
@@ -15,6 +16,7 @@ app.add_typer(crawl_app, name="crawl")
 app.add_typer(source_app, name="source")
 app.add_typer(search_app, name="search")
 app.add_typer(ops_app, name="ops")
+app.add_typer(ml_app, name="ml")
 
 
 @app.callback()

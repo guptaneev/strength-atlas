@@ -1,6 +1,8 @@
 from atlas.api import service
-from atlas.api.schemas import RetrievalDebugResponse
-from atlas.ask.contracts import AskAnswerRequest
+from atlas.api.schemas import RetrievalDebugResponse, SourceSearchItem
+from atlas.ask.contracts import AskAnswerRequest, RetrievalRequest
+from atlas.db.models import Document, Domain, Program, Source
+from atlas.search.programs import ProgramSearchFilters
 
 
 def _debug_payload() -> RetrievalDebugResponse:
@@ -114,3 +116,113 @@ def test_run_retrieval_debug_persists_trace(monkeypatch) -> None:
     )
     assert response.ask_response.status == "insufficient_evidence"
     assert observed["path"].endswith("retrieval-debug.jsonl")
+
+
+class _ReverseRuntime:
+    model_version = "model-v1"
+    is_loaded = True
+
+    def rerank(self, _query, candidates):
+        return list(reversed(candidates)), None
+
+
+class _RowSession:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def get(self, model, row_id):
+        return self.rows.get((model, row_id))
+
+
+def test_program_search_uses_reranker_and_preserves_metadata(monkeypatch) -> None:
+    domain = Domain(id=1, domain="example.com")
+    source = Source(
+        id=1,
+        url="https://example.com/programs",
+        canonical_url="https://example.com/programs",
+        domain_id=1,
+        title="Program Library",
+    )
+    document = Document(id=10, source_id=1, raw_text="training")
+    first = Program(id=20, document_id=10, name="First", days_per_week=3)
+    second = Program(
+        id=21,
+        document_id=10,
+        name="Beginner Four Day",
+        coach_name="Coach Example",
+        days_per_week=4,
+        specialization="powerlifting",
+        experience_level="beginner",
+        split_type="upper_lower",
+        summary="Four-day powerlifting plan.",
+    )
+    session = _RowSession({
+        (Domain, 1): domain,
+        (Source, 1): source,
+        (Document, 10): document,
+        (Program, 20): first,
+        (Program, 21): second,
+    })
+    monkeypatch.setattr(service, "search_programs", lambda *_args, **_kwargs: [first, second])
+    monkeypatch.setattr(service, "_configured_reranker", lambda _settings: _ReverseRuntime())
+    monkeypatch.setattr(service, "get_settings", lambda: type("_S", (), {"reranker_candidate_depth": 2})())
+
+    results = service.run_program_search(
+        session,
+        query="beginner four day powerlifting",
+        filters=ProgramSearchFilters(),
+        limit=1,
+    )
+    assert [item.id for item in results] == [21]
+    assert results[0].days_per_week == 4
+    assert results[0].coach_name == "Coach Example"
+    assert results[0].canonical_url == "https://example.com/programs"
+
+
+def test_informational_ask_reranks_source_evidence(monkeypatch) -> None:
+    first_source = Source(
+        id=1,
+        url="https://example.com/one",
+        canonical_url="https://example.com/one",
+        domain_id=1,
+        title="General Training",
+        latest_document_id=10,
+    )
+    second_source = Source(
+        id=2,
+        url="https://example.com/two",
+        canonical_url="https://example.com/two",
+        domain_id=1,
+        title="Bench Frequency",
+        latest_document_id=11,
+    )
+    session = _RowSession({
+        (Source, 1): first_source,
+        (Source, 2): second_source,
+        (Document, 10): Document(id=10, source_id=1, raw_text="general training"),
+        (Document, 11): Document(id=11, source_id=2, raw_text="bench frequency guidance"),
+    })
+    monkeypatch.setattr(service, "_configured_reranker", lambda _settings: _ReverseRuntime())
+    monkeypatch.setattr(
+        service,
+        "get_settings",
+        lambda: type("_S", (), {"reranker_candidate_depth": 2, "retrieval_debug_trace_path": "unused"})(),
+    )
+    monkeypatch.setattr(
+        service,
+        "run_source_search",
+        lambda *_args, **_kwargs: [
+            SourceSearchItem(id=1, canonical_url=first_source.canonical_url, title=first_source.title),
+            SourceSearchItem(id=2, canonical_url=second_source.canonical_url, title=second_source.title),
+        ],
+    )
+    monkeypatch.setattr(service, "run_program_search", lambda *_args, **_kwargs: [])
+    monkeypatch.setattr(service, "append_retrieval_trace", lambda *_args, **_kwargs: None)
+
+    response = service.run_retrieval_debug(
+        session,
+        RetrievalRequest(query="how often should I bench", max_sources=2, max_programs=1),
+    )
+    assert response.summary.retrieval_mode == "reranked"
+    assert [item.source_id for item in response.ask_response.evidence] == [2, 1]
+    assert response.ask_response.evidence[0].canonical_url == "https://example.com/two"

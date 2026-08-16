@@ -1,66 +1,59 @@
-# Operations Runbook (MVP)
+# Operations runbook
 
-## Daily ingest reliability workflow
+Use this runbook for routine corpus work and incident response. For deployment
+details, use the [production deployment guide](production-deployment.md).
 
-1. Review backlog and stale succeeded sources:
-   - `atlas ops backlog --json`
-2. Review admission quality and blocked domains:
-   - `atlas ops domain-quality --domain-policy-file docs/engineering/domain-crawl-policies.example.json --json`
-3. Run dry-run before production ops changes:
-   - `atlas ops dry-run --json`
-4. Execute controlled batch:
-   - `atlas ops run --json`
-5. Review run metrics:
-   - `atlas ops metrics --limit 20 --json`
+## Routine operator workflow
 
-## Ask API reliability checks
+```bash
+atlas ops backlog --json
+atlas ops domain-quality --domain-policy-file docs/engineering/domain-crawl-policies.example.json --json
+atlas ops dry-run --json
+atlas ops run --json
+atlas ops metrics --limit 20 --json
+```
 
-1. Watch for spikes in:
-   - 5xx responses
-   - `auth_error`
-   - `quota_exceeded`
-   - `rate_limited`
-2. Validate quota behavior using a test user:
-   - sign in via `/auth/login`
-   - confirm `GET /me/quota`
-   - submit Ask until blocked at configured limit
-3. Validate readiness before and after deploy:
-   - `GET /health` should return `200` with `{"status":"ok"}`
-   - `GET /ready` should return `200` only when DB and JWKS checks are healthy
+Review the dry-run before a production batch. Investigate blocked domains,
+failed crawls, and stale successful sources before increasing scope.
 
-## Incident patterns and actions
+## Service checks
 
-### High 5xx rate
+- `/health` returns `200` when the process is live.
+- `/ready` returns `200` only when database and authentication readiness pass.
+- `/retrieval/status` reports the configured model and its load state.
+- Watch 5xx, 504, auth failures, quota events, rate-limit events, and
+  `reranker_fallback` logs.
 
-1. Check deployment revision and recent config changes.
-2. Verify DB and Supabase auth connectivity.
-3. Roll back to previous stable Render revision if unresolved within 15 minutes.
+## Incident response
 
-### Auth failure spike
+### High 5xx or readiness failures
 
-1. Verify Supabase JWT issuer/JWKS settings:
-   - `ATLAS_SUPABASE_URL`, `ATLAS_SUPABASE_JWT_ISSUER`, `ATLAS_SUPABASE_JWKS_URL`
-2. Confirm clock sync on host.
-3. Check if Supabase rotated signing keys and restart service if needed.
+1. Inspect the active Cloud Run revision and recent logs.
+2. Check database connectivity, Supabase availability, and secret bindings.
+3. Route traffic to the previous verified revision if the issue is not resolved
+   promptly.
 
-### Quota unexpectedly denying early
+### Reranker fallback or slow first request
 
-1. Inspect `ask_quota_usage` rows for affected users.
-2. Confirm `ATLAS_ASK_LIFETIME_LIMIT` value.
-3. If needed, manually reset `used_count` for support-approved users.
+1. Confirm `/retrieval/status` after a ranked search.
+2. Check model archive URL, archive checksum, weights checksum, and runtime
+   service-account access.
+3. Review timeout and memory pressure before changing the configured reranker
+   timeout. Baseline order is the expected safe fallback.
 
-### Ask abuse / burst traffic
+### Auth, quota, or rate-limit anomaly
 
-1. Tighten:
-   - `ATLAS_ASK_IP_RATE_LIMIT_MAX_REQUESTS`
-   - `ATLAS_ASK_USER_RATE_LIMIT_MAX_REQUESTS`
-2. Add temporary reverse-proxy/WAF throttling.
-3. Keep deployment single-instance for MVP rate-limit consistency.
+1. Verify Supabase URL, JWKS/issuer configuration, and system time.
+2. Check the lifetime quota and current `ATLAS_ASK_*` configuration.
+3. Tighten rate limits or introduce upstream throttling for an abuse event.
+4. Reset a quota only through an approved support process.
 
-## Security hygiene
+## Release gate
 
-1. Never expose:
-   - `ATLAS_SUPABASE_SERVICE_KEY`
-   - `ATLAS_BROWSER_USE_API_KEY`
-2. Rotate keys immediately if leaked.
-3. Keep `.env` local-only and excluded from git.
+- [ ] Clean worktree and completed CI-quality checks
+- [ ] Migration job succeeds
+- [ ] Production health and readiness checks pass
+- [ ] Program search, source search, sign-in, and one Ask response are checked
+- [ ] Reranker status and evidence cards are verified
+- [ ] CORS, trusted hosts, HTTPS redirect, secrets, and rate limits are correct
+- [ ] Recent logs contain no unexplained errors or recurring fallback events

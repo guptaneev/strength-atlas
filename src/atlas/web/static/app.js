@@ -5,7 +5,7 @@ const MAX_QUERY_CHARS = 400;
 const DOMAIN_PATTERN = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
 
 const state = {
-  activeTab: "ask",
+  activeTab: "program",
   askCanAsk: true,
   askContactUrl: "",
   currentUserEmail: "",
@@ -153,6 +153,36 @@ function createMetaPill(text) {
   return node;
 }
 
+function confidenceLabel(value) {
+  if (typeof value !== "number") return "Quality not rated";
+  if (value >= 0.85) return "High source quality";
+  if (value >= 0.65) return "Moderate source quality";
+  return "Limited source quality";
+}
+
+function friendlyValue(value) {
+  return String(value || "").replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function friendlyStatus(value) {
+  if (value === "succeeded") return "Indexed";
+  if (value === "pending") return "Indexing";
+  if (value === "failed") return "Temporarily unavailable";
+  return "Status unavailable";
+}
+
+function createExternalLink(url, label = "View original source") {
+  const safeUrl = toSafeExternalUrl(url);
+  if (!safeUrl) return null;
+  const link = document.createElement("a");
+  link.className = "source-link";
+  link.href = safeUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = `${label} ↗`;
+  return link;
+}
+
 function createTrustChip(text) {
   const node = document.createElement("span");
   node.className = "trust-chip";
@@ -226,6 +256,7 @@ function setLoadingButton(button, busy, busyText, idleText) {
 
 function renderSkeleton(container, count = 3) {
   clearNode(container);
+  container.setAttribute("aria-busy", "true");
   for (let i = 0; i < count; i += 1) {
     const shell = document.createElement("div");
     shell.className = "skeleton";
@@ -240,6 +271,7 @@ function renderSkeleton(container, count = 3) {
 
 function renderEmpty(container, message) {
   clearNode(container);
+  container.setAttribute("aria-busy", "false");
   const node = document.createElement("div");
   node.className = "empty-state";
   node.textContent = message;
@@ -248,6 +280,7 @@ function renderEmpty(container, message) {
 
 function renderError(container, message) {
   clearNode(container);
+  container.setAttribute("aria-busy", "false");
   const node = document.createElement("div");
   node.className = "error-state";
   node.textContent = message;
@@ -267,7 +300,7 @@ function renderTrustChips() {
   if (state.domains.length) {
     refs.trustChips.appendChild(createTrustChip(`Sources include ${state.domains.slice(0, 2).join(", ")}`));
   } else {
-    refs.trustChips.appendChild(createTrustChip(`${state.summary.allowlisted_domains} allowlisted domains`));
+    refs.trustChips.appendChild(createTrustChip(`${state.summary.sources_succeeded} sources ready`));
   }
 
   refs.trustChips.appendChild(
@@ -284,12 +317,9 @@ function renderStatusBody() {
   }
 
   const rows = [
-    ["Domains", `${state.summary.domains_total} total (${state.summary.allowlisted_domains} allowlisted)`],
-    ["Sources", `${state.summary.sources_total} total (${state.summary.sources_pending} pending)`],
-    ["Programs", `${state.summary.programs_total}`],
-    ["Claims", `${state.summary.claims_total}`],
-    ["Recent failures", `${state.summary.recent_crawls_failed}/${state.summary.recent_crawls_analyzed}`],
-    ["Latest successful crawl", formatDate(state.summary.latest_successful_crawl_at)],
+    ["Research sources", `${state.summary.sources_succeeded}`],
+    ["Training programs", `${state.summary.programs_total}`],
+    ["Most recent update", formatDate(state.summary.latest_successful_crawl_at)],
   ];
 
   rows.forEach(([label, value]) => {
@@ -307,8 +337,8 @@ function updateQuickInputForTab() {
     refs.quickSubmit.textContent = state.askCanAsk && getAuthToken() ? "Ask" : "Ask";
     refs.advancedToggle.classList.remove("hidden");
   } else if (state.activeTab === "program") {
-    refs.quickQuery.placeholder = "Search programs (e.g., bench hypertrophy novice)";
-    refs.quickSubmit.textContent = "Search Programs";
+    refs.quickQuery.placeholder = "Find a four-day intermediate powerlifting program";
+    refs.quickSubmit.textContent = "Find programs";
     refs.advancedToggle.classList.add("hidden");
   } else {
     refs.quickQuery.placeholder = "Search sources (e.g., deadlift setup)";
@@ -325,13 +355,7 @@ function updateQuickInputForTab() {
 }
 
 function moveTabUnderline() {
-  const activeTab = refs.tabs.find((tab) => tab.dataset.tab === state.activeTab);
-  if (!activeTab) return;
-
-  const navRect = activeTab.parentElement.getBoundingClientRect();
-  const tabRect = activeTab.getBoundingClientRect();
-  refs.tabUnderline.style.width = `${tabRect.width}px`;
-  refs.tabUnderline.style.transform = `translateX(${tabRect.left - navRect.left}px)`;
+  // The active tab is styled in CSS, so the strict CSP needs no inline-style exception.
 }
 
 function setTab(tabName, focusTab = false) {
@@ -498,13 +522,14 @@ async function loadQuota(options = {}) {
 
 function renderAskResponse(payload) {
   clearNode(refs.askResults);
+  refs.askResults.setAttribute("aria-busy", "false");
 
   const card = document.createElement("article");
-  card.className = "result-card";
+  card.className = "result-card answer-card";
 
   const title = document.createElement("h2");
   title.className = "result-title";
-  title.textContent = payload.status === "ok" ? "Grounded Answer" : "Insufficient Evidence";
+  title.textContent = payload.status === "ok" ? "Atlas answer" : "The evidence is too limited";
   card.appendChild(title);
 
   const answer = document.createElement("p");
@@ -515,48 +540,47 @@ function renderAskResponse(payload) {
   const meta = document.createElement("div");
   meta.className = "result-meta";
   const evidenceCount = Array.isArray(payload.evidence) ? payload.evidence.length : 0;
-  meta.appendChild(createMetaPill(`Evidence: ${evidenceCount}`));
+  meta.appendChild(createMetaPill(`${evidenceCount} supporting source${evidenceCount === 1 ? "" : "s"}`));
   if (typeof payload.confidence === "number") {
-    meta.appendChild(createMetaPill(`Confidence: ${payload.confidence.toFixed(2)}`));
+    meta.appendChild(createMetaPill(confidenceLabel(payload.confidence)));
   }
-  meta.appendChild(createMetaPill(`Status: ${payload.status || "unknown"}`));
   card.appendChild(meta);
+  refs.askResults.appendChild(card);
 
   if (evidenceCount > 0) {
-    payload.evidence.forEach((item, idx) => {
-      const wrapper = document.createElement("div");
-      wrapper.className = "evidence-item";
-      wrapper.appendChild(
-        createText(
-          "evidence-ref",
-          `[${idx + 1}] ${domainFromUrl(item.canonical_url || "")} · source ${item.source_id} · doc ${item.document_id}`,
-        ),
-      );
-
-      if (item.title) {
-        wrapper.appendChild(createText("result-text", item.title));
-      }
-
-      if (item.canonical_url) {
-        const safeUrl = toSafeExternalUrl(item.canonical_url);
-        if (safeUrl) {
-          const link = document.createElement("a");
-          link.href = safeUrl;
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.textContent = "Open source";
-          wrapper.appendChild(link);
-        }
-      }
-      card.appendChild(wrapper);
+    const heading = document.createElement("h3");
+    heading.className = "results-heading";
+    heading.textContent = "Evidence used for this answer";
+    refs.askResults.appendChild(heading);
+    const seen = new Set();
+    payload.evidence.forEach((item) => {
+      const key = item.canonical_url || `${item.source_id}:${item.document_id}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      const wrapper = document.createElement("article");
+      wrapper.className = "result-card evidence-card";
+      wrapper.appendChild(createText("evidence-domain", item.domain || domainFromUrl(item.canonical_url || "")));
+      const evidenceTitle = document.createElement("h4");
+      evidenceTitle.className = "evidence-title";
+      evidenceTitle.textContent = item.source_title || item.title || "Supporting source";
+      wrapper.appendChild(evidenceTitle);
+      if (item.snippet) wrapper.appendChild(createText("evidence-excerpt", item.snippet));
+      const evidenceMeta = document.createElement("div");
+      evidenceMeta.className = "result-meta";
+      evidenceMeta.appendChild(createMetaPill(confidenceLabel(item.parse_confidence)));
+      const evidenceDate = item.published_at || item.last_crawled_at;
+      if (evidenceDate) evidenceMeta.appendChild(createMetaPill(`Reviewed ${formatDate(evidenceDate)}`));
+      wrapper.appendChild(evidenceMeta);
+      const link = createExternalLink(item.canonical_url);
+      if (link) wrapper.appendChild(link);
+      refs.askResults.appendChild(wrapper);
     });
   }
-
-  refs.askResults.appendChild(card);
 }
 
 function renderProgramResults(rows) {
   clearNode(refs.programResults);
+  refs.programResults.setAttribute("aria-busy", "false");
   if (!rows.length) {
     renderEmpty(refs.programResults, "No matching programs. Try a broader query.");
     return;
@@ -567,28 +591,25 @@ function renderProgramResults(rows) {
     card.className = "result-card";
     const title = document.createElement("h2");
     title.className = "result-title";
-    title.textContent = row.name || `Program #${row.id}`;
+    title.textContent = row.name || "Untitled training program";
     card.appendChild(title);
+
+    if (row.summary) card.appendChild(createText("program-summary", row.summary));
 
     const meta = document.createElement("div");
     meta.className = "result-meta";
-    meta.appendChild(createMetaPill(`Program: ${row.id}`));
-    meta.appendChild(createMetaPill(`Source: ${row.source_id || "n/a"}`));
-    if (typeof row.confidence === "number") {
-      meta.appendChild(createMetaPill(`Confidence: ${row.confidence.toFixed(2)}`));
-    }
+    if (row.experience_level) meta.appendChild(createMetaPill(friendlyValue(row.experience_level)));
+    if (row.days_per_week) meta.appendChild(createMetaPill(`${row.days_per_week} days / week`));
+    if (row.specialization) meta.appendChild(createMetaPill(friendlyValue(row.specialization)));
+    if (row.split_type) meta.appendChild(createMetaPill(`${friendlyValue(row.split_type)} split`));
     card.appendChild(meta);
 
+    const attribution = [row.coach_name, row.source_domain || domainFromUrl(row.canonical_url)].filter(Boolean).join(" · ");
+    if (attribution) card.appendChild(createText("program-attribution", attribution));
+
     if (row.canonical_url) {
-      const safeUrl = toSafeExternalUrl(row.canonical_url);
-      if (safeUrl) {
-        const link = document.createElement("a");
-        link.href = safeUrl;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        link.textContent = "Open source";
-        card.appendChild(link);
-      }
+      const link = createExternalLink(row.canonical_url, "Review program source");
+      if (link) card.appendChild(link);
     }
 
     refs.programResults.appendChild(card);
@@ -597,6 +618,7 @@ function renderProgramResults(rows) {
 
 function renderSourceResults(rows) {
   clearNode(refs.sourceResults);
+  refs.sourceResults.setAttribute("aria-busy", "false");
   if (!rows.length) {
     renderEmpty(refs.sourceResults, "No matching sources. Try a different phrase.");
     return;
@@ -607,15 +629,19 @@ function renderSourceResults(rows) {
     card.className = "result-card";
     const title = document.createElement("h2");
     title.className = "result-title";
-    title.textContent = `Source #${row.id}`;
+    title.textContent = row.title || row.domain || domainFromUrl(row.canonical_url);
     card.appendChild(title);
-    card.appendChild(createText("result-text", row.canonical_url));
+    if (row.excerpt) card.appendChild(createText("evidence-excerpt", row.excerpt));
 
     const meta = document.createElement("div");
     meta.className = "result-meta";
-    meta.appendChild(createMetaPill(`Status: ${row.status || "n/a"}`));
-    meta.appendChild(createMetaPill(`Last crawled: ${formatDate(row.last_crawled_at)}`));
+    meta.appendChild(createMetaPill(row.domain || domainFromUrl(row.canonical_url)));
+    if (row.published_at || row.last_crawled_at) meta.appendChild(createMetaPill(formatDate(row.published_at || row.last_crawled_at)));
+    meta.appendChild(createMetaPill(confidenceLabel(row.confidence)));
     card.appendChild(meta);
+
+    const link = createExternalLink(row.canonical_url);
+    if (link) card.appendChild(link);
 
     refs.sourceResults.appendChild(card);
   });
@@ -633,22 +659,20 @@ function renderSourceList(rows) {
     card.className = "result-card";
     const title = document.createElement("h2");
     title.className = "result-title";
-    title.textContent = row.title || `Source #${row.id}`;
+    title.textContent = row.title || row.domain || "Untitled source";
     card.appendChild(title);
 
     const meta = document.createElement("div");
     meta.className = "result-meta";
-    meta.appendChild(createMetaPill(`Domain: ${row.domain || "n/a"}`));
-    meta.appendChild(createMetaPill(`Status: ${row.status || "n/a"}`));
-    meta.appendChild(createMetaPill(`Last crawled: ${formatDate(row.last_crawled_at)}`));
+    meta.appendChild(createMetaPill(row.domain || domainFromUrl(row.canonical_url)));
+    meta.appendChild(createMetaPill(friendlyStatus(row.status)));
+    if (row.last_crawled_at) meta.appendChild(createMetaPill(`Reviewed ${formatDate(row.last_crawled_at)}`));
     card.appendChild(meta);
-
-    card.appendChild(createText("result-text", row.canonical_url));
 
     const inspectBtn = document.createElement("button");
     inspectBtn.className = "btn-secondary";
     inspectBtn.type = "button";
-    inspectBtn.textContent = "Inspect";
+    inspectBtn.textContent = "View source details";
     inspectBtn.addEventListener("click", () => loadSourceDetail(row.id));
     card.appendChild(inspectBtn);
 
@@ -668,43 +692,33 @@ function renderSourceDetail(data) {
   card.className = "result-card";
   const title = document.createElement("h2");
   title.className = "result-title";
-  title.textContent = data.title || `Source #${data.id}`;
+  title.textContent = data.title || data.domain || "Untitled source";
   card.appendChild(title);
 
   const meta = document.createElement("div");
   meta.className = "result-meta";
-  meta.appendChild(createMetaPill(`Domain: ${data.domain || "n/a"}`));
-  meta.appendChild(createMetaPill(`Status: ${data.status || "n/a"}`));
-  meta.appendChild(createMetaPill(`Type: ${data.source_type || "n/a"}`));
+  meta.appendChild(createMetaPill(data.domain || domainFromUrl(data.canonical_url)));
+  meta.appendChild(createMetaPill(friendlyStatus(data.status)));
+  if (data.source_type) meta.appendChild(createMetaPill(friendlyValue(data.source_type)));
   card.appendChild(meta);
 
-  card.appendChild(createText("result-text", `Last crawled: ${formatDate(data.last_crawled_at)}`));
+  if (data.author) card.appendChild(createText("program-attribution", `By ${data.author}`));
 
   if (data.canonical_url) {
-    const safeUrl = toSafeExternalUrl(data.canonical_url);
-    if (safeUrl) {
-      const link = document.createElement("a");
-      link.href = safeUrl;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = "Open source";
-      card.appendChild(link);
-    }
+      const link = createExternalLink(data.canonical_url);
+      if (link) card.appendChild(link);
   }
 
   if (Array.isArray(data.programs) && data.programs.length) {
     const label = document.createElement("div");
     label.className = "evidence-ref";
-    label.textContent = "Programs:";
+    label.textContent = "Programs described in this source";
     card.appendChild(label);
 
     data.programs.slice(0, 8).forEach((program) => {
       const row = document.createElement("div");
       row.className = "evidence-item";
-      row.appendChild(createText("result-text", program.name || `Program #${program.id}`));
-      if (typeof program.confidence === "number") {
-        row.appendChild(createText("evidence-ref", `Confidence: ${program.confidence.toFixed(2)}`));
-      }
+      row.appendChild(createText("result-text", program.name || "Untitled training program"));
       card.appendChild(row);
     });
   }
@@ -786,7 +800,7 @@ async function runAskQuery(query) {
       updateQuickInputForTab();
       return;
     }
-    renderError(refs.askResults, `Ask failed: ${err.message}`);
+    renderError(refs.askResults, err.code === "request_timed_out" ? "Atlas took too long to answer. Try a shorter question or try again." : err.message);
   } finally {
     setLoadingButton(refs.quickSubmit, false, "Ask", "Ask");
     updateQuickInputForTab();
@@ -818,7 +832,7 @@ async function runProgramQuery(query) {
     const rows = await readJson(await fetch(`/search/programs?${params.toString()}`));
     renderProgramResults(rows);
   } catch (err) {
-    renderError(refs.programResults, `Program search failed: ${err.message}`);
+    renderError(refs.programResults, err.code === "request_timed_out" ? "Program search timed out. Please try again." : `Program search is unavailable right now. ${err.message}`);
   } finally {
     setLoadingButton(refs.quickSubmit, false, "Search Programs", "Search Programs");
     updateQuickInputForTab();
@@ -869,7 +883,7 @@ async function loadSourceList(event) {
   refs.listLimit.value = String(listLimit);
   params.set("limit", String(listLimit));
   const domain = refs.listDomain.value.trim().toLowerCase();
-  const status = refs.listStatus.value.trim();
+  const status = refs.listStatus?.value.trim() || "";
   if (domain) params.set("domain", domain);
   if (status) params.set("status", status);
 
@@ -1161,11 +1175,11 @@ function bindEvents() {
 async function init() {
   bindEvents();
   setAdvancedVisibility(getAdvancedOpen());
-  setTab("ask", false);
+  setTab("program", false);
   renderEmpty(refs.askResults, "Sign in and submit a question to get a grounded answer.");
   renderEmpty(refs.programResults, "Search indexed programs from coaching sources.");
   renderEmpty(refs.sourceResults, "Search sources to inspect provenance.");
-  renderEmpty(refs.sourceListResults, "Load sources by domain/status.");
+  renderEmpty(refs.sourceListResults, "Browse sources by website.");
   renderEmpty(refs.sourceDetailOutput, "Select a source to inspect details.");
 
   await loadTrustAndStatus();
