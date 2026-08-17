@@ -77,16 +77,19 @@ def train_cmd(
     evidence_review: str = typer.Option(..., "--evidence-review"),
     output_dir: str = typer.Option(..., "--output-dir"),
     config: str = typer.Option("configs/reranker-v1.yaml", "--config"),
+    seed: int | None = typer.Option(None, "--seed", help="Override the training seed from the configuration file."),
     human_judgments: str | None = typer.Option(None, "--human-judgments", help="Optional authoritative program-grade overrides."),
     additional_program_dataset: str | None = typer.Option(None, "--additional-program-dataset", help="Frozen, fully judged program dataset to add to training."),
     additional_program_review: str | None = typer.Option(None, "--additional-program-review", help="Review export matching --additional-program-dataset."),
     fixed_evaluation_splits: str | None = typer.Option(None, "--fixed-evaluation-splits", help="JSON file with immutable validation and test query IDs."),
+    bootstrap_iterations: int = typer.Option(1000, "--bootstrap-iterations", min=1, help="Query-level bootstrap resamples for nDCG@10 intervals."),
     wandb_project: str | None = typer.Option(None, "--wandb-project", envvar="WANDB_PROJECT", help="W&B project; required when tracking is enabled."),
     wandb_entity: str | None = typer.Option(None, "--wandb-entity", envvar="WANDB_ENTITY"),
     wandb_run_name: str | None = typer.Option(None, "--wandb-run-name"),
     wandb_mode: str = typer.Option("disabled", "--wandb-mode", envvar="WANDB_MODE", help="disabled, offline, or online."),
 ) -> None:
     values = yaml.safe_load(Path(config).read_text(encoding="utf-8"))
+    training_seed = int(seed) if seed is not None else int(values["seed"])
     program_data = load_dataset(program_dataset, require_complete_judgments=True)
     human_labels = load_human_judgments(human_judgments) if human_judgments else {}
     if human_labels:
@@ -125,9 +128,10 @@ def train_cmd(
         batch_size=int(values["batch_size"]),
         learning_rate=float(values["learning_rate"]),
         epochs=int(values["epochs"]),
-        seed=int(values["seed"]),
+        seed=training_seed,
         authoritative_keys=authoritative,
         fixed_evaluation_query_ids=fixed_splits,
+        bootstrap_iterations=bootstrap_iterations,
         experiment_tracking=ExperimentTrackingConfig(
             project=wandb_project,
             entity=wandb_entity,

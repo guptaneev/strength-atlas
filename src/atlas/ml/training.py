@@ -121,6 +121,7 @@ def train_cross_encoder(
     authoritative_keys: set[tuple[str, str]] | None = None,
     experiment_tracking: ExperimentTrackingConfig | None = None,
     fixed_evaluation_query_ids: dict[str, set[str]] | None = None,
+    bootstrap_iterations: int = 1000,
 ) -> dict[str, Any]:
     """Fine-tune one regression cross-encoder across all candidate collections."""
     random.seed(seed)
@@ -205,7 +206,15 @@ def train_cross_encoder(
 
         model.eval()
         metrics = {
-            split: _evaluate_pairs(model, tokenizer, split_pairs[split], max_length=max_length, batch_size=batch_size)
+            split: _evaluate_pairs(
+                model,
+                tokenizer,
+                split_pairs[split],
+                max_length=max_length,
+                batch_size=batch_size,
+                bootstrap_iterations=bootstrap_iterations,
+                bootstrap_seed=seed,
+            )
             for split in ("validation", "test")
         }
         report = {
@@ -219,6 +228,7 @@ def train_cross_encoder(
             "batch_size": batch_size,
             "learning_rate": learning_rate,
             "epochs": epochs,
+            "bootstrap_iterations": bootstrap_iterations,
             "query_splits": {name: sorted(ids) for name, ids in split_ids.items()},
             "pair_counts": {name: len(values) for name, values in split_pairs.items()},
             "mean_training_loss": fmean(losses) if losses else None,
@@ -231,6 +241,7 @@ def train_cross_encoder(
                 f"{split}/{metric_name}": metric_value
                 for split, split_metrics in metrics.items()
                 for metric_name, metric_value in split_metrics.items()
+                if isinstance(metric_value, (int, float))
             }
             run.log({"train/mean_loss": report["mean_training_loss"], **metric_summary})
             _log_wandb_report_artifact(run, report_path)
@@ -333,28 +344,79 @@ def _grade_for_rank(rank: int, size: int) -> int:
     return 0
 
 
-def _evaluate_pairs(model, tokenizer, pairs: list[TrainingPair], *, max_length: int, batch_size: int) -> dict[str, float]:
+def _evaluate_pairs(
+    model,
+    tokenizer,
+    pairs: list[TrainingPair],
+    *,
+    max_length: int,
+    batch_size: int,
+    bootstrap_iterations: int,
+    bootstrap_seed: int,
+) -> dict[str, Any]:
     grouped: dict[str, list[TrainingPair]] = {}
     for pair in pairs:
         grouped.setdefault(pair.query_id, []).append(pair)
     baseline_rows = []
     model_rows = []
+    per_query_metrics: list[dict[str, float | str]] = []
     scorer = _LoadedScorer(model, tokenizer, max_length)
-    for query_pairs in grouped.values():
+    for query_id, query_pairs in grouped.items():
         baseline = sorted(query_pairs, key=lambda pair: pair.baseline_rank if pair.baseline_rank is not None else 10**9)
         scores = scorer.score(query_pairs[0].query, [pair.candidate_text for pair in query_pairs], batch_size=batch_size)
         reranked = [pair for _, pair in sorted(zip(scores, query_pairs, strict=True), key=lambda item: item[0], reverse=True)]
         total_relevant = sum(pair.relevance > 0 for pair in query_pairs)
         baseline_rows.append(evaluate_ranking([pair.relevance for pair in baseline], total_relevant=total_relevant, k=10))
         model_rows.append(evaluate_ranking([pair.relevance for pair in reranked], total_relevant=total_relevant, k=10))
+        per_query_metrics.append(
+            {
+                "query_id": query_id,
+                "baseline_ndcg_at_10": baseline_rows[-1].ndcg,
+                "reranker_ndcg_at_10": model_rows[-1].ndcg,
+                "baseline_mrr": baseline_rows[-1].reciprocal_rank,
+                "reranker_mrr": model_rows[-1].reciprocal_rank,
+            }
+        )
+    baseline_ndcg_values = [row.ndcg for row in baseline_rows]
+    reranker_ndcg_values = [row.ndcg for row in model_rows]
     return {
         "queries": float(len(grouped)),
-        "baseline_ndcg_at_10": fmean(row.ndcg for row in baseline_rows) if baseline_rows else 0.0,
-        "reranker_ndcg_at_10": fmean(row.ndcg for row in model_rows) if model_rows else 0.0,
-        "ndcg_at_10_delta": (fmean(row.ndcg for row in model_rows) - fmean(row.ndcg for row in baseline_rows)) if baseline_rows else 0.0,
+        "baseline_ndcg_at_10": fmean(baseline_ndcg_values) if baseline_rows else 0.0,
+        "reranker_ndcg_at_10": fmean(reranker_ndcg_values) if model_rows else 0.0,
+        "ndcg_at_10_delta": (fmean(reranker_ndcg_values) - fmean(baseline_ndcg_values)) if baseline_rows else 0.0,
         "baseline_mrr": fmean(row.reciprocal_rank for row in baseline_rows) if baseline_rows else 0.0,
         "reranker_mrr": fmean(row.reciprocal_rank for row in model_rows) if model_rows else 0.0,
+        "baseline_ndcg_at_10_bootstrap_95_ci": bootstrap_mean_confidence_interval(
+            baseline_ndcg_values,
+            iterations=bootstrap_iterations,
+            seed=bootstrap_seed,
+        ),
+        "reranker_ndcg_at_10_bootstrap_95_ci": bootstrap_mean_confidence_interval(
+            reranker_ndcg_values,
+            iterations=bootstrap_iterations,
+            seed=bootstrap_seed,
+        ),
+        "per_query_metrics": per_query_metrics,
     }
+
+
+def bootstrap_mean_confidence_interval(
+    values: list[float],
+    *,
+    iterations: int = 1000,
+    seed: int = 42,
+) -> dict[str, float | int]:
+    """Query-level nonparametric bootstrap interval for a mean metric."""
+    if not values:
+        return {"lower": 0.0, "upper": 0.0, "iterations": iterations}
+    if iterations < 1:
+        raise ValueError("bootstrap_iterations must be at least 1")
+    rng = random.Random(seed)
+    sample_size = len(values)
+    means = sorted(fmean(rng.choice(values) for _ in range(sample_size)) for _ in range(iterations))
+    lower_index = max(0, round((iterations - 1) * 0.025))
+    upper_index = min(iterations - 1, round((iterations - 1) * 0.975))
+    return {"lower": means[lower_index], "upper": means[upper_index], "iterations": iterations}
 
 
 class _LoadedScorer:

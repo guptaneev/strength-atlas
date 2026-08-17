@@ -92,6 +92,8 @@ historical holdout with
 Additional reviewed program data can be supplied through
 `--additional-program-dataset` and `--additional-program-review`; those query
 sets become training-only so they cannot leak into the fixed evaluation sets.
+Each evaluation report retains its query-level scores and reports a 95%
+query-bootstrap interval for nDCG@10 using 1,000 resamples by default.
 
 ## Serving
 
