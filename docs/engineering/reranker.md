@@ -121,6 +121,16 @@ latency and candidate count, and retrieval debug summaries expose separate
 source and program reranker timings. Fallbacks are represented explicitly and
 must not be interpreted as successful reranker latency measurements.
 
+## Benchmarking
+
+Use `scripts/benchmark_reranker.py` to measure a warmed 50-candidate workload.
+It reports p50/p99 latency, throughput, fixed-test nDCG@10, and CPU dynamic
+int8 results when the installed PyTorch backend supports quantized linear
+operators. Run it with `--device cuda` on a CUDA-capable runner to produce GPU
+numbers; do not compare a CPU and GPU result from different model artifacts or
+candidate counts. The report also includes Recall@3, which has more headroom
+than MRR for this corpus.
+
 The release artifact workflow, activation checks, and rollback procedure are in
 [the production deployment guide](../operations/production-deployment.md).
 

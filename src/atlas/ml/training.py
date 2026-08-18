@@ -359,6 +359,8 @@ def _evaluate_pairs(
         grouped.setdefault(pair.query_id, []).append(pair)
     baseline_rows = []
     model_rows = []
+    baseline_recall_at_3: list[float] = []
+    reranker_recall_at_3: list[float] = []
     per_query_metrics: list[dict[str, float | str]] = []
     scorer = _LoadedScorer(model, tokenizer, max_length)
     for query_id, query_pairs in grouped.items():
@@ -368,6 +370,8 @@ def _evaluate_pairs(
         total_relevant = sum(pair.relevance > 0 for pair in query_pairs)
         baseline_rows.append(evaluate_ranking([pair.relevance for pair in baseline], total_relevant=total_relevant, k=10))
         model_rows.append(evaluate_ranking([pair.relevance for pair in reranked], total_relevant=total_relevant, k=10))
+        baseline_recall_at_3.append(evaluate_ranking([pair.relevance for pair in baseline], total_relevant=total_relevant, k=3).recall)
+        reranker_recall_at_3.append(evaluate_ranking([pair.relevance for pair in reranked], total_relevant=total_relevant, k=3).recall)
         per_query_metrics.append(
             {
                 "query_id": query_id,
@@ -386,6 +390,9 @@ def _evaluate_pairs(
         "ndcg_at_10_delta": (fmean(reranker_ndcg_values) - fmean(baseline_ndcg_values)) if baseline_rows else 0.0,
         "baseline_mrr": fmean(row.reciprocal_rank for row in baseline_rows) if baseline_rows else 0.0,
         "reranker_mrr": fmean(row.reciprocal_rank for row in model_rows) if model_rows else 0.0,
+        "baseline_recall_at_3": fmean(baseline_recall_at_3) if baseline_recall_at_3 else 0.0,
+        "reranker_recall_at_3": fmean(reranker_recall_at_3) if reranker_recall_at_3 else 0.0,
+        "recall_at_3_delta": (fmean(reranker_recall_at_3) - fmean(baseline_recall_at_3)) if baseline_recall_at_3 else 0.0,
         "baseline_ndcg_at_10_bootstrap_95_ci": bootstrap_mean_confidence_interval(
             baseline_ndcg_values,
             iterations=bootstrap_iterations,
