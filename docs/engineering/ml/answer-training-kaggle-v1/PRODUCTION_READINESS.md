@@ -10,6 +10,8 @@
 - Mechanical citation-contract and verbosity evaluation completed
 - Blind candidate-level review packet generated
 - Feature-flagged serving client validates version, checksum, and citations
+- Standalone GPU inference server, CUDA image, guarded Cloud Run deployment,
+  and HTTP benchmark tooling implemented
 - Deterministic fallback remains the default on timeout or validation failure
 - Local automated test suite passes
 
@@ -20,8 +22,9 @@
 2. The human preference core has 91 pairs, below the approximately 200-pair
    target, and the larger model-assisted dataset has not been built.
 3. The answer-model HTTP endpoint has not been deployed and exercised in a
-   staging environment with the serving feature flag.
-4. GPU serving latency and throughput have not been benchmarked.
+   staging environment because no active gcloud identity is available locally.
+4. GPU serving latency and throughput tooling is complete, but the benchmark
+   cannot run until the staging endpoint exists.
 5. W&B logs are retained offline in the Kaggle artifact but are not synced to
    the tracked online project.
 

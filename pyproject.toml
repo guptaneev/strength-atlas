@@ -44,6 +44,11 @@ answer-training = [
   "trl>=0.20.0,<1.0.0",
   "wandb>=0.19.0,<1.0.0",
 ]
+answer-serving = [
+  "accelerate>=1.4.0,<2.0.0",
+  "peft>=0.15.0,<1.0.0",
+  "safetensors>=0.5.0,<1.0.0",
+]
 dev = [
   "pytest>=8.1.1",
 ]

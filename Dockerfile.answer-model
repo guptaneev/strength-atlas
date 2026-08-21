@@ -1,0 +1,25 @@
+FROM pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    HF_HOME=/var/atlas/huggingface
+
+WORKDIR /app
+
+RUN groupadd --system atlas \
+    && useradd --system --gid atlas --home-dir /app atlas \
+    && mkdir -p /var/atlas/models /var/atlas/huggingface \
+    && chown -R atlas:atlas /app /var/atlas
+
+COPY --chown=atlas:atlas pyproject.toml README.md /app/
+COPY --chown=atlas:atlas src /app/src
+COPY --chown=atlas:atlas scripts/start_answer_model.py /app/scripts/start_answer_model.py
+
+RUN pip install --upgrade pip \
+    && pip install ".[answer-serving]"
+
+USER atlas
+EXPOSE 8080
+
+CMD ["python", "/app/scripts/start_answer_model.py"]
