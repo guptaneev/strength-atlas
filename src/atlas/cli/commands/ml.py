@@ -18,6 +18,9 @@ from atlas.ml.review import build_labeling_review
 from atlas.ml.splits import split_queries
 from atlas.ml.training import ExperimentTrackingConfig, bootstrap_label_dataset, train_cross_encoder
 from atlas.ml.human_judgments import apply_human_judgments, load_human_judgments
+from atlas.ml.preferences import load_preference_dataset, preference_summary
+from atlas.ml.preference_export import export_answer_evidence
+from atlas.ml.answer_evaluation import evaluate_answer_records, summarize_human_review
 
 app = typer.Typer(help="Prepare and evaluate the reranker experiment dataset.")
 
@@ -81,6 +84,8 @@ def train_cmd(
     human_judgments: str | None = typer.Option(None, "--human-judgments", help="Optional authoritative program-grade overrides."),
     additional_program_dataset: str | None = typer.Option(None, "--additional-program-dataset", help="Frozen, fully judged program dataset to add to training."),
     additional_program_review: str | None = typer.Option(None, "--additional-program-review", help="Review export matching --additional-program-dataset."),
+    human_evaluation_dataset: str | None = typer.Option(None, "--human-evaluation-dataset", help="Frozen human-judged program dataset used only for held-out evaluation."),
+    human_evaluation_review: str | None = typer.Option(None, "--human-evaluation-review", help="Review export matching --human-evaluation-dataset."),
     fixed_evaluation_splits: str | None = typer.Option(None, "--fixed-evaluation-splits", help="JSON file with immutable validation and test query IDs."),
     bootstrap_iterations: int = typer.Option(1000, "--bootstrap-iterations", min=1, help="Query-level bootstrap resamples for nDCG@10 intervals."),
     wandb_project: str | None = typer.Option(None, "--wandb-project", envvar="WANDB_PROJECT", help="W&B project; required when tracking is enabled."),
@@ -113,6 +118,22 @@ def train_cmd(
             for candidate in query.candidates
             if candidate.program_id is not None
         )
+    if bool(human_evaluation_dataset) != bool(human_evaluation_review):
+        raise typer.BadParameter("--human-evaluation-dataset and --human-evaluation-review must be supplied together.")
+    evaluation_authoritative: set[tuple[str, str]] = set()
+    human_evaluation_query_ids: set[str] = set()
+    if human_evaluation_dataset and human_evaluation_review:
+        evaluation_data = load_dataset(human_evaluation_dataset, require_complete_judgments=True)
+        if evaluation_data.status != "frozen":
+            raise typer.BadParameter("--human-evaluation-dataset must be frozen.")
+        inputs.append((evaluation_data, json.loads(Path(human_evaluation_review).read_text(encoding="utf-8"))))
+        human_evaluation_query_ids = {query.query_id for query in evaluation_data.queries}
+        evaluation_authoritative = {
+            (query.query_id, f"program:{candidate.program_id}")
+            for query in evaluation_data.queries
+            for candidate in query.candidates
+            if candidate.program_id is not None
+        }
     fixed_splits = None
     if fixed_evaluation_splits:
         split_data = json.loads(Path(fixed_evaluation_splits).read_text(encoding="utf-8"))
@@ -120,6 +141,14 @@ def train_cmd(
             name: set(split_data.get(name, []))
             for name in ("validation", "test")
         }
+    if human_evaluation_query_ids:
+        if fixed_splits is None:
+            fixed_splits = {"validation": set(), "test": human_evaluation_query_ids}
+        else:
+            overlap = human_evaluation_query_ids & fixed_splits["validation"]
+            if overlap:
+                raise typer.BadParameter(f"Human evaluation queries overlap validation: {sorted(overlap)}")
+            fixed_splits["test"] = human_evaluation_query_ids
     report = train_cross_encoder(
         inputs,
         model_name=values["model_checkpoint"],
@@ -130,6 +159,7 @@ def train_cmd(
         epochs=int(values["epochs"]),
         seed=training_seed,
         authoritative_keys=authoritative,
+        evaluation_authoritative_keys=evaluation_authoritative,
         fixed_evaluation_query_ids=fixed_splits,
         bootstrap_iterations=bootstrap_iterations,
         experiment_tracking=ExperimentTrackingConfig(
@@ -201,3 +231,73 @@ def error_template_cmd(
 def error_summary_cmd(analysis: str = typer.Option(..., "--analysis"), json_output: bool = typer.Option(False, "--json")) -> None:
     summary = summarize_error_analysis(json.loads(Path(analysis).read_text(encoding="utf-8")))
     typer.echo(json.dumps(summary) if json_output else f"reviewed_queries={summary['reviewed_queries']} unreviewed_queries={summary['unreviewed_queries']}")
+
+
+@app.command("preference-summary")
+def preference_summary_cmd(
+    dataset: str = typer.Option(..., "--dataset", help="Evidence-grounded answer preference-pair JSON."),
+    json_output: bool = typer.Option(False, "--json"),
+) -> None:
+    """Validate a preference dataset and report human vs assisted labels separately."""
+    summary = preference_summary(load_preference_dataset(dataset))
+    if json_output:
+        typer.echo(json.dumps(summary))
+    else:
+        typer.echo(" ".join(f"{key}={value}" for key, value in summary.items()))
+
+
+@app.command("export-answer-evidence")
+def export_answer_evidence_cmd(
+    dataset: str = typer.Option(..., "--dataset", help="Query dataset used to retrieve source claims."),
+    output: str = typer.Option(..., "--output", help="Portable, source-attributed evidence JSON for offline generation."),
+    max_sources: int = typer.Option(6, "--max-sources", min=1, max=25),
+    claims_per_source: int = typer.Option(3, "--claims-per-source", min=1, max=10),
+) -> None:
+    """Export only retrieved indexed claims; safe to upload to a temporary GPU notebook."""
+    queries = load_dataset(dataset)
+    with SessionLocal() as session:
+        payload = export_answer_evidence(
+            session,
+            queries,
+            max_sources=max_sources,
+            claims_per_source=claims_per_source,
+        )
+    _write_json(output, payload)
+    typer.echo(f"Wrote {payload['query_count']} query evidence bundles to {output}.")
+
+
+@app.command("answer-evaluate")
+def answer_evaluate_cmd(
+    records: str = typer.Option(..., "--records", help="JSON array of generated answer records."),
+    output: str | None = typer.Option(None, "--output", help="Optional path for the aggregate report."),
+) -> None:
+    """Evaluate citation validity, grounding contract, and verbosity bias."""
+    payload = json.loads(Path(records).read_text(encoding="utf-8"))
+    if isinstance(payload, dict):
+        payload = payload.get("answers", payload.get("records"))
+    if not isinstance(payload, list):
+        raise typer.BadParameter("Records must be a JSON array or an object containing answers/records.")
+    report = evaluate_answer_records(payload)
+    if output:
+        _write_json(output, report)
+    typer.echo(json.dumps(report))
+
+
+@app.command("answer-review-summary")
+def answer_review_summary_cmd(
+    records: str = typer.Option(..., "--records", help="Generated answer records JSON."),
+    review: str = typer.Option(..., "--review", help="Human review JSON with query judgments."),
+    output: str | None = typer.Option(None, "--output", help="Optional report path."),
+) -> None:
+    """Apply query-level human judgments and report approval by model."""
+    records_payload = json.loads(Path(records).read_text(encoding="utf-8"))
+    if isinstance(records_payload, dict):
+        records_payload = records_payload.get("answers", records_payload.get("records"))
+    review_payload = json.loads(Path(review).read_text(encoding="utf-8"))
+    judgments = review_payload.get("judgments", review_payload) if isinstance(review_payload, dict) else review_payload
+    if not isinstance(records_payload, list) or not isinstance(judgments, list):
+        raise typer.BadParameter("Records and review must contain JSON arrays.")
+    report = summarize_human_review(records_payload, judgments)
+    if output:
+        _write_json(output, report)
+    typer.echo(json.dumps(report))

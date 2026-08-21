@@ -61,6 +61,15 @@ class Settings(BaseSettings):
     request_max_body_bytes: int = Field(default=131072, ge=1024, le=1048576)
     ask_request_timeout_seconds: int = Field(default=30, ge=1, le=120)
 
+    # Optional evidence-grounded answer model. Disabled by default; failures
+    # always return the deterministic evidence summary.
+    answer_model_enabled: bool = False
+    answer_model_url: Optional[str] = None
+    answer_model_version: str = "strength-atlas-answer-dpo-v1"
+    answer_model_artifact_sha256: Optional[str] = None
+    answer_model_api_key: Optional[str] = None
+    answer_model_timeout_seconds: float = Field(default=15.0, gt=0, le=120)
+
     # Ask quota and anti-abuse
     ask_lifetime_limit: int = Field(default=5, ge=1, le=10000)
     ask_ip_rate_limit_window_seconds: int = Field(default=60, ge=1, le=86400)

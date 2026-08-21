@@ -57,3 +57,4 @@ def test_program_candidate_fallback_uses_expanded_lexical_candidates_and_intent_
     assert " || " in sql
     assert "programs.days_per_week" in sql
     assert "programs.experience_level" in sql
+    assert "programs.specialization in" in sql

@@ -119,6 +119,7 @@ def train_cross_encoder(
     epochs: int = 2,
     seed: int = 42,
     authoritative_keys: set[tuple[str, str]] | None = None,
+    evaluation_authoritative_keys: set[tuple[str, str]] | None = None,
     experiment_tracking: ExperimentTrackingConfig | None = None,
     fixed_evaluation_query_ids: dict[str, set[str]] | None = None,
     bootstrap_iterations: int = 1000,
@@ -130,6 +131,7 @@ def train_cross_encoder(
     query_ids = sorted({pair.query_id for pair in pairs})
     random.Random(seed).shuffle(query_ids)
     authoritative_keys = authoritative_keys or set()
+    evaluation_authoritative_keys = evaluation_authoritative_keys or set()
     authoritative_query_ids = {query_id for query_id, _candidate_key in authoritative_keys}
     split_ids = _split_query_ids(
         query_ids,
@@ -158,6 +160,7 @@ def train_cross_encoder(
             "epochs": epochs,
             "seed": seed,
             "authoritative_human_judgments": len(authoritative_keys),
+            "held_out_human_judgments": len(evaluation_authoritative_keys),
             "query_counts": {name: len(ids) for name, ids in split_ids.items()},
             "pair_counts": {name: len(values) for name, values in split_pairs.items()},
         },
@@ -222,6 +225,15 @@ def train_cross_encoder(
             "base_checkpoint": model_name,
             "supervision": "teacher_distilled_v1",
             "authoritative_human_judgments": len(authoritative_keys),
+            "held_out_human_judgments": len(evaluation_authoritative_keys),
+            "evaluation_supervision": {
+                split: (
+                    "human_authoritative"
+                    if any(pair_key in evaluation_authoritative_keys for pair_key in ((pair.query_id, pair.candidate_key) for pair in split_pairs[split]))
+                    else "teacher_distilled"
+                )
+                for split in ("validation", "test")
+            },
             "warning": "Bootstrap labels are model-distilled; only recorded human overrides are authoritative.",
             "seed": seed,
             "max_length": max_length,

@@ -12,3 +12,10 @@ var/
 wandb/
 scratch_work/
 .DS_Store
+
+# Raw ML preference/evaluation records stay local or in private run artifacts.
+docs/engineering/ml/answer-preferences-*.json
+docs/engineering/ml/answer-approvals-*.json
+docs/engineering/ml/advanced-powerlifting-retrieval-fix-*.json
+docs/engineering/ml/answer-training-*/generated-answer-eval.json
+docs/engineering/ml/answer-training-*/blind-human-review-packet.json

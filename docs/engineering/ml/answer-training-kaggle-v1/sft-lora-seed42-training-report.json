@@ -1,0 +1,17 @@
+{
+  "method": "sft",
+  "model_id": "Qwen/Qwen2.5-3B-Instruct",
+  "seed": 42,
+  "train_pairs": 74,
+  "train_queries": 19,
+  "test_pairs": 17,
+  "test_queries": 5,
+  "qlora": false,
+  "metrics": {
+    "eval_loss": 2.1948885917663574,
+    "eval_runtime": 2.1828,
+    "eval_samples_per_second": 7.788,
+    "eval_steps_per_second": 7.788
+  },
+  "artifact_sha256": "65cf6d3a5f89ad562b8b822a289abb7bbedbf2da1d2786bd98c015414d519444"
+}

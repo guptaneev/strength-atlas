@@ -27,3 +27,17 @@ def test_fixed_evaluation_split_rejects_label_leakage() -> None:
             authoritative_query_ids={"test"},
             fixed_evaluation_query_ids={"validation": set(), "test": {"test"}},
         )
+
+
+def test_human_evaluation_queries_can_be_held_out_when_not_training_authoritative() -> None:
+    splits = _split_query_ids(
+        ["train", "human_test"],
+        seed=42,
+        authoritative_query_ids=set(),
+        fixed_evaluation_query_ids={"validation": set(), "test": {"human_test"}},
+    )
+    assert splits == {
+        "train": {"train"},
+        "validation": set(),
+        "test": {"human_test"},
+    }

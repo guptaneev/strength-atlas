@@ -161,6 +161,14 @@ def _intent_score(intent: QueryIntent):
         score = score + case((Program.experience_level == intent.experience_level, 3), else_=0)
     if intent.split_type is not None:
         score = score + case((Program.split_type == intent.split_type, 2), else_=0)
+    # For powerlifting-specialization queries, prioritize strength/powerlifting
+    # programs over adjacent CrossFit or general-fitness programs. This is a
+    # soft boost, not a hard filter: the candidate leg must retain recall.
+    if "powerlifting" in intent.terms or "powerlift" in intent.terms:
+        score = score + case(
+            (Program.specialization.in_(("powerlifting", "strength")), 3),
+            else_=0,
+        )
     return score
 
 

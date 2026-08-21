@@ -1,0 +1,44 @@
+{
+  "device": "cpu",
+  "model_path": "var/atlas/models/strength-atlas-cross-encoder-authoritative-v1",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "torch_version": "2.13.0",
+  "batch_size": 16,
+  "warmups": 10,
+  "iterations": 100,
+  "fp32": {
+    "latency": {
+      "candidate_count": 50,
+      "samples": 100,
+      "p50_ms": 242.19433311372995,
+      "p99_ms": 265.1958749629557,
+      "throughput_candidates_per_second": 205.25002330142647
+    },
+    "quality": {
+      "queries": 6,
+      "baseline_ndcg_at_10": 0.5618563848828532,
+      "reranker_ndcg_at_10": 0.8455060602784248,
+      "baseline_recall_at_3": 0.2333333333333333,
+      "reranker_recall_at_3": 0.2833333333333333
+    }
+  },
+  "int8": {
+    "latency": {
+      "candidate_count": 50,
+      "samples": 100,
+      "p50_ms": 608.2172910682857,
+      "p99_ms": 712.8067500889301,
+      "throughput_candidates_per_second": 80.97272190417132
+    },
+    "quality": {
+      "queries": 6,
+      "baseline_ndcg_at_10": 0.5618563848828532,
+      "reranker_ndcg_at_10": 0.8624334300338794,
+      "baseline_recall_at_3": 0.2333333333333333,
+      "reranker_recall_at_3": 0.2833333333333333
+    }
+  },
+  "int8_p50_speedup_percent": -60.17963700302984,
+  "int8_quality_delta_ndcg_at_10": 0.016927369755454613
+}

@@ -1,0 +1,75 @@
+{
+  "records": 25,
+  "queries": 5,
+  "models": {
+    "base": {
+      "queries": 5,
+      "citation_validity": 1.0,
+      "citation_presence": 0.6,
+      "gold_citation_recall_nonempty": 0.25,
+      "gold_citation_queries": 4,
+      "mean_answer_words": 32.4
+    },
+    "dpo-seed42": {
+      "queries": 5,
+      "citation_validity": 1.0,
+      "citation_presence": 1.0,
+      "gold_citation_recall_nonempty": 0.375,
+      "gold_citation_queries": 4,
+      "mean_answer_words": 26.6
+    },
+    "dpo-seed43": {
+      "queries": 5,
+      "citation_validity": 1.0,
+      "citation_presence": 1.0,
+      "gold_citation_recall_nonempty": 0.375,
+      "gold_citation_queries": 4,
+      "mean_answer_words": 20.6
+    },
+    "dpo-seed44": {
+      "queries": 5,
+      "citation_validity": 1.0,
+      "citation_presence": 1.0,
+      "gold_citation_recall_nonempty": 0.375,
+      "gold_citation_queries": 4,
+      "mean_answer_words": 24.2
+    },
+    "sft-seed42": {
+      "queries": 5,
+      "citation_validity": 1.0,
+      "citation_presence": 0.6,
+      "gold_citation_recall_nonempty": 0.25,
+      "gold_citation_queries": 4,
+      "mean_answer_words": 32.4
+    }
+  },
+  "dpo_seed_aggregate": {
+    "citation_validity": {
+      "mean": 1.0,
+      "sample_std": 0.0
+    },
+    "citation_presence": {
+      "mean": 1.0,
+      "sample_std": 0.0
+    },
+    "gold_citation_recall_nonempty": {
+      "mean": 0.375,
+      "sample_std": 0.0
+    },
+    "mean_answer_words": {
+      "mean": 23.8,
+      "sample_std": 3.0199337741082997
+    }
+  },
+  "exact_base_answer_matches": {
+    "sft-seed42": 5,
+    "dpo-seed42": 1,
+    "dpo-seed43": 2,
+    "dpo-seed44": 2
+  },
+  "limitations": [
+    "These are mechanical citation and length checks, not human preference judgments.",
+    "Gold-citation recall measures overlap with the preferred answer's citations, not factual correctness.",
+    "Only five held-out queries were generated; blind human review is still required."
+  ]
+}

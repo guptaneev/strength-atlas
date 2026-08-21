@@ -64,6 +64,9 @@ class AskAtlasResponse(BaseModel):
     confidence: float | None = None
     evidence: list[EvidenceCard] = Field(default_factory=list)
     status: Literal["ok", "insufficient_evidence"] = "ok"
+    answer_mode: str = "deterministic"
+    answer_model_version: str | None = None
+    answer_fallback_reason: str | None = None
 
 
 class AskAnswerRequest(RetrievalRequest):

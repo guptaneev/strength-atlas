@@ -3,6 +3,7 @@ from atlas.api.schemas import RetrievalDebugResponse, SourceSearchItem
 from atlas.ask.contracts import AskAnswerRequest, RetrievalRequest
 from atlas.db.models import Document, Domain, Program, Source
 from atlas.search.programs import ProgramSearchFilters
+from atlas.ml.answer_inference import AnswerModelOutcome
 
 
 def _debug_payload() -> RetrievalDebugResponse:
@@ -87,6 +88,75 @@ def test_run_answer_can_hide_evidence(monkeypatch) -> None:
     )
     assert response.status == "ok"
     assert response.evidence == []
+
+
+def test_run_answer_uses_feature_flagged_model_and_records_version(monkeypatch) -> None:
+    monkeypatch.setattr(service, "run_retrieval_debug", lambda *_args, **_kwargs: _debug_payload())
+    monkeypatch.setattr(
+        service,
+        "get_settings",
+        lambda: type(
+            "_S",
+            (),
+            {
+                "answer_model_enabled": True,
+                "answer_model_url": "https://model.invalid/generate",
+                "answer_model_version": "dpo-v1",
+                "answer_model_artifact_sha256": "abc123",
+                "answer_model_api_key": None,
+                "answer_model_timeout_seconds": 1.0,
+            },
+        )(),
+    )
+    monkeypatch.setattr(
+        service.HttpAnswerModel,
+        "generate",
+        lambda *_args, **_kwargs: AnswerModelOutcome(
+            answer="Train three times weekly. [e1]",
+            mode="answer_model",
+            model_version="dpo-v1",
+            artifact_sha256="abc123",
+        ),
+    )
+    response = service.run_answer(session=object(), request=AskAnswerRequest(query="bench frequency"))
+    assert response.answer == "Train three times weekly. [e1]"
+    assert response.answer_mode == "answer_model"
+    assert response.answer_model_version == "dpo-v1"
+
+
+def test_run_answer_preserves_deterministic_response_on_model_failure(monkeypatch) -> None:
+    monkeypatch.setattr(service, "run_retrieval_debug", lambda *_args, **_kwargs: _debug_payload())
+    monkeypatch.setattr(
+        service,
+        "get_settings",
+        lambda: type(
+            "_S",
+            (),
+            {
+                "answer_model_enabled": True,
+                "answer_model_url": "https://model.invalid/generate",
+                "answer_model_version": "dpo-v1",
+                "answer_model_artifact_sha256": "abc123",
+                "answer_model_api_key": None,
+                "answer_model_timeout_seconds": 1.0,
+            },
+        )(),
+    )
+    monkeypatch.setattr(
+        service.HttpAnswerModel,
+        "generate",
+        lambda *_args, **_kwargs: AnswerModelOutcome(
+            answer=None,
+            mode="deterministic_fallback",
+            model_version="dpo-v1",
+            artifact_sha256="abc123",
+            fallback_reason="citation_contract_violation",
+        ),
+    )
+    response = service.run_answer(session=object(), request=AskAnswerRequest(query="bench frequency"))
+    assert "Found 2 grounded evidence items." in response.answer
+    assert response.answer_mode == "deterministic_fallback"
+    assert response.answer_fallback_reason == "citation_contract_violation"
 
 
 def test_run_retrieval_debug_persists_trace(monkeypatch) -> None:

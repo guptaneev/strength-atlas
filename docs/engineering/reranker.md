@@ -43,6 +43,17 @@ that query. All remaining bootstrap grades are teacher-distilled supporting
 data, not claimed as human relevance truth. The artifact's `training-report.json`
 records this distinction, exact splits, pair counts, parameters, and results.
 
+### Human-held-out audit
+
+A later audit retrained seeds 42, 43, and 44 while keeping five fully reviewed
+queries (100 judgments) out of training. On those human-authoritative queries,
+baseline nDCG@10 was `0.6622`; the reranker averaged `0.7049 +/- 0.0072` across
+seeds. Recall@3 moved in the opposite direction, from `0.1802` to `0.1535`.
+This mixed result is the defensible human benchmark and should be reported
+alongside, not replaced by, the larger teacher-labelled improvement. The
+aggregate is checked in as
+[`reranker-human-heldout-summary-v1.json`](ml/reranker-human-heldout-summary-v1.json).
+
 ## Reproduce the pipeline
 
 Candidate pooling, review export, teacher bootstrap, training, splits, baseline
@@ -130,6 +141,13 @@ operators. Run it with `--device cuda` on a CUDA-capable runner to produce GPU
 numbers; do not compare a CPU and GPU result from different model artifacts or
 candidate counts. The report also includes Recall@3, which has more headroom
 than MRR for this corpus.
+
+On the August 2026 Apple CPU run, FP32 reranked 50 candidates at `242.2 ms`
+p50 and `265.2 ms` p99 with throughput of `205.3 candidates/s`. Dynamic int8
+was `60.2%` slower on the available QNNPACK backend, so it is not a release
+optimization. The full machine-local result is checked in as
+[`reranker-cpu-benchmark-v1.json`](ml/reranker-cpu-benchmark-v1.json). CUDA was
+unavailable on that machine and requires a separate run using the same artifact.
 
 The release artifact workflow, activation checks, and rollback procedure are in
 [the production deployment guide](../operations/production-deployment.md).

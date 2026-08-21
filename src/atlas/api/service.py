@@ -37,6 +37,7 @@ from atlas.ml.inference import (
     get_reranker_runtime,
     rerank_items_safely,
 )
+from atlas.ml.answer_inference import HttpAnswerModel
 
 logger = logging.getLogger("atlas.retrieval")
 
@@ -496,11 +497,55 @@ def run_answer(
         lines.append("Only one supporting source was found, so this answer carries meaningful uncertainty.")
     lines.append("Use evidence cards below for transparent source-level verification.")
 
+    deterministic_answer = " ".join(lines)
+    answer = deterministic_answer
+    answer_mode = "deterministic"
+    answer_model_version = None
+    answer_fallback_reason = None
+    settings = get_settings()
+    if settings.answer_model_enabled:
+        if not settings.answer_model_url:
+            answer_mode = "deterministic_fallback"
+            answer_model_version = settings.answer_model_version
+            answer_fallback_reason = "missing_model_url"
+        else:
+            model = HttpAnswerModel(
+                url=settings.answer_model_url,
+                model_version=settings.answer_model_version,
+                artifact_sha256=settings.answer_model_artifact_sha256,
+                api_key=settings.answer_model_api_key,
+                timeout_seconds=settings.answer_model_timeout_seconds,
+            )
+            model_evidence = [
+                {
+                    "evidence_id": f"e{index}",
+                    "title": item.title,
+                    "text": item.snippet or "",
+                    "canonical_url": item.canonical_url,
+                }
+                for index, item in enumerate(evidence, start=1)
+            ]
+            outcome = model.generate(query=request.query, evidence=model_evidence)
+            answer_model_version = outcome.model_version
+            answer_mode = outcome.mode
+            answer_fallback_reason = outcome.fallback_reason
+            if outcome.answer is not None:
+                answer = outcome.answer
+    logger.info(
+        "ask_answer answer_mode=%s model_version=%s fallback_reason=%s",
+        answer_mode,
+        answer_model_version or "none",
+        answer_fallback_reason or "none",
+    )
+
     return AskAtlasResponse(
-        answer=" ".join(lines),
+        answer=answer,
         confidence=avg_conf,
         evidence=evidence if request.include_evidence else [],
         status="ok",
+        answer_mode=answer_mode,
+        answer_model_version=answer_model_version,
+        answer_fallback_reason=answer_fallback_reason,
     )
 
 

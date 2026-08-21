@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import platform
 import statistics
 import time
 from collections import defaultdict
@@ -113,6 +114,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--warmups", type=int, default=10)
     parser.add_argument("--iterations", type=int, default=100)
     parser.add_argument("--skip-int8", action="store_true", help="Run only the FP32 latency and quality measurement.")
+    parser.add_argument("--output", type=Path, help="Optional JSON report path.")
     return parser.parse_args()
 
 
@@ -139,17 +141,27 @@ def main() -> int:
         "latency": benchmark_latency(fp32, query, benchmark_texts, batch_size=args.batch_size, warmups=args.warmups, iterations=args.iterations),
         "quality": evaluate_quality(fp32, test_pairs, batch_size=args.batch_size),
     }
-    result: dict[str, object] = {"device": args.device, "fp32": fp32_result}
+    result: dict[str, object] = {
+        "device": args.device,
+        "model_path": str(args.model_path),
+        "platform": platform.platform(),
+        "machine": platform.machine(),
+        "torch_version": torch.__version__,
+        "batch_size": args.batch_size,
+        "warmups": args.warmups,
+        "iterations": args.iterations,
+        "fp32": fp32_result,
+    }
     if args.device == "cpu" and not args.skip_int8:
         if not torch.backends.quantized.supported_engines:
             result["int8"] = {"status": "unavailable", "reason": "No PyTorch quantized CPU backend is available."}
-            print(json.dumps(result, indent=2))
+            _emit_report(result, args.output)
             return 0
         try:
             int8 = CrossEncoder(args.model_path, device="cpu", int8=True)
         except RuntimeError as exc:
             result["int8"] = {"status": "unavailable", "reason": str(exc)}
-            print(json.dumps(result, indent=2))
+            _emit_report(result, args.output)
             return 0
         int8_result = {
             "latency": benchmark_latency(int8, query, benchmark_texts, batch_size=args.batch_size, warmups=args.warmups, iterations=args.iterations),
@@ -160,8 +172,16 @@ def main() -> int:
             (fp32_result["latency"]["p50_ms"] / int8_result["latency"]["p50_ms"] - 1) * 100
         )
         result["int8_quality_delta_ndcg_at_10"] = int8_result["quality"]["reranker_ndcg_at_10"] - fp32_result["quality"]["reranker_ndcg_at_10"]
-    print(json.dumps(result, indent=2))
+    _emit_report(result, args.output)
     return 0
+
+
+def _emit_report(result: dict[str, object], output: Path | None) -> None:
+    rendered = json.dumps(result, indent=2) + "\n"
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(rendered, encoding="utf-8")
+    print(rendered, end="")
 
 
 if __name__ == "__main__":

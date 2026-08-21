@@ -43,7 +43,13 @@ artifact, inference, timeout, or capacity failure leaves the baseline ordering
 in place.
 
 Ask Atlas retrieves evidence and builds a deterministic answer from that
-evidence. It is intentionally not a free-form language-model completion path.
+evidence by default. An optional answer-model endpoint is gated by
+`ATLAS_ANSWER_MODEL_ENABLED`. Its response is accepted only when the configured
+model version and artifact checksum match and every citation refers to supplied
+evidence. Network errors, timeouts, malformed output, unknown citations, and
+version/checksum mismatches return the deterministic answer. Responses and logs
+record the serving mode, model version, and fallback reason.
+It is intentionally not an unconstrained free-form completion path.
 The endpoint requires Supabase-backed authentication, consumes a lifetime
 quota, and is limited by both client IP and user identity.
 

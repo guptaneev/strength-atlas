@@ -1,0 +1,32 @@
+{
+  "split": "test",
+  "evaluation_supervision": "human_authoritative",
+  "queries": [
+    "human_v2_autoregulated_hypertrophy_4_day",
+    "human_v2_deadlift_plateau_accessories",
+    "human_v2_full_body_strength_3_day",
+    "human_v2_intermediate_powerlifting_peak_4_day",
+    "human_v2_novice_woman_strength_3_day"
+  ],
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "baseline_ndcg_at_10": 0.6621628752974822,
+  "reranker_ndcg_at_10_by_seed": [
+    0.7099982401124592,
+    0.7080846068061135,
+    0.6966387592099585
+  ],
+  "reranker_ndcg_at_10_mean": 0.7049072020428437,
+  "reranker_ndcg_at_10_sample_std": 0.0072243240699948336,
+  "baseline_recall_at_3": 0.18020639834881322,
+  "reranker_recall_at_3_by_seed": [
+    0.15353973168214655,
+    0.15353973168214655,
+    0.15353973168214655
+  ],
+  "reranker_recall_at_3_mean": 0.15353973168214655,
+  "reranker_recall_at_3_sample_std": 0.0
+}

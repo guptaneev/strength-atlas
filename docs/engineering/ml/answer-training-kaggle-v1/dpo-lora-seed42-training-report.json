@@ -1,0 +1,17 @@
+{
+  "method": "dpo",
+  "model_id": "Qwen/Qwen2.5-3B-Instruct",
+  "seed": 42,
+  "train_pairs": 74,
+  "train_queries": 19,
+  "test_pairs": 17,
+  "test_queries": 5,
+  "qlora": false,
+  "metrics": {
+    "eval_loss": 0.6363319158554077,
+    "eval_runtime": 8.3918,
+    "eval_samples_per_second": 2.026,
+    "eval_steps_per_second": 2.026
+  },
+  "artifact_sha256": "e3572e2a82d52fe3ba9687f23b826e5e23774437328d79d5a0d5cc7bf3c1175b"
+}

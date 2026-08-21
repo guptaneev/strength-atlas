@@ -36,6 +36,14 @@ dependencies = [
 experiment = [
   "wandb>=0.19.0,<1.0.0",
 ]
+answer-training = [
+  "accelerate>=1.4.0,<2.0.0",
+  "bitsandbytes>=0.45.0,<1.0.0; platform_system == 'Linux'",
+  "datasets>=3.2.0,<5.0.0",
+  "peft>=0.15.0,<1.0.0",
+  "trl>=0.20.0,<1.0.0",
+  "wandb>=0.19.0,<1.0.0",
+]
 dev = [
   "pytest>=8.1.1",
 ]

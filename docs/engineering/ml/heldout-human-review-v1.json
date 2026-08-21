@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "split": "human_reviewed_heldout",
+  "reviewer": "product_owner",
+  "source_records": "/kaggle/working/generated-answer-eval.json",
+  "judgments": [
+    {
+      "query_id": "first_meet",
+      "decision": "approve",
+      "applies_to_models": ["base", "dpo-seed42", "dpo-seed43", "dpo-seed44"]
+    },
+    {
+      "query_id": "advanced_powerlifting",
+      "decision": "reject",
+      "applies_to_models": ["base", "dpo-seed42", "dpo-seed43", "dpo-seed44"],
+      "reason": "Original generated answer did not sufficiently establish the recommendation.",
+      "corrected_candidate": "docs/engineering/ml/advanced-powerlifting-retrieval-fix-v1.json",
+      "corrected_candidate_approval": "approved"
+    },
+    {
+      "query_id": "bodybuilding_intermediate",
+      "decision": "approve",
+      "applies_to_models": ["base", "dpo-seed42", "dpo-seed43", "dpo-seed44"]
+    },
+    {
+      "query_id": "powerbuilding",
+      "decision": "approve",
+      "applies_to_models": ["base", "dpo-seed42", "dpo-seed43", "dpo-seed44"]
+    },
+    {
+      "query_id": "full_body_3_day",
+      "decision": "approve",
+      "applies_to_models": ["base", "dpo-seed42", "dpo-seed43", "dpo-seed44"]
+    }
+  ]
+}
